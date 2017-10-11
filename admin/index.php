@@ -247,12 +247,19 @@ function ASTORE_getAdminField($fieldname, $fieldvalue, $A, $icon_arr)
         break;
 
     case 'title':
-        $X = new \SimpleXMLElement($fieldvalue);
-        $title = $X->ItemAttributes->Title;
+        if (!empty($fieldvalue)) {
+            // Protect against invalid elements that get into the catalog
+            // Suppress errors and check the result
+            libxml_use_internal_errors(true);
+            $X = simplexml_load_string($fieldvalue);
+            $title = $X->ItemAttributes->Title;
+        } else {
+            $title = NULL;
+        }
         if ($title !== NULL)  {
             $retval = $title->__toString();
         } else {
-            $retval = '';
+            $retval = '<i class="uk-icon uk-icon-exclamation-triangle ast-icon-danger"></i>&nbsp;<span class="ast-icon-danger">Invalid Item</span>';
         }
         break;
 

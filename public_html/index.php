@@ -21,9 +21,9 @@ $content = '';
 switch ($mode) {
 case 'detail':
     $item = new Astore\Item($asin);
+    $T = new Template(ASTORE_PI_PATH . '/templates');
+    $T->set_file('detail', 'detail.thtml');
     if (!$item->isError()) {
-        $T = new Template(ASTORE_PI_PATH . '/templates');
-        $T->set_file('detail', 'detail.thtml');
         $T->set_var(array(
             'item_url'  => $item->DetailURL(),
             'price'     => $item->FormattedPrice(),
@@ -35,11 +35,14 @@ case 'detail':
             'iconset'   => $_CONF_ASTORE['_iconset'],
             'long_description' => $item->EditorialReview(),
         ) );
-        $T->parse('output', 'detail');
-        $content .= $T->finish($T->get_var('output'));
     } else {
-        $content .= "not found";
+        $T->set_var(array(
+            'message'   => $LANG_ASTORE['item_not_found'],
+            'msg_class' => 'danger',
+        ) );
     }
+    $T->parse('output', 'detail');
+    $content .= $T->finish($T->get_var('output'));
     break;
 
 default:
@@ -60,26 +63,28 @@ default:
             $item = $items[$asin];
             unset($items[$asin]);
         }
-        $T->set_block('store', 'featured', 'fb');
-        $T->set_var(array(
-            'item_url'  => $item->DetailURL(),
-            'price'     => $item->FormattedPrice(),
-            'title'     => $item->Title(),
-            'img_url'   => $item->MediumImage()->URL,
-            'img_width' => $item->MediumImage()->Width,
-            'img_height' => $item->MediumImage()->Height,
-            'formattedprice' => $item->FormattedPrice(),
-            'long_description' => COM_truncate($item->EditorialReview(),
+        if (!$item->isError()) {
+            $T->set_block('store', 'featured', 'fb');
+            $T->set_var(array(
+                'item_url'  => $item->DetailURL(),
+                'price'     => $item->FormattedPrice(),
+                'title'     => $item->Title(),
+                'img_url'   => $item->MediumImage()->URL,
+                'img_width' => $item->MediumImage()->Width,
+                'img_height' => $item->MediumImage()->Height,
+                'formattedprice' => $item->FormattedPrice(),
+                'long_description' => COM_truncate($item->EditorialReview(),
                     $_CONF_ASTORE['max_feat_desc'], '...'),
-            'iconset'   => $_CONF_ASTORE['_iconset'],
-            'offers_url' => $item->OffersURL(),
-        ) );
-        $T->parse('fb', 'featured');
+                'iconset'   => $_CONF_ASTORE['_iconset'],
+                'offers_url' => $item->OffersURL(),
+            ) );
+            $T->parse('fb', 'featured');
+        }
     }
 
     $T->set_block('store', 'productbox', 'pb');
     foreach ($items as $item) {
-        //$item = new Astore\Item($asin);
+        if ($item->isError()) continue;
         $T->set_var(array(
             'item_url'  => $item->DetailURL(),
             'price'     => $item->FormattedPrice(),

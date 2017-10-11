@@ -23,6 +23,7 @@ $LANG_ASTORE = array(
 'version'   => 'Version',
 'new_asin'  => 'New Item No.',
 'add_item'  => 'Add Item',
+'item_not_found' => 'The requested item could not be found, or an error was encountered. Please check the item number and try again.',
 );
 
 // Localization of the Admin Configuration UI

@@ -47,7 +47,7 @@ class Item
         $data = self::_getCache($asin);
         if (empty($data)) {
             $data = self::_getAmazon(array($asin));
-            if ($_CONF_ASTORE['feat_to_catalog']) {
+            if (!empty($data) && $_CONF_ASTORE['feat_to_catalog']) {
                 self::AddToCatalog($asin);
             }
             return $data[$asin];
@@ -305,7 +305,13 @@ class Item
     */
     public function isError()
     {
-        return isset($this->data->Items->Request->Errors->Error->Code) ? true : false;
+        if (empty($this->data)) {
+            return true;
+        } elseif (isset($this->data->Items->Request->Errors->Error->Code)) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
 
