@@ -9,10 +9,21 @@ See [https://affiliate-program.amazon.com/](https://affiliate-program.amazon.com
   * Add products through the admin interface to appear on the store homepage.
   * Pass `asin=<ASIN>` to have any product displayed as a "featured" product.
     * Requested products can optionally be added to the catalog.
-  * Avoid Amazon request limits:
+  * Avoids Amazon request limits:
     * Items are retrieved from Amazon in bulk and cached.
     * A 1-second sleep() is induced if requests would be made too rapidly.
-  * Items can be automatically added to the catalog if individually requested
+
+## Usage
+Amazon requires that affiliate links be placed only on sites that the associate controls.
+For example, posting affiliate links in forums, Facebook, etc. is against the terms of service.
+
+This plugin allows you to post a link to an Amazon product page on your site, even if you have
+not added the item to your catalog.
+  * `https://example.com/astore/index.php?detail=XXXXX` leads to a product information page with
+a link to Amazon.
+  * `https://example.com/astore/index.php?asin=XXXXX` leads to your catalog page with product XXXX
+featured at the top of the page.
+  * `https//example.com/astore/index.php` leads to your catalog page.
 
 ## Configuration
 ### AWS Access Key, Secret Key, Associate ID
@@ -37,7 +48,7 @@ Enter a title for your store. This will be shown as a header on each page of
 your store. It does not show on the product detail page nor if this value is
 empty.
 
-### Add Featured Item to Catalog?
+### Auto-Add Items to Catalog?
 If this is &quot;Yes&quot; any items that are requested via the store URL
 (`http://yoursite.com/astore/index.php?asin=XXXXXX`) will be added to the
 product catalog. Set to &quot;No&quot; to ignore requested items.

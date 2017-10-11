@@ -34,7 +34,7 @@ $_ASTORE_DEFAULT = array(
     'aws_assoc_id' => '',
     'aws_country' => 'com',
     'aws_cache_min' => 30,
-    'feat_to_catalog' => false, // automatically add requested items to catalog
+    'auto_add_catalog' => false, // automatically add requested items to catalog
     'aws_debug' => false,
     'perpage'   => 20,
     'max_feat_desc' => 200,
@@ -73,7 +73,7 @@ function plugin_initconfig_astore($admin_group)
                 'text', 0, 0, 0, 60, true, $me);
         $c->add('aws_debug', $_ASTORE_DEFAULT['aws_debug'], 
                 'select', 0, 0, 2, 70, true, $me);
-        $c->add('feat_to_catalog', $_ASTORE_DEFAULT['feat_to_catalog'], 
+        $c->add('auto_add_catalog', $_ASTORE_DEFAULT['auto_add_catalog'], 
                 'select', 0, 0, 2, 80, true, $me);
         $c->add('perpage', $_ASTORE_DEFAULT['perpage'], 
                 'text', 0, 0, 0, 90, true, $me);

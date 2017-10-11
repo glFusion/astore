@@ -47,7 +47,7 @@ class Item
         $data = self::_getCache($asin);
         if (empty($data)) {
             $data = self::_getAmazon(array($asin));
-            if (!empty($data) && $_CONF_ASTORE['feat_to_catalog']) {
+            if (!empty($data) && $_CONF_ASTORE['auto_add_catalog']) {
                 self::AddToCatalog($asin);
             }
             return $data[$asin];
@@ -297,7 +297,7 @@ class Item
                 foreach ($data as $asin=>$info) {
                     $allitems[$asin] = new self();
                     $allitems[$asin]->data = $info;
-                    if ($_CONF_ASTORE['feat_to_catalog']) {
+                    if ($_CONF_ASTORE['auto_add_catalog']) {
                         // Automatically add featured items to catalog
                         self::AddToCatalog($asin);
                     }

@@ -79,8 +79,8 @@ case 'additem':
     $asin = isset($_POST['asin']) ? $_POST['asin'] : '';
     if (!empty($asin)) {
         $item = new Astore\Item($asin);
-        // Item is already added to the catalog if feat_to_catalog is set
-        if (!$_CONF_ASTORE['feat_to_catalog'] && 
+        // Item is already added to the catalog if auto_add_catalog is set
+        if (!$_CONF_ASTORE['auto_add_catalog'] && 
                 is_object($item) && !$item->isError()) {
             $status = Astore\Item::AddToCatalog($asin);
             if ($status) {
