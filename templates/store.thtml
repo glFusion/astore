@@ -1,0 +1,58 @@
+{# begin {templatelocation} #}
+{!if store_title}
+<div class="ast-store-title">
+  <h1>{store_title}</h1>
+</div>
+{!endif}
+
+<!-- BEGIN featured -->
+<div class="ast-featured-box">
+  <div style="float:left;width:140px">
+    <a target="_blank" href="{item_url}">
+      <img src="{img_url}" style="max-width: {img_width}; max-height: {img_height};" />
+    </a>
+  </div>
+  <div class="ast-featured-title" style="margin-left:150px;">
+    <h3>{title}</h3>
+    <span class="ast-featured-price">{formattedprice}</span>
+    <span class="ast-a-button ast-a-button-primary ast-floatright">
+      <a target="_blank" href="{item_url}" style="text-decoration:none">
+        <span class="ast-a-button-inner">
+          <img src="http://webservices.amazon.com/scratchpad/assets/images/Amazon-Favicon-64x64.png" class="ast-a-icon ast-a-icon-shop-now" />
+          <input class="ast-a-button-input" type="submit" value="Add to cart" />
+          <span class="ast-a-button-text">{$LANG_ASTORE['shop_now']}</span>
+        </span>
+      </a>
+    </span>
+  </div>
+  <div class="ast-featured-description">{long_description}</div>
+</div>
+<!-- END featured -->
+<!-- BEGIN productbox -->
+<div class="ast-product-box">
+  <a target="_blank" href="{item_url}">
+    <img src="{img_url}" style="max-width: {img_width}; max-height: {img_height};" />
+  </a>
+  <div class="ast-product-title">
+    <h3>{title}</h3>
+  </div>
+  <p class="ast-product-price">{formattedprice}<br />
+    <a target="_blank" href="{offers_url}"> More offers </a>
+  </p>
+  <div class="ast-a-button">
+    <span class="ast-a-button ast-a-button-primary">
+      <a target="_blank" href="{item_url}" style="text-decoration:none" rel="nofollow">
+        <span class="ast-a-button-inner">
+          <img src="http://webservices.amazon.com/scratchpad/assets/images/Amazon-Favicon-64x64.png" class="ast-a-icon ast-a-icon-shop-now" />
+          <input class="ast-a-button-input" type="submit" value="Add to cart" />
+          <span class="ast-a-button-text">{$LANG_ASTORE['shop_now']}</span>
+        </span>
+      </a>
+    </span>
+  </div>
+</div>
+<!-- END productbox -->
+<div class="ast-pagination">
+  {pagination}
+</div>
+{# end {templatelocation} #}
