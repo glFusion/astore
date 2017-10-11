@@ -21,6 +21,8 @@ $LANG_ASTORE = array(
 'title'     => 'Description',
 'items'     => 'Items',
 'version'   => 'Version',
+'new_asin'  => 'New Item No.',
+'add_item'  => 'Add Item',
 );
 
 // Localization of the Admin Configuration UI
@@ -41,6 +43,7 @@ $LANG_confignames['astore'] = array(
     'store_title' => 'Store Title',
     'max_feat_desc' => 'Max Featured Item Description (chars)',
     'max_blk_desc' => 'Max Item Description in blocks (chars)',
+    'sort' => 'Sort Order',
 );
 
 $LANG_configsubgroups['astore'] = array(
@@ -57,6 +60,8 @@ $LANG_configselects['astore'] = array(
     1 => array('com' => 'com', 'co.uk' => 'co.uk', 'ca' => 'ca', 'fr' => 'fr',
             'co.jp' => 'co.jp', 'it' => 'it', 'cn' => 'cn', 'es' => 'es', 'de' => 'de'),
     2 => array('Yes' => 1, 'No' => 0),
+    3 => array('None' => 'none', 'Date ASC' => 'fifo', 'Date DESC' => 'lifo',
+            'Random' => 'rand'),
 );
 
 ?>

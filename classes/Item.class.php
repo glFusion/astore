@@ -67,8 +67,9 @@ class Item
     {
         global $_CONF_ASTORE;
 
-        $now = time();
-        if (self::_getTimestamp() >= $now) {
+        $retval = array();
+
+        if (self::_getTimestamp() >= time()) {
             sleep(1);
         }
         if (is_array($asins)) {
@@ -96,7 +97,6 @@ class Item
         $string_to_sign = "GET\n".self::$endpoint."\n".self::$uri."\n".$query_string;
         $signature = base64_encode(hash_hmac('sha256', $string_to_sign,
                 self::_secretKey(), true));
-        //        $_CONF_ASTORE['aws_secret_key'], true));
         $request_url = 'http://'.self::$endpoint.self::$uri.'?'.$query_string.
                 '&Signature='.rawurlencode($signature);
 
@@ -112,22 +112,24 @@ class Item
         curl_setopt($ch, CURLOPT_ENCODING, '');
         curl_setopt($ch, CURLINFO_HEADER_OUT, true);
         $responseContent     = curl_exec($ch);
-        $response['headers'] = curl_getinfo($ch);
+        $responseHeaders = curl_getinfo($ch);
         curl_close($ch);
-        self::_setTimestamp();
 
-        $obj = new \SimpleXMLElement($responseContent);
-        $retval = array();
-
-        if (isset($obj->Error->Code)) {
-            COM_errorLog($asin . ': ' . $obj->Error->Message);
-        } else {
-            $Item = $obj->Items->Item;
-            foreach ($Item as $i) {
-                $asin = $i->ASIN->__toString();
-                self::_setCache($asin, $i->asXML());
-                $retval[$asin] = $i;
+        if ($responseHeaders['http_code'] == 200) {
+            self::_setTimestamp();
+            $obj = new \SimpleXMLElement($responseContent);
+            if (isset($obj->Error->Code)) {
+                self::_debug($asin . ': ' . $obj->Error->Message, true);
+            } else {
+                $Item = $obj->Items->Item;
+                foreach ($Item as $i) {
+                    $asin = $i->ASIN->__toString();
+                    self::_setCache($asin, $i->asXML());
+                    $retval[$asin] = $i;
+                }
             }
+        } else {
+            self::_debug("Error {$responseHeaders['http_code']} getting $asins", true);
         }
         return $retval;
     }
@@ -174,44 +176,6 @@ class Item
                     exp = UNIX_TIMESTAMP() + $cache_secs";
         //echo $sql;die;
         DB_query($sql);
-    }
-
-
-    /**
-    *   Calculate the new dimensions needed to keep the image within
-    *   the provided width & height while preserving the aspect ratio.
-    *
-    *   @param  string  $origpath   Original image path
-    *   @param  integer $width      New width, in pixels
-    *   @param  integer $height     New height, in pixels
-    *   @return mixed       array of dimensions, or false on error
-    */
-    public static function reDim($width, $height)
-    {
-        // get both sizefactors that would resize one dimension correctly
-        if ($width > 0 && $s_width > $width)
-            $sizefactor_w = (double)($width / $s_width);
-        else
-            $sizefactor_w = 1;
-
-        if ($height > 0 && $s_height > $height)
-            $sizefactor_h = (double)($height / $s_height);
-        else
-            $sizefactor_h = 1;
-
-        // Use the smaller factor to stay within the parameters
-        $sizefactor = min($sizefactor_w, $sizefactor_h);
-
-        $newwidth = (int)($s_width * $sizefactor);
-        $newheight = (int)($s_height * $sizefactor);
-
-        return array(
-            's_width'   => $s_width,
-            's_height'  => $s_height,
-            'd_width'   => $newwidth,
-            'd_height'  => $newheight,
-            'mime'      => $mime_type,
-        );
     }
 
 
@@ -264,7 +228,24 @@ class Item
             $allitems = array();
             $limit = (int)$_CONF_ASTORE['perpage'];
             $start = ((int)$page - 1) * $limit;
+            switch ($_CONF_ASTORE['sort']) {
+            case 'rand':
+                $orderby = 'RAND()';
+                break;
+            case 'lifo':
+                $orderby = 'ts DESC';
+                break;
+            case 'fifo':
+                $orderby = 'ts ASC';
+                break;
+            case 'none':
+            default:
+                $orderby = '';
+                break;
+            }
+            if ($orderby != '') $orderby = "ORDER BY $orderby";
             $sql = "SELECT asin FROM {$_TABLES['astore_catalog']}
+                    $orderby
                     LIMIT $start, $limit";
             //echo $sql;die;
             $res = DB_query($sql);
@@ -304,6 +285,7 @@ class Item
     *   Add an item to the catalog if not already present
     *
     *   @param  string  $asin   Item number
+    *   @return boolean         True on success, False on DB error
     */
     public static function AddToCatalog($asin)
     {
@@ -312,6 +294,7 @@ class Item
         $sql = "INSERT IGNORE INTO {$_TABLES['astore_catalog']} SET
                 asin = '" . DB_escapeString($asin) . "'";
         DB_query($sql);
+        return DB_error() ? false : true;
     }
 
 
@@ -396,13 +379,14 @@ class Item
     *   Log a debug message if aws_debug is enabled
     *
     *   @param  string  $text   Message to be logged
+    *   @param  boolean $force  True to log message regardless of debug setting
     */
-    private static function _debug($text)
+    private static function _debug($text, $force = false)
     {
         global $_CONF_ASTORE;
 
-        if ($_CONF_ASTORE['debug_aws']) {
-            COM_errorLog($text);
+        if ($force || $_CONF_ASTORE['debug_aws']) {
+            COM_errorLog('Astore:: ' . $text);
         }
     }
 

@@ -1,3 +1,4 @@
+{# begin {templatelocation} #}
 <div class="ast-product-detail">
   <div style="float:left;width:140px">
     <a target="_blank" href="{item_url}">
@@ -21,3 +22,4 @@
   </div>
   <div class="ast-detail-descrip">{long_description}</div>
 </div>
+{# end {templatelocation} #}

@@ -29,14 +29,8 @@ if (!file_exists(ASTORE_PI_PATH . '/language/' . $langfile)) {
 /** Import the plugin's language file */
 require_once ASTORE_PI_PATH . '/language/' . $langfile;
 
-//  Check and see if we need to load the plugin configuration
-if (!isset($_CONF_ASTORE['templatevars'])) {
-    /** Import the configuration class, if needed */
-    require_once $_CONF['path_system'] . 'classes/config.class.php';
-
-    $ast_config = config::get_instance();
-    $_CONF_ASTORE = $ast_config->get_config('astore');
-}
+$ast_config = config::get_instance();
+$_CONF_ASTORE = $ast_config->get_config('astore');
 
 /** Import static config values */
 require_once ASTORE_PI_PATH . '/astore.php';

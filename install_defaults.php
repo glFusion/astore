@@ -39,6 +39,7 @@ $_ASTORE_DEFAULT = array(
     'perpage'   => 20,
     'max_feat_desc' => 200,
     'max_blk_desc' => 50,
+    'sort' => 'none',       // storefront item sorting
 );
 
 /**
@@ -80,6 +81,8 @@ function plugin_initconfig_astore($admin_group)
                 'text', 0, 0, 0, 100, true, $me);
         $c->add('max_blk_desc', $_ASTORE_DEFAULT['max_blk_desc'], 
                 'text', 0, 0, 0, 110, true, $me);
+        $c->add('sort', $_ASTORE_DEFAULT['sort'], 
+                'select', 0, 0, 3, 120, true, $me);
         return true;
     } else {
         return false;

@@ -26,9 +26,7 @@ USES_lib_admin();
 $action = '';
 $actionval = '';
 $expected = array(
-    'save', 'delete', 'delitem', 'validate',
-    'edit', 'moderate', 'cancel',
-    'astores', 'categories', 'campaigns',
+    'additem', 'delitem',
     'mode', 'view',
 );
 
@@ -53,38 +51,8 @@ $view = isset($_REQUEST['view']) ? $_REQUEST['view'] : $action;
 $type = isset($_REQUEST['type']) ? $_REQUEST['type'] : '';
 
 switch ($action) {
-case 'toggleEnabled':
-    $B = new Astore\Astore($_REQUEST['bid']);
-    $B->toggleEabled($_REQUEST['newval']);
-    $view = 'astores';
-    break;
-
-case 'delete':
-    switch ($item) {
-    case 'astore':
-        if ($type == 'submission') {
-            $B = new Astore\Astore($_REQUEST['bid'], 'astoresubmission');
-            $view = 'moderation';
-        } else {
-            $B = new Astore\Astore($_REQUEST['bid']);
-            $view = 'astores';
-        }
-        $B->Delete();
-        break;
-    case 'category':
-        $C = new Astore\Category($_REQUEST['cid']);
-        $content .= $C->Delete();
-        $view = 'categories';
-        break;
-    case 'campaign':
-        $C = new Astore\Campaign($_REQUEST['camp_id']);
-        $C->Delete();
-        $view = 'campaigns';
-        break;
-    }
-    break;
-
 case 'delitem':
+    // May also come via GET for a single item
     if (isset($_POST['delitem'])) {
         foreach ($_POST['delitem'] as $item) {
             Astore\Item::Delete($item);
@@ -95,65 +63,27 @@ case 'delitem':
     $view = 'items';
     break;
 
-case 'toggleEnabledCategory':
-    Astore\Category::toggleEnabled($_REQUEST['newval'], $_REQUEST['cid']);
-    $view = 'categories';
-    break;
-
-case 'save':
-    switch ($item) {
-    case 'category':
-        // 'oldcid' will be empty for new entries, non-empty for updates
-        $C = new Astore\Category($_POST['oldcid']);
-        $status = $C->Save($_POST);
-        if ($status != '') {
-            $content .= ASTORE_errorMessage($status);
-            if (isset($_POST['oldcid']) && !empty($_POST['oldcid'])) {
-                //$view = 'editcategory';
-                $view = 'edit';
+case 'additem':
+    $asin = isset($_POST['asin']) ? $_POST['asin'] : '';
+    if (!empty($asin)) {
+        $item = new Astore\Item($asin);
+        // Item is already added to the catalog if feat_to_catalog is set
+        if (!$_CONF_ASTORE['feat_to_catalog'] && 
+                is_object($item) && !$item->isError()) {
+            $status = Astore\Item::AddToCatalog($asin);
+            if ($status) {
+                $msg = sprintf($LANG_ASTORE['add_success'], $asin);
+                $level = 'info';
             } else {
-                $view = 'newcategory';
+                $msg = sprintf($LANG_ASTORE['add_error'], $asin);
+                $level = 'error';
             }
-        } else {
-            $view = 'categories';
+            LGLIB_storeMessage(array(
+                'message' => sprintf($msg, $asin),
+                'level' => $level,
+                'pi_code' => $_CONF_ASTORE['pi_name'],
+            ) );
         }
-        break;
-
-    case 'item':
-        $status = '';
-        if (SEC_checkToken()) {
-            $B = new Astore\Astore();
-            $B->setAdmin(true);
-
-            if ($type == 'submission') {
-                $B->setTable('astoresubmission');
-            }
-            if (isset($_POST['oldbid']) && !empty($_POST['oldbid'])) {
-                $B->Read($_POST['oldbid']);
-            }
-            $B->setTable('astore');
-            // Delete the submission, if any
-            if ($type == 'submission') {
-                $B->setVars($_POST);
-                $B->isNew = true;
-                $status = $B->Save();
-                if ($status == '') {
-                    // Only delete from submission table if status is ok
-                    DB_delete($_TABLES['astoresubmission'], 'bid', $B->bid);
-                }
-            } else {
-                $status = $B->Save($_POST);
-            }
-        }
-        if ($status != '') {
-            $content .= ASTORE_errorMessage($status);
-            $bid = '';      // Reset to force new astore form
-            $view = 'edit';
-            $mode = 'edit';
-        } else {
-            $view = 'astores';
-        }
-        break;
     }
     break;
 
@@ -162,18 +92,14 @@ default:
     break;
 }
 
-switch ($view) {
-case 'items':
-default:
-    if (isset($_GET['msg'])) {
-        $msg = COM_applyFilter($_GET['msg'], true);
-        if ($msg > 0) {
-            $content .= COM_showMessage($msg, 'astore');
-        }
+// After any action, display the item list
+if (isset($_GET['msg'])) {
+    $msg = COM_applyFilter($_GET['msg'], true);
+    if ($msg > 0) {
+        $content .= COM_showMessage($msg, 'astore');
     }
-    $content .= ASTORE_adminItemList();
-    break;
-}   // switch ($view)
+}
+$content .= ASTORE_adminItemList();
 
 echo COM_siteHeader('none', $LANG_ASTORE['astores']);
 echo ASTORE_adminMenu($view);
@@ -229,8 +155,6 @@ function ASTORE_adminMenu($view='')
 
     $T = new \Template(ASTORE_PI_PATH . '/templates');
     $T->set_file('title', 'admin.thtml');
-    //$T->set_var('title',
-    //    $LANG_ASTORE['astore_mgmt'] . ' (Ver. ' . $_CONF_ASTORE['pi_version'] . ')');
     $T->set_var(array(
         'version'   => $_CONF_ASTORE['pi_version'],
     ) );
@@ -284,6 +208,10 @@ function ASTORE_adminItemList()
                     ON cat.asin = cache.asin",
     );
 
+    $T = new Template(ASTORE_PI_PATH . '/templates');
+    $T->set_file('form', 'newitem.thtml');
+    $T->parse('output', 'form');
+    $retval .= $T->finish($T->get_var('output'));
     $retval .= ADMIN_list('astore', 'ASTORE_getAdminField', $header_arr,
                 $text_arr, $query_arr, $defsort_arr, '', '', $options, $form_arr);
     return $retval;
