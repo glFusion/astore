@@ -26,7 +26,8 @@ USES_lib_admin();
 $action = '';
 $actionval = '';
 $expected = array(
-    'additem', 'delitem',
+    'additem', 'delitem', 'importcsv',
+    'import',
     'mode', 'view',
 );
 
@@ -41,16 +42,27 @@ foreach ($expected as $provided) {
         break;
     }
 }
+
 // Allow for old-style "mode=xxxx" urls
 if ($action == 'mode') {
     $action = $actionval;
 }
-if ($action == '') $action = 'astores';    // default view
-$item = isset($_REQUEST['item']) ? $_REQUEST['item'] : 'astore';
+if ($action == '') $action = 'items';    // default view
 $view = isset($_REQUEST['view']) ? $_REQUEST['view'] : $action;
-$type = isset($_REQUEST['type']) ? $_REQUEST['type'] : '';
 
 switch ($action) {
+case 'importcsv':
+    $csv = isset($_POST['asins']) ? $_POST['asins'] : '';
+    if (!empty($csv)) {
+        $asins = explode(',', $csv);
+        foreach ($asins as $asin) {
+            Astore\Item::Require($asin);
+        }
+        Astore\Item::getAll();
+    }
+    echo COM_refresh(ASTORE_ADMIN_URL);
+    break;
+
 case 'delitem':
     // May also come via GET for a single item
     if (isset($_POST['delitem'])) {
@@ -92,6 +104,19 @@ default:
     break;
 }
 
+switch ($view) {
+case 'import':
+    $T = new Template(ASTORE_PI_PATH . '/templates');
+    $T->set_file('form', 'importcsvform.thtml');
+    $T->parse('output', 'form');
+    $content .= $T->finish($T->get_var('output'));
+    break;
+
+case 'items':
+    $content .= ASTORE_adminItemList();
+    break;
+}
+
 // After any action, display the item list
 if (isset($_GET['msg'])) {
     $msg = COM_applyFilter($_GET['msg'], true);
@@ -99,7 +124,6 @@ if (isset($_GET['msg'])) {
         $content .= COM_showMessage($msg, 'astore');
     }
 }
-$content .= ASTORE_adminItemList();
 
 echo COM_siteHeader('none', $LANG_ASTORE['astores']);
 echo ASTORE_adminMenu($view);
@@ -119,10 +143,15 @@ function ASTORE_adminMenu($view='')
 
     $act_items = false;
     $act_categories = false;
+    $act_import = false;
 
     switch ($view) {
     case 'items':
         $act_items = true;
+        break;
+
+    case 'import':
+        $act_import = true;
         break;
 
     case 'categories':
@@ -140,6 +169,11 @@ function ASTORE_adminMenu($view='')
             'url'  => ASTORE_ADMIN_URL . '/index.php',
             'text' => $LANG_ASTORE['items'],
             'active' => $act_items,
+        ),
+        array(
+            'url' => ASTORE_ADMIN_URL . '/index.php?view=import',
+            'text' => $LANG_ASTORE['import'],
+            'active' => $act_import,
         ),
         /*array(
             'url'  => ASTORE_ADMIN_URL . '/index.php?categories=x',

@@ -115,21 +115,17 @@ class Item
         $responseHeaders = curl_getinfo($ch);
         curl_close($ch);
 
-        if ($responseHeaders['http_code'] == 200) {
-            self::_setTimestamp();
-            $obj = new \SimpleXMLElement($responseContent);
-            if (isset($obj->Error->Code)) {
-                self::_debug($asin . ': ' . $obj->Error->Message, true);
-            } else {
-                $Item = $obj->Items->Item;
-                foreach ($Item as $i) {
-                    $asin = $i->ASIN->__toString();
-                    self::_setCache($asin, $i->asXML());
-                    $retval[$asin] = $i;
-                }
-            }
+        $obj = new \SimpleXMLElement($responseContent);
+        if (isset($obj->Error->Code)) {
+            self::_debug($asin . ': ' . $obj->Error->Message, true);
         } else {
-            self::_debug("Error {$responseHeaders['http_code']} getting $asins", true);
+            $Item = $obj->Items->Item;
+            foreach ($Item as $i) {
+                $asin = $i->ASIN->__toString();
+                self::_setCache($asin, $i->asXML());
+                $retval[$asin] = $i;
+            }
+            self::_setTimestamp();
         }
         return $retval;
     }
@@ -179,13 +175,31 @@ class Item
     }
 
 
-    public function FormattedPrice()
+    public function LowestPrice($fmt = 'formatted')
     {
-        return $this->data->OfferSummary->LowestNewPrice->FormattedPrice;
+        switch ($fmt) {
+        case 'formatted':
+            $p = $this->data->OfferSummary->LowestNewPrice->FormattedPrice;
+            break;
+        case 'raw':
+        case 'amount':
+            $p = $this->data->OfferSummary->LowestNewPrice->Amount;
+            break;
+        }
+        return $p;
     }
-    public function ListPrice()
+    public function ListPrice($fmt = 'formatted')
     {
-        return $this->data->OfferSummary->LowestNewPrice->FormattedPrice;
+        switch ($fmt) {
+        case 'formatted':
+            $p = $this->data->ItemAttributes->ListPrice->FormattedPrice;
+            break;
+        case 'raw':
+        case 'amount':
+            $p = $this->data->ItemAttributes->ListPrice->Amount;
+            break;
+        }
+        return $p;
     }
     public function Title()
     {
@@ -203,15 +217,28 @@ class Item
     {
         return $this->data->MediumImage;
     }
+    public function LargeImage()
+    {
+        return $this->data->LargeImage;
+    }
     public function OffersURL()
     {
-        return $this->data->Offers->MoreOffersUrl;
+        $retval = NULL;
+        if (isset($this->data->Offers->TotalOffers)) {
+            if ((int)$this->data->Offers->TotalOffers->__toString() > 0) {
+                $retval = $this->data->Offers->MoreOffersUrl->__toString();
+            }
+        }
+        return $retval;
     }
     public function EditorialReview()
     {
         return $this->data->EditorialReviews->EditorialReview->Content;
     }
-
+    public function Features()
+    {
+        return $this->data->ItemAttributes->Feature;
+    }
 
     /**
     *   Get an array of all item objects

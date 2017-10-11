@@ -36,8 +36,12 @@
   <div class="ast-product-title">
     <h3>{title}</h3>
   </div>
-  <p class="ast-product-price">{formattedprice}<br />
+{!if listprice}
+  <p class="ast-product-price">{listprice}<br />
+{!endif}
+{!if offers_url}
     <a target="_blank" href="{offers_url}"> More offers </a>
+{!endif}
   </p>
   <div class="ast-a-button">
     <span class="ast-a-button ast-a-button-primary">

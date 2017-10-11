@@ -4,15 +4,20 @@
 </div>
 {!if item_url}
 <div class="ast-product-detail">
-  <div style="float:left;width:140px">
+  <div class="ast-detail-title">
+    <h2>{title}</h2>
+  </div>
+  <div style="float:left;width:240px">
     <a target="_blank" href="{item_url}">
       <img src="{img_url}" style="max-width: {img_width}; max-height: {img_height};" />
     </a>
   </div>
-  <div class="ast-detail-title">
-    <h3>{title}</h3>
+  <div class="ast-detail-price">{listprice}</div>
+{!if lowestprice}
+  <div class="ast-detail-offers">
+    Available from {lowestprice}: <a target="_blank" href="{offers_url}"> More offers </a>
   </div>
-  <div class="ast-detail-price">{formattedprice}</div>
+{!endif}
   <div class="ast-a-detail-button">
     <span class="ast-a-button ast-a-button-primary">
       <a target="_blank" href="{item_url}" style="text-decoration:none" rel="nofollow">
@@ -25,6 +30,18 @@
     </span>
   </div>
   <div class="ast-detail-descrip">{long_description}</div>
+
+{!if has_features}
+  <div class="ast-detail-features">
+    <h3>{$LANG_ASTORE['features']}</h3>
+    <ul>
+<!-- BEGIN Features -->
+      <li>{feature}</li>
+<!-- END Features -->
+    </ul>
+  </div>
+{!endif}
+
 </div>
 {!endif}
 {!if message}

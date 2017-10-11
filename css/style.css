@@ -258,4 +258,9 @@ div.ast-pagination {
 .ast-featured-description {
     clear:right;
 }
+.ast-detail-offers {
+    margin-top: 10px;
+    font-size: 1.3rem;
+    font-style: italic;
+}
 

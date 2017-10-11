@@ -22,7 +22,9 @@ $_SQL['astore_cache'] = "CREATE TABLE {$_TABLES['astore_cache']} (
 
 $_SQL['astore_catalog'] = "CREATE TABLE {$_TABLES['astore_catalog']} (
   `asin` varchar(32) NOT NULL,
-  PRIMARY KEY (`asin`)
+  `ts` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`asin`),
+  KEY `ts` (`ts`)
 ) ENGINE=MyISAM";
 
 ?>
