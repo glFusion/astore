@@ -365,7 +365,7 @@ function plugin_autouninstall_astore ()
         ),
 
         // give all vars with their name
-        'vars'=> array()
+        'vars'=> array('astore_ts')
     );
     return $out;
 }
