@@ -28,6 +28,7 @@ $LANG_ASTORE = array(
 'enter_asins' => 'ASINs, separated by commas',
 'instr_import' => 'Enter a comma-separated string of ASIN numbers to import.<br />E.g. &quot;ABCDEFG,123456,abcdefg&quot;',
 'features'  => 'Features',
+'unavailable' => 'Unavailable',
 );
 
 // Localization of the Admin Configuration UI
@@ -44,7 +45,7 @@ $LANG_confignames['astore'] = array(
     'aws_cache_min' => 'Minutes to cache product info',
     'aws_debug' => 'Debug AWS requests?',
     'perpage' => 'Items to show per page',
-    'auto_add_catalog' => 'Add featured items to catalog?',
+    'auto_add_catalog' => 'Automatically add requested items to catalog?',
     'store_title' => 'Store Title',
     'max_feat_desc' => 'Max Featured Item Description (chars)',
     'max_blk_desc' => 'Max Item Description in blocks (chars)',

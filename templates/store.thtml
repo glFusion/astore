@@ -24,6 +24,10 @@
         </span>
       </a>
     </span>
+{!if available}
+{!else}
+    <div class="ast-unavail">{$LANG_ASTORE['unavailable']}</div>
+{!endif}
   </div>
   <div class="ast-featured-description">{long_description}</div>
 </div>
@@ -41,6 +45,10 @@
 {!endif}
 {!if offers_url}
     <a target="_blank" href="{offers_url}"> More offers </a>
+{!endif}
+{!if available}
+{!else}
+    <div class="ast-unavail">{$LANG_ASTORE['unavailable']}</div>
 {!endif}
   </p>
   <div class="ast-a-button">

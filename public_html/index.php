@@ -41,6 +41,7 @@ case 'detail':
             'listprice' => $item->ListPrice(),
             'iconset'   => $_CONF_ASTORE['_iconset'],
             'long_description' => $item->EditorialReview(),
+            'available' => $item->isAvailable(),
         ) );
         $features = $item->Features();
         if (!empty($features)) {
@@ -94,6 +95,7 @@ default:
                     $_CONF_ASTORE['max_feat_desc'], '...'),
                 'iconset'   => $_CONF_ASTORE['_iconset'],
                 'offers_url' => $item->OffersURL(),
+                'available' => $item->isAvailable(),
             ) );
             $T->parse('fb', 'featured');
         }
@@ -119,6 +121,7 @@ default:
             'iconset'   => $_CONF_ASTORE['_iconset'],
             'long_description' => '',
             'offers_url' => $item->OffersURL(),
+            'available' => $item->isAvailable(),
         ) );
         $T->parse('pb', 'productbox', true);
     }

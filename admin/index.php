@@ -97,6 +97,7 @@ case 'additem':
             ) );
         }
     }
+    echo COM_refresh(ASTORE_ADMIN_URL);
     break;
 
 default:

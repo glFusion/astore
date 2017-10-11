@@ -263,4 +263,15 @@ div.ast-pagination {
     font-size: 1.3rem;
     font-style: italic;
 }
+.ast-unavail {
+    color: red;
+    font-weight: bold;
+}
+
+div.ast-product-box .ast-unavail {
+    position: absolute;
+    bottom: 35px;
+    text-align:center;
+    width: 100%;
+}
 

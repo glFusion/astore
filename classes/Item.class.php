@@ -225,7 +225,8 @@ class Item
     {
         $retval = NULL;
         if (isset($this->data->Offers->TotalOffers)) {
-            if ((int)$this->data->Offers->TotalOffers->__toString() > 0) {
+            $x = (int)$this->data->Offers->TotalOffers->__toString();
+            if ($x > 1) {
                 $retval = $this->data->Offers->MoreOffersUrl->__toString();
             }
         }
@@ -322,6 +323,19 @@ class Item
                 asin = '" . DB_escapeString($asin) . "'";
         DB_query($sql);
         return DB_error() ? false : true;
+    }
+
+
+    public function isAvailable()
+    {
+        $retval = true;
+        if (isset($this->data->Offers->TotalOffers)) {
+            $x = (int)$this->data->Offers->TotalOffers->__toString();
+            if ($x == 0) {
+                $retval = false;
+            }
+        }
+        return $retval;
     }
 
 

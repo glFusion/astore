@@ -28,6 +28,10 @@
         </span>
       </a>
     </span>
+{!if available}
+{!else}
+    <div class="ast-unavail">{$LANG_ASTORE['unavailable']}</div>
+{!endif}
   </div>
   <div class="ast-detail-descrip">{long_description}</div>
 
