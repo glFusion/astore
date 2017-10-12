@@ -16,7 +16,7 @@
     margin-bottom: 10px;
 }
 
-.ast-product-title h3 {
+.ast-product-title {
     margin: 2px 3px 0 2px;
     min-width: 40px;
     font-size: 12px;
@@ -32,9 +32,6 @@
 .ast-detail-title {
     position: relative;
     margin-left: 150px;
-}
-
-.ast-detail-title h3 {
     font-size: 16px;
 }
 .ast-detail-descrip {
@@ -50,7 +47,8 @@
     width: 70%;
 }*/
 
-.ast-featured-title h3 {
+.ast-featured-title {
+    margin-left: 150px;
     color: red;
 }
 

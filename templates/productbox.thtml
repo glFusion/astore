@@ -5,7 +5,7 @@
     <img src="{img_url}" style="max-width: {img_width}; max-height: {img_height};" />
   </a>
   <div class="ast-product-title">
-    <h3>{title}</h3>
+    {title}
   </div>
   <p class="ast-product-price">
 {!if listprice}

@@ -12,8 +12,8 @@
       <img src="{img_url}" style="max-width: {img_width}; max-height: {img_height};" />
     </a>
   </div>
-  <div class="ast-featured-title" style="margin-left:150px;">
-    <h3>{title}</h3>
+  <div class="ast-featured-title">
+    {title}
     <div class="ast-featured-price">
       {formattedprice}
 {!if available}
