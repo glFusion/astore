@@ -106,13 +106,6 @@ default:
 }
 
 switch ($view) {
-case 'import':
-    $T = new Template(ASTORE_PI_PATH . '/templates');
-    $T->set_file('form', 'importcsvform.thtml');
-    $T->parse('output', 'form');
-    $content .= $T->finish($T->get_var('output'));
-    break;
-
 case 'items':
     $content .= ASTORE_adminItemList();
     break;
@@ -144,26 +137,11 @@ function ASTORE_adminMenu($view='')
 
     $act_items = false;
     $act_categories = false;
-    $act_import = false;
 
     switch ($view) {
     case 'items':
         $act_items = true;
         break;
-
-    case 'import':
-        $act_import = true;
-        break;
-
-    case 'categories':
-        $act_categories = true;
-        $new_menu = array(
-            'url'  => ASTORE_ADMIN_URL . '/index.php?edit=x&item=category',
-            'text' => '<span class="banrNewAdminItem">' .
-                    $LANG_ASTORE['new_cat'] . '</span>',
-        );
-        break;
-    }
 
     $menu_arr = array(
         array(
@@ -172,20 +150,9 @@ function ASTORE_adminMenu($view='')
             'active' => $act_items,
         ),
         array(
-            'url' => ASTORE_ADMIN_URL . '/index.php?view=import',
-            'text' => $LANG_ASTORE['import'],
-            'active' => $act_import,
-        ),
-        /*array(
-            'url'  => ASTORE_ADMIN_URL . '/index.php?categories=x',
-            'text' => $LANG_ASTORE['categories'],
-            'active' => $act_categories,
-        ),*/
-        array(
             'url'  => $_CONF['site_admin_url'],
             'text' => $LANG_ADMIN['admin_home'],
         ),
-        $new_menu,
     );
 
     $T = new \Template(ASTORE_PI_PATH . '/templates');
