@@ -220,6 +220,17 @@ class Item extends Common
         DB_delete($_TABLES['astore_cache'], 'asin', $asin);
     }
 
+    /**
+    *   Get the number of items in the catalog.
+    *   Used for pagination
+    *
+    *   @return integer     Count of items in the catalog table
+    */
+    public static function Count()
+    {
+        return parent::CatalogCount();
+    }
+
 }
 
 ?>

@@ -40,17 +40,29 @@ class Search extends Common
 
         $obj = self::_makeRequest($params);
         if (isset($obj->Error->Code)) {
-            self::_debug($asin . ': ' . $obj->Error->Message, true);
+            self::_debug('doSearch: ' . $obj->Error->Message, true);
         } else {
             $Item = $obj->Items->Item;
             foreach ($Item as $info) {
                 $asin = $info->ASIN->__toString();
                 $retval[$asin] = new self();
                 $retval[$asin]->data = $info;
+                $this->data[$asin] = $info;
             }
         }
         return $retval;
     }
+
+
+    public function PageCount()
+    {
+
+    }
+
+    public function getPage()
+    {
+    }
+
 
 }
 
