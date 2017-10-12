@@ -64,6 +64,21 @@ case 'detail':
     $content .= $T->finish($T->get_var('output'));
     break;
 
+case 'search':
+    $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+    if ($page < 1) $page = 1;
+    $query = isset($_POST['query']) ? $_POST['query'] : $asin;
+    $query = trim($query);
+    $items = Astore\Search::doSearch($query, $page);
+    $T = new Template(ASTORE_PI_PATH . '/templates');
+    $T->set_file(array(
+        'search' => 'search.thtml',
+    ) );
+    $T->set_var('productboxes', ASTORE_showProducts($items));
+    $T->parse('output', 'search');
+    $content .= $T->finish($T->get_var('output'));
+    break;
+
 default:
     $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
     if ($page < 1) $page = 1;
@@ -106,15 +121,46 @@ default:
             'store_title'   => $_CONF_ASTORE['store_title'],
         ) );
     }
-    $T->set_block('store', 'productbox', 'pb');
+
+    $T->set_var('productboxes', ASTORE_showProducts($items));
+
+    // Display pagination
+    $count = Astore\Item::Count();
+    $pagenav_args = '';
+    if (isset($_CONF_ASTORE['perpage']) &&
+            $_CONF_ASTORE['perpage'] > 0 &&
+            $count > $_CONF_ASTORE['perpage'] ) {
+        $T->set_var('pagination',
+            COM_printPageNavigation(ASTORE_URL . '/index.php' . $pagenav_args,
+                        $page,
+                        ceil($count / $_CONF_ASTORE['perpage'])));
+    } else {
+        $T->set_var('pagination', '');
+    }
+    $T->parse('output', 'store');
+    $content .= $T->finish($T->get_var('output'));
+    break;
+}
+
+function ASTORE_showProducts($items)
+{
+    global $_CONF_ASTORE;
+
+    $T = new Template(ASTORE_PI_PATH . '/templates');
+    $T->set_file(array(
+        'products' => 'productbox.thtml',
+    ) );
+    $T->set_block('products', 'productbox', 'pb');
     foreach ($items as $item) {
         if ($item->isError()) continue;
-        if (!$item->isAvailable()) continue;
+        if (!$item->isAvailable()) {
+            continue;
+        }
+
         $T->set_var(array(
             'item_url'  => $item->DetailURL(),
             'lowestprice'   => $item->LowestPrice(),
             'listprice' => $item->ListPrice(),
-            //'title'     => $item->Title(),
             'title'     => COM_truncate($item->Title(),
                     $_CONF_ASTORE['max_blk_desc'], '...'),
             'img_url'   => $item->MediumImage()->URL,
@@ -128,24 +174,8 @@ default:
         ) );
         $T->parse('pb', 'productbox', true);
     }
-
-    // Display pagination
-    $count = Astore\Item::Count();
-    $pagenav_args = '';
-    if (isset($_CONF_ASTORE['perpage']) &&
-            $_CONF_ASTORE['perpage'] > 0 &&
-            $count > $$_CONF_ASTORE['perpage'] ) {
-        $T->set_var('pagination',
-            COM_printPageNavigation(ASTORE_URL . '/index.php' . $pagenav_args,
-                        $page,
-                        ceil($count / $_CONF_ASTORE['perpage'])));
-    } else {
-        $T->set_var('pagination', '');
-    }
-
-    $T->parse('output', 'store');
-    $content .= $T->finish($T->get_var('output'));
-    break;
+    $T->parse('output', 'products');
+    return $T->finish($T->get_var('output'));
 }
 
 echo COM_siteHeader();

@@ -1,0 +1,35 @@
+{# begin {templatelocation} #}
+<!-- BEGIN productbox -->
+<div class="ast-product-box">
+  <a target="_blank" href="{item_url}">
+    <img src="{img_url}" style="max-width: {img_width}; max-height: {img_height};" />
+  </a>
+  <div class="ast-product-title">
+    <h3>{title}</h3>
+  </div>
+  <p class="ast-product-price">
+{!if listprice}
+  {listprice}<br />
+{!endif}
+{!if offers_url}
+    <a target="_blank" href="{offers_url}">{$LANG_ASTORE['more_offers']}</a>
+{!endif}
+{!if available}
+{!else}
+    <div class="ast-unavail">{$LANG_ASTORE['unavailable']}</div>
+{!endif}
+  </p>
+  <div class="ast-a-button">
+    <span class="ast-a-button ast-a-button-primary">
+      <a target="_blank" href="{item_url}" style="text-decoration:none" rel="nofollow">
+        <span class="ast-a-button-inner">
+          <img src="http://webservices.amazon.com/scratchpad/assets/images/Amazon-Favicon-64x64.png" class="ast-a-icon ast-a-icon-shop-now" />
+          <input class="ast-a-button-input" type="submit" value="Add to cart" />
+          <span class="ast-a-button-text">{$LANG_ASTORE['shop_now']}</span>
+        </span>
+      </a>
+    </span>
+  </div>
+</div>
+<!-- END productbox -->
+{# end {templatelocation} #}

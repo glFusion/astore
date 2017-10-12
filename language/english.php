@@ -30,6 +30,8 @@ $LANG_ASTORE = array(
 'features'  => 'Features',
 'unavailable' => 'Unavailable',
 'more_offers' => 'See Offers',
+'search_query' => 'Enter Search String',
+'search' => 'Search',
 );
 
 // Localization of the Admin Configuration UI
