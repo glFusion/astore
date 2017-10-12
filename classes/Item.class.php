@@ -221,17 +221,42 @@ class Item
     {
         return $this->data->LargeImage;
     }
+
+    /**
+    *   Determine if this item is being sold by Amazon
+    *
+    *   @return boolean True if available, False if sold only by others
+    */
+    private function _haveAmazonOffers()
+    {
+        if (!isset($this->data->Offers->TotalOffers)) {
+            return false;
+        } else {
+            $x = $this->data->Offers->TotalOffers;
+            if ($x == 0)
+                return false;
+        }
+        return true;
+    }
+
+
+    /**
+    *   Get the More Offers URL for an item.
+    *   Returns a URL, or an empty string if the item is not available or is
+    *   sold by Amazon.
+    *
+    *   @return boolean     URL or empty string
+    */
     public function OffersURL()
     {
         $retval = NULL;
-        if (isset($this->data->Offers->TotalOffers)) {
-            $x = (int)$this->data->Offers->TotalOffers->__toString();
-            if ($x > 1) {
-                $retval = $this->data->Offers->MoreOffersUrl->__toString();
-            }
+        if ($this->isAvailable() && !$this->_haveAmazonOffers() &&
+                isset($this->data->ItemLinks->ItemLink[6]) ) {
+            $retval = $this->data->ItemLinks->ItemLink[6]->URL->__toString();
         }
         return $retval;
     }
+
     public function EditorialReview()
     {
         return $this->data->EditorialReviews->EditorialReview->Content;
@@ -326,13 +351,21 @@ class Item
     }
 
 
+    /**
+    *   Determine if an item is available at all from Amazon.
+    *   Returns False if not available from Amazon nor from other sellers.
+    *
+    *   @return boolean     True if available, False if not
+    */
     public function isAvailable()
     {
         $retval = true;
         if (isset($this->data->Offers->TotalOffers)) {
             $x = (int)$this->data->Offers->TotalOffers->__toString();
             if ($x == 0) {
-                $retval = false;
+                if (!isset($this->data->OfferSummary->LowestNewPrice)) {
+                    $retval = false;
+                }
             }
         }
         return $retval;
@@ -340,7 +373,7 @@ class Item
 
 
     /**
-    *   Determine if the current item had an error
+    *   Determine if the current item had an error or is empty
     *
     *   @return boolean     True if an error exists, False if OK
     */

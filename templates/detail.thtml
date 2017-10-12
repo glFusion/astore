@@ -13,11 +13,6 @@
     </a>
   </div>
   <div class="ast-detail-price">{listprice}</div>
-{!if lowestprice}
-  <div class="ast-detail-offers">
-    Available from {lowestprice}: <a target="_blank" href="{offers_url}"> More offers </a>
-  </div>
-{!endif}
   <div class="ast-a-detail-button">
     <span class="ast-a-button ast-a-button-primary">
       <a target="_blank" href="{item_url}" style="text-decoration:none" rel="nofollow">
@@ -31,6 +26,13 @@
 {!if available}
 {!else}
     <div class="ast-unavail">{$LANG_ASTORE['unavailable']}</div>
+{!endif}
+{!if lowestprice}
+  <div class="ast-detail-offers">
+    Available from {lowestprice}: <a target="_blank" href="{offers_url}">{$LANG_ASTORE['more_offers']}</a>
+  </div>
+{!elseif offers_url}
+    <a target="_blank" href="{offers_url}">{$LANG_ASTORE['more_offers']}</a>
 {!endif}
   </div>
   <div class="ast-detail-descrip">{long_description}</div>

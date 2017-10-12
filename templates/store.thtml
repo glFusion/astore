@@ -14,7 +14,16 @@
   </div>
   <div class="ast-featured-title" style="margin-left:150px;">
     <h3>{title}</h3>
-    <span class="ast-featured-price">{formattedprice}</span>
+    <div class="ast-featured-price">
+      {formattedprice}
+{!if available}
+{!else}
+      <div class="ast-unavail">{$LANG_ASTORE['unavailable']}</div>
+{!endif}
+{!if offers_url}
+      <a target="_blank" href="{offers_url}">{$LANG_ASTORE['more_offers']}</a>
+{!endif}
+    </div>
     <span class="ast-a-button ast-a-button-primary ast-floatright">
       <a target="_blank" href="{item_url}" style="text-decoration:none">
         <span class="ast-a-button-inner">
@@ -24,10 +33,6 @@
         </span>
       </a>
     </span>
-{!if available}
-{!else}
-    <div class="ast-unavail">{$LANG_ASTORE['unavailable']}</div>
-{!endif}
   </div>
   <div class="ast-featured-description">{long_description}</div>
 </div>
@@ -40,11 +45,12 @@
   <div class="ast-product-title">
     <h3>{title}</h3>
   </div>
+  <p class="ast-product-price">
 {!if listprice}
-  <p class="ast-product-price">{listprice}<br />
+  {listprice}<br />
 {!endif}
 {!if offers_url}
-    <a target="_blank" href="{offers_url}"> More offers </a>
+    <a target="_blank" href="{offers_url}">{$LANG_ASTORE['more_offers']}</a>
 {!endif}
 {!if available}
 {!else}

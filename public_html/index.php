@@ -26,10 +26,11 @@ case 'detail':
     if (!$item->isError()) {
         $listprice = $item->ListPrice('raw');
         $lowestprice = $item->LowestPrice('raw');
-        if ($lowestprice && $listprice && $lowestprice->__toString() < $listprice->__toString()) {
+        if (
+            ($lowestprice && $listprice && $lowestprice->__toString() < $listprice->__toString()) ||
+            ($lowestprice && !$listprice) ) {
             $T->set_var(array(
                 'lowestprice'   => $item->LowestPrice(),
-                'offers_url'    => $item->OffersURL(),
             ) );
         }
         $T->set_var(array(
@@ -42,6 +43,7 @@ case 'detail':
             'iconset'   => $_CONF_ASTORE['_iconset'],
             'long_description' => $item->EditorialReview(),
             'available' => $item->isAvailable(),
+            'offers_url'    => $item->OffersURL(),
         ) );
         $features = $item->Features();
         if (!empty($features)) {
@@ -85,7 +87,7 @@ default:
             $T->set_var(array(
                 'item_url'  => $item->DetailURL(),
                 'lowestprice' => $item->LowestPrice(),
-                'listprie' => $item->ListPrice(),
+                'listprice' => $item->ListPrice(),
                 'title'     => $item->Title(),
                 'img_url'   => $item->MediumImage()->URL,
                 'img_width' => $item->MediumImage()->Width,
@@ -107,6 +109,7 @@ default:
     $T->set_block('store', 'productbox', 'pb');
     foreach ($items as $item) {
         if ($item->isError()) continue;
+        if (!$item->isAvailable()) continue;
         $T->set_var(array(
             'item_url'  => $item->DetailURL(),
             'lowestprice'   => $item->LowestPrice(),

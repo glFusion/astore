@@ -55,7 +55,6 @@
 }
 
 .ast-product-price, .ast-featured-price, .ast-detail-price {
-    text-align: center;
     color: #900;
     font-weight: bold;
 }
@@ -64,6 +63,9 @@
 }
 .ast-detail-price {
     font-size: 2rem;
+}
+.ast-product-price {
+    text-align:center;
 }
 
 .ast-a-icon-cart {
