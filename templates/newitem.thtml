@@ -1,7 +1,7 @@
 {# begin {templatelocation} #}
 <form class="uk-form uk-form-horizontal" method="post" action="{site_admin_url}/plugins/astore/index.php">
   <input type="text" size="40" name="asins" placeholder="{$LANG_ASTORE['enter_asins']}"
-    class="tooltip" title="{$LANG_ASTORE['instr_import']}" />
+    value="{import_fld}" class="tooltip" title="{$LANG_ASTORE['instr_import']}" />
 <button class="uk-button uk-button-primary" name="importcsv">{$LANG_ASTORE['add_item']}</button>
 </form>
 {# end {templatelocation} #}

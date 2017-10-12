@@ -21,6 +21,7 @@ if (!defined ('GVERSION')) {
 global $_CONF_ASTORE;
 
 define ('ASTORE_PI_PATH', __DIR__);
+define ('ASTORE_MAX_QUERY', 10);    // Amazon max items in a query
 
 $langfile = $_CONF['language'] . '.php';
 if (!file_exists(ASTORE_PI_PATH . '/language/' . $langfile)) {

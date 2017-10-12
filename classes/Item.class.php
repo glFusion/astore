@@ -65,9 +65,9 @@ class Item extends Common
         $retval = array();
 
         if (is_array($asins)) {
-            if (count($asins) > 10) {
+            if (count($asins) > ASTORE_MAX_QUERY) {
                 // Amazon only allows 10 ASINs in a query
-                $asins = array_splice($asins, 0, 10);
+                array_splice($asins, 0, ASTORE_MAX_QUERY);
             }
             $asins = implode(',', $asins);
         }
@@ -164,6 +164,48 @@ class Item extends Common
         }
         return $allitems;
     }
+
+
+    /**
+    *   Get a specific set of ASINs from Amazon.
+    *   This is intended for the admin interface to import items.
+    *   Only retrieves 10 items due to Amazon's limit. Returns a string
+    *   containing items that were not retrieved.
+    *
+    *   @param  mixed   $asins  CSV String or Array of items
+    *   @param  boolean $tocatalog  True to force entry in the catalog
+    *   @return string      CSV string of items not retrieved
+    */
+    public static function getSpecific($asins, $tocatalog=false)
+    {
+        global $_CONF_ASTORE;
+
+        if (!is_array($asins)) {
+            $asins = explode(',', $asins);
+        }
+        $bad = array();
+        if (count($asins) > ASTORE_MAX_QUERY) {
+            $bad = $asins;
+            $bad = array_splice($bad, ASTORE_MAX_QUERY);
+            array_splice($asins, 0, ASTORE_MAX_QUERY);
+        }
+        $asins = implode(',', $asins);
+
+        // Retrieve from Amazon any items not in cache
+        if (!empty($asins)) {
+            $data = self::_getAmazon($asins);
+            foreach ($data as $asin=>$info) {
+                $allitems[$asin] = new self();
+                $allitems[$asin]->data = $info;
+                if ($_CONF_ASTORE['auto_add_catalog'] || $tocatalog) {
+                    // Automatically add items to catalog
+                    self::AddToCatalog($asin);
+                }
+            }
+        }
+        return implode(',', $bad);
+    }
+
 
     /**
     *   Delete an item from the catalog

@@ -32,6 +32,7 @@ $LANG_ASTORE = array(
 'more_offers' => 'See Offers',
 'search_query' => 'Enter Search String',
 'search' => 'Search',
+'err_adm_import_size' => 'Your import string contained more than 10 items. The remaining items have been placed in the import field for you to submit again',
 );
 
 // Localization of the Admin Configuration UI

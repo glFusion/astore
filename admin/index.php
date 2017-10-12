@@ -49,18 +49,18 @@ if ($action == 'mode') {
 }
 if ($action == '') $action = 'items';    // default view
 $view = isset($_REQUEST['view']) ? $_REQUEST['view'] : $action;
+$import_fld = '';
 
 switch ($action) {
 case 'importcsv':
     $csv = isset($_POST['asins']) ? $_POST['asins'] : '';
     if (!empty($csv)) {
-        $asins = explode(',', $csv);
-        foreach ($asins as $asin) {
-            Astore\Item::Require($asin);
+        $import_fld = Astore\Item::getSpecific($csv, true);
+        if (!empty($import_fld)) {
+            $content .= COM_showMessageText($LANG_ASTORE['err_adm_import_size']);
         }
-        Astore\Item::getAll();
     }
-    echo COM_refresh(ASTORE_ADMIN_URL);
+    $view = 'items';
     break;
 
 case 'delitem':
@@ -107,7 +107,7 @@ default:
 
 switch ($view) {
 case 'items':
-    $content .= ASTORE_adminItemList();
+    $content .= ASTORE_adminItemList($import_fld);
     break;
 }
 
@@ -142,6 +142,7 @@ function ASTORE_adminMenu($view='')
     case 'items':
         $act_items = true;
         break;
+    }
 
     $menu_arr = array(
         array(
@@ -172,7 +173,7 @@ function ASTORE_adminMenu($view='')
 *
 *   @return string  HTML for item list
 */
-function ASTORE_adminItemList()
+function ASTORE_adminItemList($import_fld = '')
 {
     global $LANG_ADMIN, $LANG_ASTORE,
             $_TABLES, $_CONF, $_CONF_ASTORE;
@@ -212,6 +213,9 @@ function ASTORE_adminItemList()
 
     $T = new Template(ASTORE_PI_PATH . '/templates');
     $T->set_file('form', 'newitem.thtml');
+    $T->set_var(array(
+        'import_fld' => $import_fld,
+    ) );
     $T->parse('output', 'form');
     $retval .= $T->finish($T->get_var('output'));
     $retval .= ADMIN_list('astore', 'ASTORE_getAdminField', $header_arr,

@@ -12,6 +12,7 @@ See [https://affiliate-program.amazon.com/](https://affiliate-program.amazon.com
   * Avoids Amazon request limits:
     * Items are retrieved from Amazon in bulk and cached.
     * A 1-second sleep() is induced if requests would be made too rapidly.
+    * Only requests up to 10 items at a time.
 
 ## Usage
 Amazon requires that affiliate links be placed only on sites that the associate controls.
@@ -42,6 +43,9 @@ Select &quot;Yes&quot; to log debug messages related to AWS transactions.
 
 ### Items Per Page
 Enter the number of products to show on each page in the store.
+Amazon has a query limit of 10 items at a time, so this is a good value to
+use for the page limit. If more than 10 items are on a page and all must
+be requested from Amazon, only 10 items will be shown on the first page load.
 
 ### Store Title
 Enter a title for your store. This will be shown as a header on each page of
