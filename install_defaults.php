@@ -35,7 +35,7 @@ $_ASTORE_DEFAULT = array(
     'aws_country' => 'com',
     'aws_cache_min' => 30,
     'auto_add_catalog' => false, // automatically add requested items to catalog
-    'aws_debug' => false,
+    'debug_aws' => false,
     'perpage'   => 10,
     'max_feat_desc' => 200,
     'max_blk_desc' => 50,
@@ -71,7 +71,7 @@ function plugin_initconfig_astore($admin_group)
                 'select', 0, 0, 1, 50, true, $me);
         $c->add('aws_cache_min', $_ASTORE_DEFAULT['aws_cache_min'], 
                 'text', 0, 0, 0, 60, true, $me);
-        $c->add('aws_debug', $_ASTORE_DEFAULT['aws_debug'], 
+        $c->add('debug_aws', $_ASTORE_DEFAULT['debug_aws'], 
                 'select', 0, 0, 2, 70, true, $me);
         $c->add('auto_add_catalog', $_ASTORE_DEFAULT['auto_add_catalog'], 
                 'select', 0, 0, 2, 80, true, $me);
