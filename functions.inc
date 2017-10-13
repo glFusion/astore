@@ -194,12 +194,11 @@ function plugin_getmenuitems_astore()
     global $_CONF, $_CONF_ASTORE;
 
     $menuitems = array();
-    $a = '<i class="' . $_CONF_ASTORE['iconset'] . '-amazon"></i>&nbsp;' .
-            $_CONF_ASTORE['pi_display_name'];
+    $a = $_CONF_ASTORE['pi_display_name'] .
+        '&nbsp;<i class="' . ASTORE_getIcon('amazon') . '"></i>';
     $menuitems[$a] = ASTORE_URL . '/index.php';
     return $menuitems;
 }
-
 
 
 /**
@@ -455,6 +454,19 @@ function plugin_configmanager_aws_secret_key_astore_validate($value)
     }
     return $value;
 }
+
+
+/**
+*   Perform scheduled functions, such as removing old cache entries
+*/
+function plugin_runScheduledTask_astore()
+{
+    global $_TABLES, $_CONF_ASTORE;
+
+    DB_query("DELETE FROM {$_TABLES['astore_cache']}
+            WHERE exp < UNIX_TIMESTAMP()");
+}
+
 
 ////////////////////////////////////////////
 //
