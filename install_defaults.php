@@ -37,7 +37,7 @@ $_ASTORE_DEFAULT = array(
     'auto_add_catalog' => false, // automatically add requested items to catalog
     'debug_aws' => false,
     'perpage'   => 10,
-    'max_feat_desc' => 200,
+    'max_feat_desc' => 600,
     'max_blk_desc' => 50,
     'sort' => 'none',       // storefront item sorting
 );

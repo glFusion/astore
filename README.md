@@ -59,7 +59,9 @@ product catalog. Set to &quot;No&quot; to ignore requested items.
 
 ### Max Featured/Block Description Lengeh
 Enter the maximum number of characters to be shown in the product descriptions
-in the featured or regular product blocks. Changes to these values mqy require changes to the CSS or templates to maintain the desired layout.
+in the featured or regular product blocks.
+The Featured Item description can be fairly long as its space will expand on the page to accomodate it.
+Increasing the Block description length may require changes to the CSS or templates to maintain the desired layout.
 
 ### Sort Order
 Select the sorting method for the item list. Options are:
