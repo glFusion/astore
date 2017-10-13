@@ -49,6 +49,10 @@ class Common
             throw new \Exception("cURL support is required, but can't be found.");
         }
 
+        if (self::_getTimestamp() >= time() - 1) {
+            sleep(1);
+        }
+
         $base_params = array(
             'Service' => 'AWSECommerceService',
             'AWSAccessKeyId' => $_CONF_ASTORE['aws_access_key'],
@@ -78,9 +82,6 @@ class Common
         curl_setopt($ch, CURLOPT_ENCODING, '');
         curl_setopt($ch, CURLINFO_HEADER_OUT, true);
 
-        if (self::_getTimestamp() >= time()) {
-            sleep(1);
-        }
         $responseContent = curl_exec($ch);
         $responseHeaders = curl_getinfo($ch);
         curl_close($ch);
@@ -121,7 +122,13 @@ class Common
         $asin = DB_escapeString($asin);
         $data = DB_getItem($_TABLES['astore_cache'], 'data',
             "asin = '$asin' AND exp > UNIX_TIMESTAMP()");
-        if (!empty($data)) $data = simplexml_load_string($data);
+        if (!empty($data)) {
+            $use_errors = libxml_use_internal_errors(true);
+            $data = simplexml_load_string($data);
+            // Check if XML translation failed
+            if ($data === false) $data = NULL;
+            libxml_use_internal_errors($use_errors);
+        }
         return $data;
     }
 
