@@ -14,10 +14,11 @@
 global $_TABLES;
 
 $_SQL['astore_cache'] = "CREATE TABLE {$_TABLES['astore_cache']} (
-  `asin` varchar(32) NOT NULL,
+  `asin` varchar(128) NOT NULL,
   `data` text,
   `exp` int(11) unsigned NOT NULL,
-  PRIMARY KEY  (`asin`)
+  PRIMARY KEY  (`asin`),
+  KEY `exp` (`exp`)
 ) ENGINE=MyISAM";
 
 $_SQL['astore_catalog'] = "CREATE TABLE {$_TABLES['astore_catalog']} (

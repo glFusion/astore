@@ -77,7 +77,6 @@ class Item extends Common
             'Operation' => 'ItemLookup',
             'ItemId' => $asins,
             'IdType' => 'ASIN',
-            'ResponseGroup' => 'Images,ItemAttributes,Offers,EditorialReview',
         );
 
         $obj = self::_makeRequest($params);
