@@ -1,6 +1,8 @@
 # Amazon Store Plugin for glFusion
 This plugin provides a storefront for curated Amazon products, similar to
 the "Astore" product that Amazon is retiring on Octoberi 27, 2017.
+Using the Product Advertising API you can display a curated set of products on your site.
+Product IDs and search strings can be passed to the plugin to display other products that are not in your catalog.
 
 You must set up an associate account at Amazon and create your credentials before using this plugin.
 See [https://affiliate-program.amazon.com/](https://affiliate-program.amazon.com/)
@@ -9,6 +11,7 @@ See [https://affiliate-program.amazon.com/](https://affiliate-program.amazon.com
   * Add products through the admin interface to appear on the store homepage.
   * Pass `asin=<ASIN>` to have any product displayed as a "featured" product.
     * Requested products can optionally be added to the catalog.
+  * Supports searching Amazon and caches search results by query.
   * Avoids Amazon request limits:
     * Items are retrieved from Amazon in bulk and cached.
     * A 1-second sleep() is induced if requests would be made too rapidly.
@@ -24,6 +27,8 @@ not added the item to your catalog.
 a link to Amazon.
   * `https://example.com/astore/index.php?asin=XXXXX` leads to your catalog page with product XXXX
 featured at the top of the page.
+  * `https://example.com/astore/index.php?search=word1+word2+...` searches Amazon and displays a page of products.
+Search results are cached by query string but not added to the catalog.
   * `https//example.com/astore/index.php` leads to your catalog page.
 
 ## Configuration
@@ -56,6 +61,7 @@ empty.
 If this is &quot;Yes&quot; any items that are requested via the store URL
 (`http://yoursite.com/astore/index.php?asin=XXXXXX`) will be added to the
 product catalog. Set to &quot;No&quot; to ignore requested items.
+Search results are never added to the catalog.
 
 ### Max Featured/Block Description Lengeh
 Enter the maximum number of characters to be shown in the product descriptions

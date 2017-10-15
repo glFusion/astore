@@ -69,14 +69,22 @@ case 'search':
     if ($page < 1) $page = 1;
     $query = isset($_POST['query']) ? $_POST['query'] : $asin;
     $query = trim($query);
-    $items = Astore\Search::doSearch($query, $page);
+    $S = new Astore\Search();
+    $items = $S->doSearch($query, $page);
     $T = new Template(ASTORE_PI_PATH . '/templates');
     $T->set_file(array(
         'search' => 'search.thtml',
+        'moreresults' => 'moreresults.thtml',
     ) );
-    $T->set_var('productboxes', ASTORE_showProducts($items));
+    //$T->set_var('productboxes', ASTORE_showProducts($items));
+    $T->set_var('productboxes', Astore\Item::showProducts($items));
     $T->parse('output', 'search');
     $content .= $T->finish($T->get_var('output'));
+    if ($S->Pages() > 1) {
+        $T->set_var('moreresults_url', $S->MoreResultsURL());
+        $T->parse('moreresults', 'moreresults');
+        $content .= $T->finish($T->get_var('moreresults'));
+    }
     break;
 
 default:
@@ -122,7 +130,8 @@ default:
         ) );
     }
 
-    $T->set_var('productboxes', ASTORE_showProducts($items));
+    //$T->set_var('productboxes', ASTORE_showProducts($items));
+    $T->set_var('productboxes', Astore\Item::showProducts($items));
 
     // Display pagination
     $count = Astore\Item::Count();
@@ -156,7 +165,6 @@ function ASTORE_showProducts($items)
         if (!$item->isAvailable()) {
             continue;
         }
-
         $T->set_var(array(
             'item_url'  => $item->DetailURL(),
             'lowestprice'   => $item->LowestPrice(),
@@ -167,6 +175,7 @@ function ASTORE_showProducts($items)
             'img_width' => $item->MediumImage()->Width,
             'img_height' => $item->MediumImage()->Height,
             'formattedprice' => $item->LowestPrice(),
+            'displayprice' => $item->DisplayPrice(),
             'iconset'   => $_CONF_ASTORE['_iconset'],
             'long_description' => '',
             'offers_url' => $item->OffersURL(),

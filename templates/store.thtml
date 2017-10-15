@@ -14,7 +14,8 @@
   </div>
   <div class="ast-featured-title">
     {title}
-    <div class="ast-featured-price">
+    <div>
+    <div class="ast-featured-price" style="float:left;">
       {formattedprice}
 {!if available}
 {!else}
@@ -27,12 +28,13 @@
     <span class="ast-a-button ast-a-button-primary ast-floatright">
       <a target="_blank" href="{item_url}" style="text-decoration:none">
         <span class="ast-a-button-inner">
-          <img src="http://webservices.amazon.com/scratchpad/assets/images/Amazon-Favicon-64x64.png" class="ast-a-icon ast-a-icon-shop-now" />
+          <img src="{site_url}/astore/images/amazon-64x64.png" class="ast-a-icon ast-a-icon-shop-now" />
           <input class="ast-a-button-input" type="submit" value="Add to cart" />
           <span class="ast-a-button-text">{$LANG_ASTORE['shop_now']}</span>
         </span>
       </a>
     </span>
+    </div>
   </div>
   <div class="ast-featured-description">{long_description}</div>
 </div>

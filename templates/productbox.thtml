@@ -1,15 +1,17 @@
 {# begin {templatelocation} #}
 <!-- BEGIN productbox -->
 <div class="ast-product-box">
+  <div>
   <a target="_blank" href="{item_url}">
     <img src="{img_url}" style="max-width: {img_width}; max-height: {img_height};" />
   </a>
+  </div>
   <div class="ast-product-title">
     {title}
   </div>
   <p class="ast-product-price">
-{!if listprice}
-  {listprice}<br />
+{!if displayprice}
+  {displayprice}<br />
 {!endif}
 {!if offers_url}
     <a target="_blank" href="{offers_url}">{$LANG_ASTORE['more_offers']}</a>
@@ -23,7 +25,7 @@
     <span class="ast-a-button ast-a-button-primary">
       <a target="_blank" href="{item_url}" style="text-decoration:none" rel="nofollow">
         <span class="ast-a-button-inner">
-          <img src="http://webservices.amazon.com/scratchpad/assets/images/Amazon-Favicon-64x64.png" class="ast-a-icon ast-a-icon-shop-now" />
+          <img src="{site_url}/astore/images/amazon-64x64.png" class="ast-a-icon ast-a-icon-shop-now" />
           <input class="ast-a-button-input" type="submit" value="Add to cart" />
           <span class="ast-a-button-text">{$LANG_ASTORE['shop_now']}</span>
         </span>

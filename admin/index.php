@@ -55,7 +55,7 @@ switch ($action) {
 case 'importcsv':
     $csv = isset($_POST['asins']) ? $_POST['asins'] : '';
     if (!empty($csv)) {
-        $import_fld = Astore\Item::getSpecific($csv, true);
+        $import_fld = Astore\Item::importItems($csv, true);
         if (!empty($import_fld)) {
             $content .= COM_showMessageText($LANG_ASTORE['err_adm_import_size']);
         }

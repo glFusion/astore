@@ -22,6 +22,8 @@ global $_CONF_ASTORE;
 
 define ('ASTORE_PI_PATH', __DIR__);
 define ('ASTORE_MAX_QUERY', 10);    // Amazon max items in a query
+define ('ASTORE_TYPE_CATALOG', 1);
+define ('ASTORE_TYPE_SEARCH', 2);
 
 $langfile = $_CONF['language'] . '.php';
 if (!file_exists(ASTORE_PI_PATH . '/language/' . $langfile)) {
@@ -464,7 +466,8 @@ function plugin_runScheduledTask_astore()
     global $_TABLES, $_CONF_ASTORE;
 
     DB_query("DELETE FROM {$_TABLES['astore_cache']}
-            WHERE exp < UNIX_TIMESTAMP()");
+            WHERE exp < UNIX_TIMESTAMP()
+            AND `type` <> " . ASTORE_TYPE_CATALOG);
 }
 
 
