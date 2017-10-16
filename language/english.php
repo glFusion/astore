@@ -25,6 +25,7 @@ $LANG_ASTORE = array(
 'add_item'  => 'Add Item(s)',
 'item_not_found' => 'The requested item could not be found, or an error was encountered. Please check the item number and try again.',
 'import'    => 'Import',
+'export'    => 'Export',
 'enter_asins' => 'ASINs, separated by commas',
 'instr_import' => 'Enter a comma-separated string of ASIN numbers to import.<br />E.g. &quot;ABCDEFG,123456,abcdefg&quot;',
 'features'  => 'Features',

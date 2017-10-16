@@ -586,8 +586,8 @@ class Item
         $bad = array();
         if (count($asins) > ASTORE_MAX_QUERY) {
             $bad = $asins;
-            $bad = array_splice($bad, ASTORE_MAX_QUERY);
-            array_splice($asins, 0, ASTORE_MAX_QUERY);
+            array_splice($bad, 0, ASTORE_MAX_QUERY);
+            array_splice($asins, ASTORE_MAX_QUERY);
         }
         $asins = implode(',', $asins);
 
@@ -605,6 +605,25 @@ class Item
         }
         // Return the remaining ASINs to get with the next request
         return implode(',', $bad);
+    }
+
+
+    /**
+    *   Export all catalog items as a CSV, ready to be imported.
+    *
+    *   @return string  CSV string containing all item IDs
+    */
+    public static function exportItems()
+    {
+        global $_TABLES;
+
+        $sql = "SELECT asin FROM {$_TABLES['astore_catalog']}";
+        $res = DB_query($sql);
+        $items = array();
+        while ($A = DB_fetchArray($res, false)) {
+            $items[] = $A['asin'];
+        }
+        return implode(',', $items);
     }
 
 
