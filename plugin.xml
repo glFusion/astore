@@ -2,7 +2,7 @@
     <id>astore</id>
     <name>Amazon Store</name>
     <description>Amazon Astore plugin for glFusion.</description>
-    <version>0.1.0</version>
+    <version>0.2.0</version>
     <glfusionversion>1.7.0</glfusionversion>
     <phpversion>5.6.0</phpversion>
     <url>http://www.leegarner.com</url>
