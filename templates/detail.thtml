@@ -12,7 +12,7 @@
       <img src="{img_url}" style="max-width: {img_width}; max-height: {img_height};" />
     </a>
   </div>
-  <div class="ast-detail-price">{listprice}</div>
+  <div class="ast-detail-price">{lowestprice}</div>
   <div class="ast-a-detail-button">
     <span class="ast-a-button ast-a-button-primary">
       <a target="_blank" href="{item_url}" style="text-decoration:none" rel="nofollow">
