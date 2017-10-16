@@ -28,6 +28,7 @@ $LANG_ASTORE = array(
 'export'    => 'Export',
 'enter_asins' => 'ASINs, separated by commas',
 'instr_import' => 'Enter a comma-separated string of ASIN numbers to import.<br />E.g. &quot;ABCDEFG,123456,abcdefg&quot;',
+'instr_export' => 'Copy and save this string of item numbers, and use it to re-import the items later.',
 'features'  => 'Features',
 'unavailable' => 'Unavailable',
 'more_offers' => 'See Offers',

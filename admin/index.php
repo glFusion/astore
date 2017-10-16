@@ -55,7 +55,8 @@ switch ($action) {
 case 'exportcsv':
     $items = Astore\Item::exportItems();
     if (!empty($items)) {
-        $content .= '<textarea style="width:100%">' . $items . '</textarea>';
+        $content .= '<textarea style="width:100%" class="tooltip" title="' .
+            $LANG_ASTORE['instr_export'] . '">' . $items . '</textarea>';
     }
     $view = 'items';
     break;
