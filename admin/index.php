@@ -26,7 +26,7 @@ USES_lib_admin();
 $action = '';
 $actionval = '';
 $expected = array(
-    'additem', 'delitem', 'importcsv',
+    'additem', 'delitem', 'importcsv', 'exportcsv',
     'import',
     'mode', 'view',
 );
@@ -52,6 +52,14 @@ $view = isset($_REQUEST['view']) ? $_REQUEST['view'] : $action;
 $import_fld = '';
 
 switch ($action) {
+case 'exportcsv':
+    $items = Astore\Item::exportItems();
+    if (!empty($items)) {
+        $content .= '<textarea style="width:100%">' . $items . '</textarea>';
+    }
+    $view = 'items';
+    break;
+
 case 'importcsv':
     $csv = isset($_POST['asins']) ? $_POST['asins'] : '';
     if (!empty($csv)) {
@@ -149,6 +157,10 @@ function ASTORE_adminMenu($view='')
             'url'  => ASTORE_ADMIN_URL . '/index.php',
             'text' => $LANG_ASTORE['items'],
             'active' => $act_items,
+        ),
+        array(
+            'url'   => ASTORE_ADMIN_URL . '/index.php?exportcsv=x',
+            'text'  => $LANG_ASTORE['export'],
         ),
         array(
             'url'  => $_CONF['site_admin_url'],
