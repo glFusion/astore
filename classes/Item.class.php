@@ -330,9 +330,9 @@ class Item
 
     public function DisplayPrice($fmt = 'formatted')
     {
-        $p = $this->ListPrice($fmt);
+        $p = $this->LowestPrice($fmt);
         if (empty($p)) {
-            $p = $this->LowestPrice($fmt);
+            $p = $this->ListPrice($fmt);
         }
         return $p;
     }
