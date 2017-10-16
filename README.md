@@ -1,6 +1,6 @@
 # Amazon Store Plugin for glFusion
 This plugin provides a storefront for curated Amazon products, similar to
-the "Astore" product that Amazon is retiring on Octoberi 27, 2017.
+the "Astore" product that Amazon is retiring on October 27, 2017.
 Using the Product Advertising API you can display a curated set of products on your site.
 Product IDs and search strings can be passed to the plugin to display other products that are not in your catalog.
 
