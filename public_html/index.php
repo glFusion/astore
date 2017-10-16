@@ -35,7 +35,7 @@ case 'detail':
         }
         $T->set_var(array(
             'item_url'  => $item->DetailURL(),
-            'title'     => COM_truncate($item->Title(), 50),
+            'title'     => $item->Title(),
             'img_url'   => $item->LargeImage()->URL,
             'img_width' => $item->LargeImage()->Width,
             'img_height' => $item->LargeImage()->Height,
@@ -53,7 +53,7 @@ case 'detail':
                 $T->set_var('feature', $feature);
                 $T->parse('fb', 'Features', true);
             }
-        } 
+        }
     } else {
         $T->set_var(array(
             'message'   => $LANG_ASTORE['item_not_found'],
