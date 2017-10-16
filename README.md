@@ -4,6 +4,9 @@ the "Astore" product that Amazon is retiring on Octoberi 27, 2017.
 Using the Product Advertising API you can display a curated set of products on your site.
 Product IDs and search strings can be passed to the plugin to display other products that are not in your catalog.
 
+Amazon requires that affiliate links be placed only on sites that the associate controls.
+For example, posting affiliate links in forums, Facebook, etc. is against the terms of service.
+
 You must set up an associate account at Amazon and create your credentials before using this plugin.
 See [https://affiliate-program.amazon.com/](https://affiliate-program.amazon.com/)
 
@@ -16,20 +19,30 @@ See [https://affiliate-program.amazon.com/](https://affiliate-program.amazon.com
     * Items are retrieved from Amazon in bulk and cached.
     * A 1-second sleep() is induced if requests would be made too rapidly.
     * Only requests up to 10 items at a time.
+  * Items that are unavailable from Amazon or third-party sellers are not shown.
+
 
 ## Usage
-Amazon requires that affiliate links be placed only on sites that the associate controls.
-For example, posting affiliate links in forums, Facebook, etc. is against the terms of service.
+This plugin allows you to post a link to an Amazon product page on your site,
+even if you have not added the item to your catalog.
 
-This plugin allows you to post a link to an Amazon product page on your site, even if you have
-not added the item to your catalog.
-  * `https://example.com/astore/index.php?detail=XXXXX` leads to a product information page with
-a link to Amazon.
-  * `https://example.com/astore/index.php?asin=XXXXX` leads to your catalog page with product XXXX
-featured at the top of the page.
-  * `https://example.com/astore/index.php?search=word1+word2+...` searches Amazon and displays a page of products.
-Search results are cached by query string but not added to the catalog.
-  * `https//example.com/astore/index.php` leads to your catalog page.
+  * Link to Your Catalog Home Page
+    * `https//example.com/astore/index.php` leads to your catalog page.
+
+  * Link to a Product Detail Page
+    * `https://example.com/astore/index.php?detail=XXXXX` shows a product
+        information page with a link to the product page on Amazon.
+
+  * Link to a Specific Product
+    * `https://example.com/astore/index.php?asin=XXXXX` leads to your catalog page,
+        with product XXXX featured at the top of the page.
+        If so configured, this product is automatically added to the catalog.
+
+  * Link to a Search Page
+    * `https://example.com/astore/index.php?search=word1+word2+...`
+        searches Amazon and displays a page of products.
+        Search results are cached by query string but not added to the catalog.
+        Only the first page of results is displayed, with a link to Amazon to view more results.
 
 ## Configuration
 ### AWS Access Key, Secret Key, Associate ID

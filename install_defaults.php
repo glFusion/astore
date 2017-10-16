@@ -7,7 +7,7 @@
 *   @author     Lee Garner <lee@leegarner.com>
 *   @copyright  Copyright (c) 2017 Lee Garner <lee@leegarner.com>
 *   @package    astore
-*   @version    0.0.1
+*   @version    0.1.0
 *   @license    http://opensource.org/licenses/gpl-2.0.php 
 *               GNU Public License v2 or later
 *   @filesource
