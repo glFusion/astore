@@ -24,19 +24,36 @@ class Item
     protected $asin;
     protected static $required_asins = array();
 
-    public function __construct($asin='')
+    public function __construct($asin='', $data = '')
     {
         $this->asin = $asin;
         if (!empty($this->asin)) {
-            $this->data = self::Retrieve($asin);
+            // If data is provided, just use it. Otherwise load from catalog.
+            if (!empty($data)) {
+                $this->data = $data;
+            } else {
+                $this->data = self::Retrieve($asin);
+            }
         }
     }
 
+
+    /**
+    *   Return the raw data object
+    *
+    *   @return objet   simpleXML object containing item data
+    */
     public function Data()
     {
         return $this->data;
     }
 
+
+    /**
+    *   Return the ASIN, to allow public access to it.
+    *
+    *   @return string  Item ID
+    */
     public function ASIN()
     {
         return $this->data->ASIN;
@@ -311,7 +328,7 @@ class Item
     public function OffersURL()
     {
         $retval = NULL;
-        if ($this->isAvailable() && !$this->_haveAmazonOffers() &&
+        if ($this->isAvailable() && $this->_haveAmazonOffers() &&
                 isset($this->data->ItemLinks->ItemLink[6]) ) {
             $retval = $this->data->ItemLinks->ItemLink[6]->URL->__toString();
         }
@@ -533,11 +550,9 @@ class Item
             $res = DB_query($sql);
             $asins = array();
             while ($A = DB_fetchArray($res, false)) {
-                $allitems[$A['asin']] = new self();
                 $data = self::_getCache($A['asin']);
                 if ($data) {
-                    $allitems[$A['asin']] = new self();
-                    $allitems[$A['asin']]->data = $data;
+                    $allitems[$A['asin']] = new self($A['asin'], $data);
                 } else {
                     // Item not in cache, add to list to get from Amazon
                     $asins[] = $A['asin'];
