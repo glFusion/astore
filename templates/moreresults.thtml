@@ -1,0 +1,10 @@
+{# begin {templatelocation} #}
+{!if moreresults_url}
+<a target="_blank" href="{moreresults_url}">
+  <div class="ast-product-box" style="border:none;">
+    <img src="{site_url}/astore/images/more_results.png" width="120" height="160">
+    <div style="text-align:center;">{$LANG_ASTORE['more_results']}</div>
+  </div>
+</a>
+{!endif}
+{# end {templatelocation} #}

@@ -85,5 +85,5 @@ Increasing the Block description length may require changes to the CSS or templa
 ### Sort Order
 Select the sorting method for the item list. Options are:
   * By date added, ascending or descending
-  * Random ordering
+  * Random ordering (Will give odd results if more than one page of results.)
   * No sorting (Database natural sorting)
