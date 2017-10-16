@@ -15,9 +15,10 @@ global $_TABLES;
 
 $_SQL['astore_cache'] = "CREATE TABLE {$_TABLES['astore_cache']} (
   `asin` varchar(128) NOT NULL,
+  `type` tinyint(1) unsigned NOT NULL DEFAULT '0',
   `data` text,
   `exp` int(11) unsigned NOT NULL,
-  PRIMARY KEY  (`asin`),
+  PRIMARY KEY (`asin`),
   KEY `exp` (`exp`)
 ) ENGINE=MyISAM";
 
