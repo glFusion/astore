@@ -1,7 +1,8 @@
 # Changelog - Astore plugin for glFusion
 
 ## Version 0.1.1
-Release TBD
+Release 2017-10-16
+- Add missing images and more_results template
 - Do not truncate title in detail view
 - Fix when More Offer link is shown
 - Fix typo
