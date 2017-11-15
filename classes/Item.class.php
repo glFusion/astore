@@ -384,7 +384,7 @@ class Item
     {
         return $this->data->ItemAttributes->Title;
     }
-    public function DetailUrl()
+    public function DetailPageUrl()
     {
         return $this->data->DetailPageURL;
     }
@@ -424,7 +424,7 @@ class Item
                 continue;
             }
             $T->set_var(array(
-                'item_url'  => $item->DetailURL(),
+                'item_url'  => $item->DetailPageURL(),
                 'lowestprice'   => $item->LowestPrice(),
                 'listprice' => $item->ListPrice(),
                 'title'     => COM_truncate($item->Title(),

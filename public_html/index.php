@@ -34,7 +34,7 @@ case 'detail':
             ) );
         }
         $T->set_var(array(
-            'item_url'  => $item->DetailURL(),
+            'item_url'  => $item->DetailPageURL(),
             'title'     => $item->Title(),
             'img_url'   => $item->LargeImage()->URL,
             'img_width' => $item->LargeImage()->Width,
@@ -108,7 +108,7 @@ default:
         if (!$item->isError()) {
             $T->set_block('store', 'featured', 'fb');
             $T->set_var(array(
-                'item_url'  => $item->DetailURL(),
+                'item_url'  => $item->DetailPageURL(),
                 'lowestprice' => $item->LowestPrice(),
                 'listprice' => $item->ListPrice(),
                 'title'     => $item->Title(),
@@ -166,7 +166,7 @@ function ASTORE_showProducts($items)
             continue;
         }
         $T->set_var(array(
-            'item_url'  => $item->DetailURL(),
+            'item_url'  => $item->DetailPageURL(),
             'lowestprice'   => $item->LowestPrice(),
             'listprice' => $item->ListPrice(),
             'title'     => COM_truncate($item->Title(),
