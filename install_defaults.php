@@ -1,14 +1,14 @@
 <?php
 /**
 *   Installation Defaults used when loading the online configuration.
-*   These settings are only used during the initial installation 
+*   These settings are only used during the initial installation
 *   and upgrade not referenced any more once the plugin is installed.
 *
 *   @author     Lee Garner <lee@leegarner.com>
 *   @copyright  Copyright (c) 2017 Lee Garner <lee@leegarner.com>
 *   @package    astore
 *   @version    0.1.0
-*   @license    http://opensource.org/licenses/gpl-2.0.php 
+*   @license    http://opensource.org/licenses/gpl-2.0.php
 *               GNU Public License v2 or later
 *   @filesource
 */
@@ -40,6 +40,8 @@ $_ASTORE_DEFAULT = array(
     'max_feat_desc' => 600,
     'max_blk_desc' => 50,
     'sort' => 'none',       // storefront item sorting
+    'notag_header' => '',   // Do not set associate tag if this header exists
+    'notag_admins' => true, // Do not set associate tag for logged-in admins
 );
 
 /**
@@ -58,31 +60,35 @@ function plugin_initconfig_astore($admin_group)
         $c->add('sg_main', NULL, 'subgroup', 0, 0, NULL, 0, true, $me);
 
         $c->add('fs_main', NULL, 'fieldset', 0, 0, NULL, 0, true, $me);
-        
-        $c->add('store_title', $_ASTORE_DEFAULT['store_title'], 
+
+        $c->add('store_title', $_ASTORE_DEFAULT['store_title'],
                 'text', 0, 0, 0, 10, true, $me);
-        $c->add('aws_access_key', $_ASTORE_DEFAULT['aws_access_key'], 
+        $c->add('aws_access_key', $_ASTORE_DEFAULT['aws_access_key'],
                 'text', 0, 0, 0, 20, true, $me);
-        $c->add('aws_secret_key', $_ASTORE_DEFAULT['aws_secret_key'], 
+        $c->add('aws_secret_key', $_ASTORE_DEFAULT['aws_secret_key'],
                 'passwd', 0, 0, 3, 30, true, $me);
-        $c->add('aws_assoc_id', $_ASTORE_DEFAULT['aws_assoc_id'], 
+        $c->add('aws_assoc_id', $_ASTORE_DEFAULT['aws_assoc_id'],
                 'text', 0, 0, 0, 40, true, $me);
-        $c->add('aws_country', $_ASTORE_DEFAULT['aws_country'], 
+        $c->add('aws_country', $_ASTORE_DEFAULT['aws_country'],
                 'select', 0, 0, 1, 50, true, $me);
-        $c->add('aws_cache_min', $_ASTORE_DEFAULT['aws_cache_min'], 
+        $c->add('aws_cache_min', $_ASTORE_DEFAULT['aws_cache_min'],
                 'text', 0, 0, 0, 60, true, $me);
-        $c->add('debug_aws', $_ASTORE_DEFAULT['debug_aws'], 
+        $c->add('debug_aws', $_ASTORE_DEFAULT['debug_aws'],
                 'select', 0, 0, 2, 70, true, $me);
-        $c->add('auto_add_catalog', $_ASTORE_DEFAULT['auto_add_catalog'], 
+        $c->add('auto_add_catalog', $_ASTORE_DEFAULT['auto_add_catalog'],
                 'select', 0, 0, 2, 80, true, $me);
-        $c->add('perpage', $_ASTORE_DEFAULT['perpage'], 
+        $c->add('perpage', $_ASTORE_DEFAULT['perpage'],
                 'text', 0, 0, 0, 90, true, $me);
-        $c->add('max_feat_desc', $_ASTORE_DEFAULT['max_feat_desc'], 
+        $c->add('max_feat_desc', $_ASTORE_DEFAULT['max_feat_desc'],
                 'text', 0, 0, 0, 100, true, $me);
-        $c->add('max_blk_desc', $_ASTORE_DEFAULT['max_blk_desc'], 
+        $c->add('max_blk_desc', $_ASTORE_DEFAULT['max_blk_desc'],
                 'text', 0, 0, 0, 110, true, $me);
-        $c->add('sort', $_ASTORE_DEFAULT['sort'], 
+        $c->add('sort', $_ASTORE_DEFAULT['sort'],
                 'select', 0, 0, 3, 120, true, $me);
+        $c->add('notag_header', $_ASTORE_DEFAULT['notag_header'],
+                'text', 0, 0, 0, 130, true, $me);
+        $c->add('notag_admins', $_ASTORE_DEFAULT['notag_admins'],
+                'select', 0, 0, 2, 140, true, $me);
         return true;
     } else {
         return false;

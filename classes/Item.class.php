@@ -332,7 +332,7 @@ class Item
                 isset($this->data->ItemLinks->ItemLink[6]) ) {
             $retval = $this->data->ItemLinks->ItemLink[6]->URL->__toString();
         }
-        return $retval;
+        return self::stripAWStag($retval);
     }
 
     public function EditorialReview()
@@ -386,7 +386,7 @@ class Item
     }
     public function DetailPageUrl()
     {
-        return $this->data->DetailPageURL;
+        return self::stripAWStag($this->data->DetailPageURL);
     }
     public function SmallImage()
     {
@@ -686,6 +686,30 @@ class Item
             $_CONF_ASTORE['perpage'] = 10;
         }
         return ceil($count / $_CONF_ASTORE['perpage']);
+    }
+
+
+    /**
+    *   Remove any associate-related tags from the product URL for admins.
+    *   This is to avoid artifically inflating the click count at Amazon
+    *   during testing by admins.
+    *   If the configured header is present, or an admin is logged in and
+    *   admins should not see associate links, then strip the associate infl.
+    *
+    *   @param  string  $url    Product URL
+    *   @return string          URL without associate tags
+    */
+    private static function stripAWStag($url)
+    {
+        global $_CONF_ASTORE;
+
+        if (($_CONF_ASTORE['notag_header'] != '' &&
+            isset($_SERVER['HTTP_' . strtoupper($_CONF_ASTORE['notag_header'])])) ||
+            $_CONF_ASTORE['notag_admins'] && plugin_ismoderator_astore()) {
+            return preg_replace('/\?.*/', '', $url);
+        } else {
+            return $url;
+        }
     }
 
 }

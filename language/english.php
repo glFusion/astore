@@ -57,6 +57,8 @@ $LANG_confignames['astore'] = array(
     'max_feat_desc' => 'Max Featured Item Description (chars)',
     'max_blk_desc' => 'Max Item Description in blocks (chars)',
     'sort' => 'Sort Order',
+    'notag_admins' => 'Block Associate ID if Admin',
+    'notag_header' => 'Block Associate ID for Header',
 );
 
 $LANG_configsubgroups['astore'] = array(

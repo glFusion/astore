@@ -44,6 +44,15 @@ function astore_do_upgrade()
     $installed_ver = plugin_chkVersion_astore();
     $conf = config::get_instance();
 
+    if (!COM_checkVersion($current_ver, '0.1.2')) {
+        // Adds tag-hiding feature based on HTTP header and admin status
+        $conf->add('notag_header', $_ASTORE_DEFAULT['notag_header'],
+                'text', 0, 0, 0, 130, true, $_CONF_ASTORE['pi_name']);
+        $conf->add('notag_admins', $_ASTORE_DEFAULT['notag_admins'],
+                'select', 0, 0, 2, 140, true, $_CONF_ASTORE['pi_name']);
+        if (!astore_do_update_version($installed_ver)) return false;
+    }
+
     // Final extra check to catch code-only patch versions
     if (!COM_checkVersion($current_ver, $installed_ver)) {
         if (!astore_do_update_version($installed_ver)) return false;

@@ -87,3 +87,13 @@ Select the sorting method for the item list. Options are:
   * By date added, ascending or descending
   * Random ordering (Will give odd results if more than one page of results.)
   * No sorting (Database natural sorting)
+
+### Block Associate ID for Header
+To avoid artificaly inflating the click count on Amazon's Associate Central you
+can specify a header string to exclude from seeing the associate tag info in
+product URLs. The URL will still link to the product page at Amazon but the
+associate ID will not be included.
+
+### Block Associate ID if Admin
+Also, you can exclude logged-in administrators from having the associate ID
+appear in product links if this is set to "Yes"

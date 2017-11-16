@@ -5,7 +5,7 @@
 *   @author     Lee Garner <lee@leegarner.com>
 *   @copyright  Copyright (c) 2017 Lee Garner <lee@leegarner.com>
 *   @package    astore
-*   @version    0.1.1
+*   @version    0.1.2
 *   @license    http://opensource.org/licenses/gpl-2.0.php 
 *               GNU Public License v2 or later
 *   @filesource
@@ -27,7 +27,7 @@ $_TABLES['astore_catalog']  = $_DB_table_prefix . 'astore_catalog';
 $_TABLES['astore_cache']    = $_DB_table_prefix . 'astore_cache';
 
 $_CONF_ASTORE['pi_name']           = 'astore';
-$_CONF_ASTORE['pi_version']        = '0.1.1';
+$_CONF_ASTORE['pi_version']        = '0.1.2';
 $_CONF_ASTORE['gl_version']        = '1.7.0';
 $_CONF_ASTORE['pi_url']            = 'http://www.leegarner.com';
 $_CONF_ASTORE['pi_display_name']   = 'Amazon Store';
