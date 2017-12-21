@@ -44,6 +44,7 @@ case 'detail':
             'long_description' => $item->EditorialReview(),
             'available' => $item->isAvailable(),
             'offers_url'    => $item->OffersURL(),
+            'is_prime'  => $item->isPrime(),
         ) );
         $features = $item->Features();
         if (!empty($features)) {

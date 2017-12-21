@@ -404,7 +404,10 @@ class Item
     {
         return $this->data->SimilarProducts;
     }
-
+    public function isPrime()
+    {
+        return (int)$this->data->Offers->Offer->OfferListing->IsEligibleForPrime;
+    }
 
     public static function showProducts($items)
     {
@@ -438,6 +441,7 @@ class Item
                 'long_description' => '',
                 'offers_url' => $item->OffersURL(),
                 'available' => $item->isAvailable(),
+                'is_prime' => $item->isPrime() ? true : false,
             ) );
             $T->parse('pb', 'productbox', true);
         }

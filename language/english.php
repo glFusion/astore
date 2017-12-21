@@ -5,7 +5,7 @@
 *   @author     Lee Garner <lee@leegarner.com>
 *   @copyright  Copyright (c) 2017 Lee Garner <lee@leegarner.com>
 *   @package    astore
-*   @version    0.1.0
+*   @version    0.1.1
 *   @license    http://opensource.org/licenses/gpl-2.0.php 
 *               GNU Public License v2 or later
 *   @filesource
@@ -35,6 +35,7 @@ $LANG_ASTORE = array(
 'search_query' => 'Enter Search String',
 'search' => 'Search',
 'more_results' => 'More Results',
+'back_to_store' => 'Back to Store',
 'err_adm_import_size' => 'Your import string contained more than 10 items. The remaining items have been placed in the import field for you to submit again',
 );
 

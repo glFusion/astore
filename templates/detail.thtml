@@ -1,6 +1,6 @@
 {# begin {templatelocation} #}
 <div class="ast-store-link">
-  <a href="{site_url}/astore/index.php">Back to Store</a>
+  <a href="{site_url}/astore/index.php">{$LANG_ASTORE['back_to_store']}</a>
 </div>
 {!if item_url}
 <div class="ast-product-detail">
@@ -26,6 +26,9 @@
 {!if available}
 {!else}
     <div class="ast-unavail">{$LANG_ASTORE['unavailable']}</div>
+{!endif}
+{!if is_prime}
+  <img src="{site_url}/astore/images/prime.v101.svg" />
 {!endif}
 {!if lowestprice}
   <div class="ast-detail-offers">
