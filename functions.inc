@@ -471,6 +471,42 @@ function plugin_runScheduledTask_astore()
 }
 
 
+/**
+*   Implements the autotags
+*   - astore:       Display a product box
+*   - astore_link:  Display a text link
+*
+*   @param  string  $op         operation to perform
+*   @param  string  $content    item (e.g. story text), including the autotag
+*   @param  array   $autotag    parameters used in the autotag
+*   @param  mixed               tag names (for $op='tagname') or formatted content
+*/
+function plugin_autotags_astore($op, $content = '', $autotag = '')
+{
+    switch ($op) {
+    case 'tagname':
+        return array('astore', 'astore_link');
+        break;
+    case 'parse':
+        $HTML = '';
+        switch( $autotag['tag'] ) {
+        case 'astore':
+            // Get a specific product
+            $Item = new Astore\Item($autotag['parm1']);
+            $HTML = Astore\Item::showProducts($Item);
+            break;
+        case 'astore_link':
+            $Item = new Astore\Item($autotag['parm1']);
+            $desc = empty($autotag['parm2']) ? $Item->Title() : $autotag['parm2'];
+            $HTML = COM_createLink($desc, $Item->DetailPageURL());
+            break;
+        }
+        $content = str_replace($autotag['tagstr'], $HTML, $content);
+        return $content;
+    }
+}
+
+
 ////////////////////////////////////////////
 //
 //  Public Plugin-Specific Functions Follow
