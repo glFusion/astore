@@ -84,7 +84,6 @@ class Item
             'AssociateTag' => $_CONF_ASTORE['aws_assoc_id'],
             'ResponseGroup' => 'Images,ItemAttributes,Offers,EditorialReview',
             'Timestamp' => gmdate('Y-m-d\TH:i:s\Z'),
-        //    'Timestamp' => '2017-10-09T15:30:56Z',
         );
         $params = array_merge($base_params, $params);
         ksort($params);
@@ -112,8 +111,7 @@ class Item
         curl_close($ch);
         self::_setTimestamp();
 
-        $obj = new \SimpleXMLElement($responseContent);
-        return $obj;
+        return self::_XmlToJson($responseContent);
     }
 
 
@@ -148,13 +146,10 @@ class Item
         $data = DB_getItem($_TABLES['astore_cache'], 'data',
             "asin = '$asin' AND exp > UNIX_TIMESTAMP()");
         if (!empty($data)) {
-            $use_errors = libxml_use_internal_errors(true);
-            $data = simplexml_load_string($data);
-            // Check if XML translation failed
-            if ($data === false) $data = NULL;
-            libxml_use_internal_errors($use_errors);
+            return json_decode($data);
+        } else {
+            return NULL;
         }
-        return $data;
     }
 
 
@@ -163,7 +158,7 @@ class Item
     *
     *   @param  string  $asin   Item number
     *   @param  integer $type   Type of item cache, e.g. catalog, search
-    *   @param  string  $data   XML data
+    *   @param  string  $data   JSON data object
     */
     protected static function _setCache($asin, $type, $data)
     {
@@ -172,7 +167,7 @@ class Item
         $cache_secs = (int)$_CONF_ASTORE['cache_min'];
         if ($cache_secs < 600) $cache_secs = 1800;
         $asin = DB_escapeString($asin);
-        $data = DB_escapeString($data);
+        $data = DB_escapeString(json_encode($data));
         $type = (int)$type;
         $sql = "INSERT INTO {$_TABLES['astore_cache']} SET
                     asin = '$asin',
@@ -289,7 +284,7 @@ class Item
     {
         $retval = true;
         if (isset($this->data->Offers->TotalOffers)) {
-            $x = (int)$this->data->Offers->TotalOffers->__toString();
+            $x = (int)$this->data->Offers->TotalOffers;
             if ($x == 0) {
                 if (!isset($this->data->OfferSummary->LowestNewPrice)) {
                     $retval = false;
@@ -330,7 +325,7 @@ class Item
         $retval = NULL;
         if ($this->isAvailable() && $this->_haveAmazonOffers() &&
                 isset($this->data->ItemLinks->ItemLink[6]) ) {
-            $retval = $this->data->ItemLinks->ItemLink[6]->URL->__toString();
+            $retval = $this->data->ItemLinks->ItemLink[6]->URL;
         }
         return self::stripAWStag($retval);
     }
@@ -390,15 +385,30 @@ class Item
     }
     public function SmallImage()
     {
-        return $this->data->SmallImage;
+        $img = $this->data->ImageSets->ImageSet;
+        if (is_array($img)) {
+            return $img[0]->SmallImage;
+        } else {
+            return $img->SmallImage;
+        }
     }
     public function MediumImage()
     {
-        return $this->data->MediumImage;
+        $img = $this->data->ImageSets->ImageSet;
+        if (is_array($img)) {
+            return $img[0]->MediumImage;
+        } else {
+            return $img->MediumImage;
+        }
     }
     public function LargeImage()
     {
-        return $this->data->LargeImage;
+        $img = $this->data->ImageSets->ImageSet;
+        if (is_array($img)) {
+            return $img[0]->LargeImage;
+        } else {
+            return $img->LargeImage;
+        }
     }
     public function Similar()
     {
@@ -485,6 +495,7 @@ class Item
         global $_CONF_ASTORE;
 
         $retval = array();
+        if (empty($asins)) return $retval;
 
         if (is_array($asins)) {
             if (count($asins) > ASTORE_MAX_QUERY) {
@@ -502,15 +513,18 @@ class Item
         );
 
         $obj = self::_makeRequest($params);
-        if (isset($obj->Error->Code)) {
+        if (isset($obj->Items->Request->Errors->Error->Code)) {
             self::_debug($asin . ': ' . $obj->Error->Message, true);
-        } else {
+        } elseif (is_array($obj->Items->Item)) {
             $Item = $obj->Items->Item;
             foreach ($Item as $i) {
-                $asin = $i->ASIN->__toString();
-                self::_setCache($asin, ASTORE_TYPE_CATALOG, $i->asXML());
-                $retval[$asin] = $i;
+                self::_setCache($i->ASIN, ASTORE_TYPE_CATALOG, $i);
+                $retval[$i->ASIN] = $i;
             }
+        } elseif (is_object($obj->Items->Item)) {
+            $i = $obj->Items->Item;
+            self::_setCache($i->ASIN, ASTORE_TYPE_CATALOG, $i);
+            $retval[$i->ASIN] = $i;
         }
         return $retval;
     }
@@ -666,7 +680,7 @@ class Item
     *
     *   @return integer     Count of items in the catalog table
     */
-    public function Count()
+    public static function Count()
     {
         global $_TABLES;
 
@@ -714,6 +728,23 @@ class Item
         } else {
             return $url;
         }
+    }
+
+
+    /**
+    *   Convert the XML received from Amazon to JSON
+    *
+    *   @param  string  $str    XML string
+    *   @return object          JSON object
+    */
+    private static function _XmlToJson($str)
+    {
+        $str = str_replace(array("\n", "\r", "\t"), '', $str);
+        $str = trim(str_replace('"', "'", $str));
+        $simpleXml = simplexml_load_string($str);
+        $json = json_encode($simpleXml);
+        $json = json_decode($json); // back to object
+        return $json;
     }
 
 }

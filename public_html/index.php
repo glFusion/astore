@@ -27,7 +27,7 @@ case 'detail':
         $listprice = $item->ListPrice('raw');
         $lowestprice = $item->LowestPrice('raw');
         if (
-            ($lowestprice && $listprice && $lowestprice->__toString() < $listprice->__toString()) ||
+            ($lowestprice && $listprice && $lowestprice < $listprice) ||
             ($lowestprice && !$listprice) ) {
             $T->set_var(array(
                 'lowestprice'   => $item->LowestPrice(),

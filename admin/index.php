@@ -266,17 +266,17 @@ function ASTORE_getAdminField($fieldname, $fieldvalue, $A, $icon_arr)
         break;
 
     case 'title':
+        $title = NULL;
         if (!empty($fieldvalue)) {
             // Protect against invalid elements that get into the catalog
             // Suppress errors and check the result
-            libxml_use_internal_errors(true);
-            $X = simplexml_load_string($fieldvalue);
-            $title = $X->ItemAttributes->Title;
-        } else {
-            $title = NULL;
+            //libxml_use_internal_errors(true);
+            //$X = simplexml_load_string($fieldvalue);
+            $X = json_decode($fieldvalue);
+            if ($X !== NULL) $title = $X->ItemAttributes->Title;
         }
         if ($title !== NULL)  {
-            $retval = $title->__toString();
+            $retval = $title;
         } else {
             $retval = '<i class="uk-icon uk-icon-exclamation-triangle ast-icon-danger"></i>&nbsp;<span class="ast-icon-danger">Invalid Item</span>';
         }
