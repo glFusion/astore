@@ -20,7 +20,9 @@ See [https://affiliate-program.amazon.com/](https://affiliate-program.amazon.com
     * A 1-second sleep() is induced if requests would be made too rapidly.
     * Only requests up to 10 items at a time.
   * Items that are unavailable from Amazon or third-party sellers are not shown.
-
+  * Supports autotags
+    * astore: Display a product box for a single product in the page content.
+    * astore_link: Display a text link to a product on Amazon.
 
 ## Usage
 This plugin allows you to post a link to an Amazon product page on your site,
