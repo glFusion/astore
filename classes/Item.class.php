@@ -3,9 +3,9 @@
 *   Common elements for Amazon classes
 *
 *   @author     Lee Garner <lee@leegarner.com>
-*   @copyright  Copyright (c) 2017 Lee Garner <lee@leegarner.com>
+*   @copyright  Copyright (c) 2017-2018 Lee Garner <lee@leegarner.com>
 *   @package    astore
-*   @version    0.1.0
+*   @version    0.1.2
 *   @license    http://opensource.org/licenses/gpl-2.0.php
 *               GNU Public License v2 or later
 *   @filesource
@@ -20,6 +20,7 @@ class Item
 {
     protected static $endpoint = 'webservices.amazon.com';
     protected static $uri = '/onca/xml';
+    protected static $tag = 'astore';
     protected $data;        // gets a simpleXML object
     protected $asin;
     protected static $required_asins = array();
@@ -56,7 +57,11 @@ class Item
     */
     public function ASIN()
     {
-        return $this->data->ASIN;
+        if (isset($this->data->ASIN)) {
+            return $this->data->ASIN;
+        } else {
+            return '';
+        }
     }
 
 
@@ -74,7 +79,8 @@ class Item
             throw new \Exception("cURL support is required, but can't be found.");
         }
 
-        if (self::_getTimestamp() >= time() - 1) {
+        // Make sure a request hasn't been made within the last second
+        if (Cache::getTimestamp() >= (time() - 1)) {
             sleep(1);
         }
 
@@ -101,7 +107,7 @@ class Item
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $request_url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_TIMEOUT, $timeout);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 20);
         curl_setopt($ch, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_1_0);
         curl_setopt($ch, CURLOPT_ENCODING, '');
         curl_setopt($ch, CURLINFO_HEADER_OUT, true);
@@ -109,7 +115,7 @@ class Item
         $responseContent = curl_exec($ch);
         $responseHeaders = curl_getinfo($ch);
         curl_close($ch);
-        self::_setTimestamp();
+        Cache::setTimestamp();
 
         return self::_XmlToJson($responseContent);
     }
@@ -133,67 +139,18 @@ class Item
 
 
     /**
-    *   Get item information from the cache, if present
-    *
-    *   @param  string  $asin   Item number
-    *   @return mixed       Item object, NULL if not present
-    */
-    protected static function _getCache($asin)
-    {
-        global $_TABLES;
-
-        $asin = DB_escapeString($asin);
-        $data = DB_getItem($_TABLES['astore_cache'], 'data',
-            "asin = '$asin' AND exp > UNIX_TIMESTAMP()");
-        if (!empty($data)) {
-            return json_decode($data);
-        } else {
-            return NULL;
-        }
-    }
-
-
-    /**
-    *   Sets an item's data into the cache
-    *
-    *   @param  string  $asin   Item number
-    *   @param  integer $type   Type of item cache, e.g. catalog, search
-    *   @param  string  $data   JSON data object
-    */
-    protected static function _setCache($asin, $type, $data)
-    {
-        global $_TABLES, $_CONF_ASTORE;
-
-        $cache_secs = (int)$_CONF_ASTORE['cache_min'];
-        if ($cache_secs < 600) $cache_secs = 1800;
-        $asin = DB_escapeString($asin);
-        $data = DB_escapeString(json_encode($data));
-        $type = (int)$type;
-        $sql = "INSERT INTO {$_TABLES['astore_cache']} SET
-                    asin = '$asin',
-                    type = '$type',
-                    data = '$data',
-                    exp = UNIX_TIMESTAMP() + $cache_secs
-                ON DUPLICATE KEY UPDATE
-                    data = '$data',
-                    exp = UNIX_TIMESTAMP() + $cache_secs";
-        //echo $sql;die;
-        DB_query($sql);
-    }
-
-
-    /**
     *   Add an item to the catalog if not already present
     *
     *   @param  string  $asin   Item number
     *   @return boolean         True on success, False on DB error
     */
-    public static function AddToCatalog($asin)
+    public static function AddToCatalog($asin, $title)
     {
         global $_TABLES;
 
         $sql = "INSERT IGNORE INTO {$_TABLES['astore_catalog']} SET
-                asin = '" . DB_escapeString($asin) . "'";
+                asin = '" . DB_escapeString($asin) . "',
+                title = '" . DB_escapeString($title) . "'";
         DB_query($sql);
         return DB_error() ? false : true;
     }
@@ -211,33 +168,6 @@ class Item
 
 
     /**
-    *   Get the timestamp of the last Amazon query
-    *
-    *   @return integer     Timestamp value
-    */
-    private static function _getTimeStamp()
-    {
-        global $_VARS;
-
-        return (int)$_VARS['astore_ts'];
-    }
-
-
-    /**
-    *   Update the timestamp variable with the current time
-    */
-    private static function _setTimestamp()
-    {
-        global $_TABLES, $_VARS;
-
-        $_VARS['astore_ts'] = time();
-        DB_query("UPDATE {$_TABLES['vars']}
-                SET value = '{$_VARS['astore_ts']}'
-                WHERE name = 'astore_ts'");
-    }
-
-
-    /**
     *   Log a debug message if aws_debug is enabled
     *
     *   @param  string  $text   Message to be logged
@@ -247,7 +177,7 @@ class Item
     {
         global $_CONF_ASTORE;
 
-        if ($force || $_CONF_ASTORE['debug_aws']) {
+        if ($force || (isset($_CONF_ASTORE['debug_aws']) && $_CONF_ASTORE['debug_aws'])) {
             COM_errorLog('Astore:: ' . $text);
         }
     }
@@ -364,20 +294,29 @@ class Item
     }
     public function ListPrice($fmt = 'formatted')
     {
+        $p = 'N/A';
         switch ($fmt) {
         case 'formatted':
-            $p = $this->data->ItemAttributes->ListPrice->FormattedPrice;
+            if (isset($this->data->ItemAttributes->ListPrice->FormattedPrice)) {
+                $p = $this->data->ItemAttributes->ListPrice->FormattedPrice;
+            }
             break;
         case 'raw':
         case 'amount':
-            $p = $this->data->ItemAttributes->ListPrice->Amount;
+            if (isset($this->data->ItemAttributes->ListPrice->Amount)) {
+                $p = $this->data->ItemAttributes->ListPrice->Amount;
+            }
             break;
         }
         return $p;
     }
     public function Title()
     {
-        return $this->data->ItemAttributes->Title;
+        if (isset($this->data->ItemAttributes->Title)) {
+            return $this->data->ItemAttributes->Title;
+        } else {
+            return '';
+        }
     }
     public function DetailPageUrl()
     {
@@ -416,9 +355,20 @@ class Item
     }
     public function isPrime()
     {
-        return (int)$this->data->Offers->Offer->OfferListing->IsEligibleForPrime;
+        if (isset($this->data->Offers->Offer->OfferListing->IsEligibleForPrime)) {
+            return (int)$this->data->Offers->Offer->OfferListing->IsEligibleForPrime;
+        } else {
+            return 0;
+        }
     }
 
+
+    /**
+    *   Display the products in a grid
+    *
+    *   @param  array   $items  Array of item objects
+    *   @return string      HTML for the product page
+    */
     public static function showProducts($items)
     {
         global $_CONF_ASTORE;
@@ -471,11 +421,16 @@ class Item
         global $_CONF_ASTORE;
 
         // Return from cache if found and not expired
-        $data = self::_getCache($asin);
+        $data = Cache::getCache($asin);
         if (empty($data)) {
             $data = self::_getAmazon(array($asin));
             if (!empty($data) && $_CONF_ASTORE['auto_add_catalog']) {
-                self::AddToCatalog($asin);
+                if (isset($data->ItemAttributes->Title)) {  
+                    $title = $data->ItemAttributes->Title;
+                } else {
+                    $title = '';
+                }
+                self::AddToCatalog($asin, $title);
             }
             return $data[$asin];
         } else {
@@ -518,12 +473,12 @@ class Item
         } elseif (is_array($obj->Items->Item)) {
             $Item = $obj->Items->Item;
             foreach ($Item as $i) {
-                self::_setCache($i->ASIN, ASTORE_TYPE_CATALOG, $i);
+                Cache::setCache($i->ASIN, $i);
                 $retval[$i->ASIN] = $i;
             }
         } elseif (is_object($obj->Items->Item)) {
             $i = $obj->Items->Item;
-            self::_setCache($i->ASIN, ASTORE_TYPE_CATALOG, $i);
+            Cache::setCache($i->ASIN, $i);
             $retval[$i->ASIN] = $i;
         }
         return $retval;
@@ -545,6 +500,7 @@ class Item
             $allitems = array();
             $limit = (int)$_CONF_ASTORE['perpage'];
             $start = ((int)$page - 1) * $limit;
+            $orderby = '';
             switch ($_CONF_ASTORE['sort']) {
             case 'rand':
                 $orderby = 'RAND()';
@@ -568,7 +524,7 @@ class Item
             $res = DB_query($sql);
             $asins = array();
             while ($A = DB_fetchArray($res, false)) {
-                $data = self::_getCache($A['asin']);
+                $data = Cache::getCache($A['asin']);
                 if ($data) {
                     $allitems[$A['asin']] = new self($A['asin'], $data);
                 } else {
@@ -590,7 +546,12 @@ class Item
                     $allitems[$asin]->data = $info;
                     if ($_CONF_ASTORE['auto_add_catalog']) {
                         // Automatically add featured items to catalog
-                        self::AddToCatalog($asin);
+                        if (isset($info->ItemAttributes->Title)) {  
+                            $title = $info->ItemAttributes->Title;
+                        } else {
+                            $title = '';
+                        }
+                        self::AddToCatalog($asin, $title);
                     }
                 }
             }
@@ -632,7 +593,12 @@ class Item
                 $allitems[$asin]->data = $info;
                 if ($_CONF_ASTORE['auto_add_catalog'] || $tocatalog) {
                     // Automatically add items to catalog
-                    self::AddToCatalog($asin);
+                    if (isset($info->ItemAttributes->Title)) {  
+                        $title = $info->ItemAttributes->Title;
+                    } else {
+                        $title = '';
+                    }
+                    self::AddToCatalog($asin, $title);
                 }
             }
         }
@@ -670,7 +636,6 @@ class Item
         global $_TABLES;
 
         DB_delete($_TABLES['astore_catalog'], 'asin', $asin);
-        DB_delete($_TABLES['astore_cache'], 'asin', $asin);
     }
 
 
