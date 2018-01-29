@@ -2,6 +2,7 @@
 
 ## Version 0.1.2
 Release TBD
+- Implement glFusion 1.8.0 caching
 - Add autotag support
 - Use JSON internally
 - Add config options to hide associate tag in links based on HTTP header and admin status
