@@ -26,6 +26,7 @@ $LANG_ASTORE = array(
 'item_not_found' => 'The requested item could not be found, or an error was encountered. Please check the item number and try again.',
 'import'    => 'Import',
 'export'    => 'Export',
+'clearcache' => 'Clear Cache',
 'enter_asins' => 'ASINs, separated by commas',
 'instr_import' => 'Enter a comma-separated string of ASIN numbers to import.<br />E.g. &quot;ABCDEFG,123456,abcdefg&quot;',
 'instr_export' => 'Copy and save this string of item numbers, and use it to re-import the items later.',
@@ -76,8 +77,7 @@ $LANG_configselects['astore'] = array(
     1 => array('com' => 'com', 'co.uk' => 'co.uk', 'ca' => 'ca', 'fr' => 'fr',
             'co.jp' => 'co.jp', 'it' => 'it', 'cn' => 'cn', 'es' => 'es', 'de' => 'de'),
     2 => array('Yes' => 1, 'No' => 0),
-    3 => array('None' => 'none', 'Date ASC' => 'fifo', 'Date DESC' => 'lifo',
-            'Random' => 'rand'),
+    3 => array('ASIN' => 'none', 'Date ASC' => 'fifo', 'Date DESC' => 'lifo'),
 );
 
 ?>
