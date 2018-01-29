@@ -21,7 +21,7 @@ require_once __DIR__ . '/install_defaults.php';
 */
 function astore_do_upgrade()
 {
-    global $_TABLES, $_CONF_ASTORE, $_PLUGIN_INFO;
+    global $_TABLES, $_CONF_ASTORE, $_PLUGIN_INFO, $_ASTORE_DEFAULT;
 
     $pi_name = $_CONF_ASTORE['pi_name'];
 
@@ -50,6 +50,24 @@ function astore_do_upgrade()
                 'text', 0, 0, 0, 130, true, $_CONF_ASTORE['pi_name']);
         $conf->add('notag_admins', $_ASTORE_DEFAULT['notag_admins'],
                 'select', 0, 0, 2, 140, true, $_CONF_ASTORE['pi_name']);
+        if (!astore_do_upgrade_sql($installed_ver)) return false;
+        // Sync title names from cache into catalog title field.
+        $sql1 = "SELECT cat.asin, cache.data
+                FROM {$_TABLES['astore_catalog']} cat
+                LEFT JOIN {$_TABLES['astore_cache']} cache
+                    ON cache.asin = cat.asin";
+        $res1 = DB_query($sql1);
+        if ($res1) {
+            while ($A = DB_fetchArray($res1, false)) {
+                $item = new Astore\Item($A['asin'], @json_decode($A['data']));
+                if (!empty($item->Title())) {
+                    $sql2 = "UPDATE {$_TABLES['astore_catalog']}
+                        SET title = '" . DB_escapeString($item->Title()) . "'
+                        WHERE asin = '" . DB_escapeString($A['asin']) . "'";
+                    DB_query($sql2, 1);
+                }
+            }
+        }
         if (!astore_do_update_version($installed_ver)) return false;
     }
 

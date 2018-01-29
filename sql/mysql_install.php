@@ -3,15 +3,23 @@
 *   Table definitions for the Astore plugin
 *
 *   @author     Lee Garner <lee@leegarner.com>
-*   @copyright  Copyright (c) 2017 Lee Garner <lee@leegarner.com>
+*   @copyright  Copyright (c) 2017-2018 Lee Garner <lee@leegarner.com>
 *   @package    astore
-*   @version    0.1.0
+*   @version    0.1.2
 *   @license    http://opensource.org/licenses/gpl-2.0.php
 *               GNU Public License v2 or later
 *   @filesource
 */
 
 global $_TABLES;
+
+$_SQL['astore_catalog'] = "CREATE TABLE {$_TABLES['astore_catalog']} (
+  `asin` varchar(32) NOT NULL,
+  `title` text,
+  `ts` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`asin`),
+  KEY `ts` (`ts`)
+) ENGINE=MyISAM";
 
 $_SQL['astore_cache'] = "CREATE TABLE {$_TABLES['astore_cache']} (
   `asin` varchar(128) NOT NULL,
@@ -22,11 +30,13 @@ $_SQL['astore_cache'] = "CREATE TABLE {$_TABLES['astore_cache']} (
   KEY `exp` (`exp`)
 ) ENGINE=MyISAM";
 
-$_SQL['astore_catalog'] = "CREATE TABLE {$_TABLES['astore_catalog']} (
-  `asin` varchar(32) NOT NULL,
-  `ts` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (`asin`),
-  KEY `ts` (`ts`)
-) ENGINE=MyISAM";
+$ASTORE_UPGRADE = array(
+    '0.1.2' => array(
+        "ALTER TABLE {$_TABLES['astore_catalog']}
+            ADD title TEXT AFTER asin",
+        //"DROP TABLE IF EXISTS {$_TABLES['astore_cache']}",
+        //"DELETE FROM {$_TABLES['vars']} WHERE name = 'astore_ts'",
+    ),
+);
 
 ?>
