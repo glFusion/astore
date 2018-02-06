@@ -50,8 +50,11 @@ function astore_do_upgrade()
                 'text', 0, 0, 0, 130, true, $_CONF_ASTORE['pi_name']);
         $conf->add('notag_admins', $_ASTORE_DEFAULT['notag_admins'],
                 'select', 0, 0, 2, 140, true, $_CONF_ASTORE['pi_name']);
+        $conf->add('cb_enable', $_ASTORE_DEFAULT['cb_enable'],
+                'select', 0, 0, 2, 150, true, $me);
         if (!astore_do_upgrade_sql($installed_ver)) return false;
         // Sync title names from cache into catalog title field.
+        // Need this to have titles in admin list when cache table is removed.
         $sql1 = "SELECT cat.asin, cache.data
                 FROM {$_TABLES['astore_catalog']} cat
                 LEFT JOIN {$_TABLES['astore_cache']} cache

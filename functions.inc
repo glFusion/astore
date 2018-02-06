@@ -22,8 +22,6 @@ global $_CONF_ASTORE;
 
 define ('ASTORE_PI_PATH', __DIR__);
 define ('ASTORE_MAX_QUERY', 10);    // Amazon max items in a query
-define ('ASTORE_TYPE_CATALOG', 1);
-define ('ASTORE_TYPE_SEARCH', 2);
 
 $langfile = $_CONF['language'] . '.php';
 if (!file_exists(ASTORE_PI_PATH . '/language/' . $langfile)) {
@@ -74,82 +72,21 @@ spl_autoload_register(function ($class)
 */
 function plugin_centerblock_astore($where=1,$page=1,$topic ='')
 {
-    global $_CONF_ASTORE, $_TABLES;
+    global $_CONF_ASTORE;
 
     // Flag whether we're on the homepage or not
     $on_homepage = ($page == 1 && $topic == '') ? true : false;
+    $display = '';
 
-    // If centerblock not enabled, or just for homepage and
-    // we're not on the homepage, just return
-    if ($_CONF_ASTORE['cb_enable'] == 0 ||
-            ($_CONF_ASTORE['cb_home'] == 1 && !$on_homepage) ) {
-        return '';
+    // Centerblock must be enabled, and only works on the homepage
+    if (isset($_CONF_ASTORE['cb_enable']) && $_CONF_ASTORE['cb_enable'] &&
+            $on_homepage) {
+        $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+        $display .= COM_siteHeader();
+        $display .= ASTORE_show($page);
+        $display .= COM_siteFooter();
     }
-
-    // Set basic options for astore search
-    $options = array('limit' => 1, 'centerblock' => 1);
-
-    // Get the centerblock position.  May be overridden later
-    $cntrblkpos = $_CONF_ASTORE['cb_pos'];
-
-    // If we're not supposed to replace the homepage, then return.
-    // Otherwise, do so.
-    if ($where == 0 && $topic == '') {
-        if (!$_CONF_ASTORE['cb_replhome']) {
-            return '';
-        } else {
-            $cntrblkpos = 0;
-        }
-    }
-
-    // Check if there are no featured articles in this topic
-    // and if so then place it at the top of the page
-    if ($topic != "") {
-        $wherenames = array('tid', 'featured', 'draft_flag');
-        $wherevalues = array($topic, 1, 0);
-        $options['tid'] = $topic;
-    } else {
-        $wherenames = array('featured', 'draft_flag');
-        $wherevalues = array(1, 0);
-    }
-
-    $story_count = DB_count($_TABLES['stories'], $wherenames, $wherevalues);
-    if ($story_count == 0 && $cntrblkpos == 2) {
-        // If the centerblock comes after the featured story, and there
-        // are no stories, put the centerblock at the top.
-        $cntrblkpos = 1;
-    }
-
-    if ($cntrblkpos != $where) {
-        return '';
-    }
-
-    $bids = Astore\Astore::GetAstore($options);
-    if (!empty($bids)) {
-        $B = new Astore\Astore($bids[0]);
-        $B->updateImpressions();
-
-        $T = new Template(ASTORE_PI_PATH . '/templates');
-        $T->set_file('page', 'centerblock.thtml');
-        $T->set_var(array(
-            'astore'    => $B->BuildAstore(),
-            'category'  => $B->cid,
-            'astore_id' => $B->bid,
-            'campaign'  => $B->camp_id,
-        ) );
-        $T->parse('output','page');
-
-        $astore = $T->finish($T->get_var('output'));
-    }
-
-    if ($_CONF_ASTORE['cb_replhome'] == 1 && $on_homepage) {
-        // Replacing the homepage, and we're currently on the homepage
-        echo COM_siteHeader() . $astore . COM_siteFooter(true);
-        exit;
-    } else {
-        // Return only the astore for a normal centerblock
-        return $astore;
-    }
+    return $display;
 }
 
 
@@ -369,6 +306,7 @@ function plugin_autouninstall_astore ()
         // give all vars with their name
         'vars'=> array('astore_ts')
     );
+    Astore\Cache::clearCache()
     return $out;
 }
 
@@ -463,11 +401,10 @@ function plugin_configmanager_aws_secret_key_astore_validate($value)
 */
 function plugin_runScheduledTask_astore()
 {
-    global $_TABLES, $_CONF_ASTORE;
+    global $_TABLES;
 
     DB_query("DELETE FROM {$_TABLES['astore_cache']}
-            WHERE exp < UNIX_TIMESTAMP()
-            AND `type` <> " . ASTORE_TYPE_CATALOG);
+            WHERE exp < UNIX_TIMESTAMP()");
 }
 
 
@@ -532,6 +469,70 @@ function ASTORE_getIcon($name, $style='info')
     } else {
         return 'fa fa-' . $name . $style;
     }
+}
+
+function ASTORE_show($page = 1, $asin='')
+{
+    global $_CONF_ASTORE;
+
+    if ($page < 1) $page = 1;
+    if (!empty($asin) && $page == 1) {
+        Astore\Item::Require($asin);
+    }
+    $items = Astore\Item::getAll($page);
+    $T = new Template(ASTORE_PI_PATH . '/templates');
+    $T->set_file(array(
+        'store' => 'store.thtml',
+    ) );
+    if (!empty($asin) && $page == 1) {
+        if (!isset($items[$asin])) {
+            $item = new Astore\Item($asin);
+        } else {
+            $item = $items[$asin];
+            unset($items[$asin]);
+        }
+        if (!$item->isError()) {
+            $T->set_block('store', 'featured', 'fb');
+            $T->set_var(array(
+                'item_url'  => $item->DetailPageURL(),
+                'lowestprice' => $item->LowestPrice(),
+                'listprice' => $item->ListPrice(),
+                'title'     => $item->Title(),
+                'img_url'   => $item->MediumImage()->URL,
+                'img_width' => $item->MediumImage()->Width,
+                'img_height' => $item->MediumImage()->Height,
+                'formattedprice' => $item->LowestPrice(),
+                'long_description' => COM_truncate($item->EditorialReview(),
+                    $_CONF_ASTORE['max_feat_desc'], '...'),
+                'iconset'   => $_CONF_ASTORE['_iconset'],
+                'offers_url' => $item->OffersURL(),
+                'available' => $item->isAvailable(),
+            ) );
+            $T->parse('fb', 'featured');
+        }
+    } else {
+        $T->set_var(array(
+            'store_title'   => $_CONF_ASTORE['store_title'],
+        ) );
+    }
+
+    $T->set_var('productboxes', Astore\Item::showProducts($items));
+
+    // Display pagination
+    $count = Astore\Item::Count();
+    $pagenav_args = '';
+    if (isset($_CONF_ASTORE['perpage']) &&
+            $_CONF_ASTORE['perpage'] > 0 &&
+            $count > $_CONF_ASTORE['perpage'] ) {
+        $T->set_var('pagination',
+            COM_printPageNavigation(ASTORE_URL . '/index.php' . $pagenav_args,
+                        $page,
+                        ceil($count / $_CONF_ASTORE['perpage'])));
+    } else {
+        $T->set_var('pagination', '');
+    }
+    $T->parse('output', 'store');
+    return $T->finish($T->get_var('output'));
 }
 
 ?>

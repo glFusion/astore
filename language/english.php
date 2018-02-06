@@ -61,6 +61,7 @@ $LANG_confignames['astore'] = array(
     'sort' => 'Sort Order',
     'notag_admins' => 'Block Associate ID if Admin',
     'notag_header' => 'Block Associate ID for Header',
+    'cb_enable' => 'Enable Centerblock?',
 );
 
 $LANG_configsubgroups['astore'] = array(

@@ -2,6 +2,7 @@
 
 ## Version 0.1.2
 Release TBD
+- Add centerblock option to replace home page
 - Implement glFusion 1.8.0 caching
 - Add autotag support
 - Use JSON internally

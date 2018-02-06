@@ -42,6 +42,7 @@ $_ASTORE_DEFAULT = array(
     'sort' => 'none',       // storefront item sorting
     'notag_header' => '',   // Do not set associate tag if this header exists
     'notag_admins' => true, // Do not set associate tag for logged-in admins
+    'cb_enable' => false,   // Enable centerblock?
 );
 
 /**
@@ -89,6 +90,8 @@ function plugin_initconfig_astore($admin_group)
                 'text', 0, 0, 0, 130, true, $me);
         $c->add('notag_admins', $_ASTORE_DEFAULT['notag_admins'],
                 'select', 0, 0, 2, 140, true, $me);
+        $c->add('cb_enable', $_ASTORE_DEFAULT['cb_enable'],
+                'select', 0, 0, 2, 150, true, $me);
         return true;
     } else {
         return false;
