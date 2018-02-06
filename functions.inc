@@ -306,7 +306,7 @@ function plugin_autouninstall_astore ()
         // give all vars with their name
         'vars'=> array('astore_ts')
     );
-    Astore\Cache::clearCache()
+    Astore\Cache::clearCache();
     return $out;
 }
 
