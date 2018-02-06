@@ -435,7 +435,8 @@ function plugin_autotags_astore($op, $content = '', $autotag = '')
         case 'astore_link':
             $Item = new Astore\Item($autotag['parm1']);
             $desc = empty($autotag['parm2']) ? $Item->Title() : $autotag['parm2'];
-            $HTML = COM_createLink($desc, $Item->DetailPageURL());
+            $HTML = COM_createLink($desc, $Item->DetailPageURL(),
+                array('target' => '_blank'));
             break;
         }
         $content = str_replace($autotag['tagstr'], $HTML, $content);
