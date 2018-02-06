@@ -28,7 +28,7 @@ class Cache
     */
     public static function getCache($asin)
     {
-        if (GVERSION < '1.8.0') {
+        if (version_compare(GVERSION, '1.8.0', '<')) {
             global $_TABLES;
 
             $asin = DB_escapeString($asin);
@@ -58,7 +58,7 @@ class Cache
 
         $cache_secs = (int)$_CONF_ASTORE['aws_cache_min'] * 60;
         if ($cache_secs < 600) $cache_secs = 1800;
-        if (GVERSION < '1.8.0') {
+        if (version_compare(GVERSION, '1.8.0', '<')) {
             global $_TABLES;
 
             $asin = DB_escapeString($asin);
@@ -99,7 +99,7 @@ class Cache
     */
     public static function getTimestamp()
     {
-        if (GVERSION < '1.8.0') {
+        if (version_compare(GVERSION, '1.8.0', '<')) {
             global $_VARS;
             $ts = $_VARS['astore_ts'];
         } else {
@@ -119,7 +119,7 @@ class Cache
     */
     public static function setTimestamp()
     {
-        if (GVERSION < '1.8.0') {
+        if (version_compare(GVERSION, '1.8.0', '<')) {
             global $_TABLES, $_VARS;
 
             $_VARS['astore_ts'] = time();
@@ -137,7 +137,7 @@ class Cache
     */
     public static function clearCache()
     {
-        if (GVERSION < '1.8.0') {
+        if (version_compare(GVERSION, '1.8.0', '<')) {
             global $_TABLES;
             DB_query("TRUNCATE {$_TABLES['astore_cache']}");
         } else {
