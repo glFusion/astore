@@ -26,7 +26,7 @@ USES_lib_admin();
 $action = '';
 $actionval = '';
 $expected = array(
-    'additem', 'delitem', 'importcsv', 'exportcsv',
+    'additem', 'delitem', 'importcsv', 'exportcsv', 'clearcache',
     'import',
     'mode', 'view',
 );
@@ -37,7 +37,7 @@ foreach ($expected as $provided) {
         $actionval = $_POST[$provided];
         break;
     } elseif (isset($_GET[$provided])) {
-    	$action = $provided;
+        $action = $provided;
         $actionval = $_GET[$provided];
         break;
     }
@@ -89,9 +89,14 @@ case 'additem':
     if (!empty($asin)) {
         $item = new Astore\Item($asin);
         // Item is already added to the catalog if auto_add_catalog is set
-        if (!$_CONF_ASTORE['auto_add_catalog'] && 
+        if (!$_CONF_ASTORE['auto_add_catalog'] &&
                 is_object($item) && !$item->isError()) {
-            $status = Astore\Item::AddToCatalog($asin);
+            if (isset($info->ItemAttributes->Title)) {
+                $title = $item->ItemAttributes->Title;
+            } else {
+                $title = '';
+            }
+            $status = Astore\Item::AddToCatalog($asin, $title);
             if ($status) {
                 $msg = sprintf($LANG_ASTORE['add_success'], $asin);
                 $level = 'info';
@@ -106,6 +111,11 @@ case 'additem':
             ) );
         }
     }
+    echo COM_refresh(ASTORE_ADMIN_URL);
+    break;
+
+case 'clearcache':
+    Astore\Cache::clearCache();
     echo COM_refresh(ASTORE_ADMIN_URL);
     break;
 
@@ -128,7 +138,7 @@ if (isset($_GET['msg'])) {
     }
 }
 
-echo COM_siteHeader('none', $LANG_ASTORE['astores']);
+echo COM_siteHeader('none', $LANG_ASTORE['admin_title']);
 echo ASTORE_adminMenu($view);
 echo $content;
 echo COM_siteFooter();
@@ -164,6 +174,10 @@ function ASTORE_adminMenu($view='')
             'text'  => $LANG_ASTORE['export'],
         ),
         array(
+            'url'   => ASTORE_ADMIN_URL . '/index.php?clearcache=x',
+            'text'  => $LANG_ASTORE['clearcache'],
+        ),
+        array(
             'url'  => $_CONF['site_admin_url'],
             'text' => $LANG_ADMIN['admin_home'],
         ),
@@ -173,9 +187,10 @@ function ASTORE_adminMenu($view='')
     $T->set_file('title', 'admin.thtml');
     $T->set_var(array(
         'version'   => $_CONF_ASTORE['pi_version'],
+        'icon' => plugin_geticon_astore(),
     ) );
     $retval = $T->parse('', 'title');
-    $retval .= ADMIN_createMenu($menu_arr, $hdr_txt,
+    $retval .= ADMIN_createMenu($menu_arr, '',
             plugin_geticon_astore());
     return $retval;
 }
@@ -218,10 +233,7 @@ function ASTORE_adminItemList($import_fld = '')
     $defsort_arr = array('field' => 'asin', 'direction' => 'asc');
     $query_arr = array(
         'table' => 'astore_catalog',
-        'sql' => "SELECT cat.asin AS asin, cache.data as title
-                FROM {$_TABLES['astore_catalog']} AS cat
-                LEFT JOIN {$_TABLES['astore_cache']} AS cache
-                    ON cat.asin = cache.asin",
+        'sql' => "SELECT asin, title FROM {$_TABLES['astore_catalog']}",
     );
 
     $T = new Template(ASTORE_PI_PATH . '/templates');
@@ -266,19 +278,10 @@ function ASTORE_getAdminField($fieldname, $fieldvalue, $A, $icon_arr)
         break;
 
     case 'title':
-        $title = NULL;
-        if (!empty($fieldvalue)) {
-            // Protect against invalid elements that get into the catalog
-            // Suppress errors and check the result
-            //libxml_use_internal_errors(true);
-            //$X = simplexml_load_string($fieldvalue);
-            $X = json_decode($fieldvalue);
-            if ($X !== NULL) $title = $X->ItemAttributes->Title;
-        }
-        if ($title !== NULL)  {
-            $retval = $title;
-        } else {
+        if (empty($fieldvalue)) {
             $retval = '<i class="uk-icon uk-icon-exclamation-triangle ast-icon-danger"></i>&nbsp;<span class="ast-icon-danger">Invalid Item</span>';
+        } else {
+            $retval = $fieldvalue;
         }
         break;
 
