@@ -44,7 +44,7 @@ function astore_do_upgrade()
     $installed_ver = plugin_chkVersion_astore();
     $conf = config::get_instance();
 
-    if (!COM_checkVersion($current_ver, '0.1.2')) {
+    if (!COM_checkVersion($current_ver, '0.2.0')) {
         // Adds tag-hiding feature based on HTTP header and admin status
         $conf->add('notag_header', $_ASTORE_DEFAULT['notag_header'],
                 'text', 0, 0, 0, 130, true, $_CONF_ASTORE['pi_name']);

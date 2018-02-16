@@ -5,7 +5,7 @@
 *   @author     Lee Garner <lee@leegarner.com>
 *   @copyright  Copyright (c) 2017-2018 Lee Garner <lee@leegarner.com>
 *   @package    astore
-*   @version    0.1.2
+*   @version    0.2.0
 *   @license    http://opensource.org/licenses/gpl-2.0.php
 *               GNU Public License v2 or later
 *   @filesource
@@ -445,7 +445,7 @@ class Item
     *   @param  array   $params Request parameters
     *   @return array   Array of Item objects
     */
-    protected static function _getAmazon($asins)
+    protected static function _getAmazon($asins, $type='ASIN')
     {
         global $_CONF_ASTORE;
 
@@ -461,11 +461,26 @@ class Item
         }
 
         self::_debug("Getting $asins from Amazon");
+        $type = strtoupper($type);
+        switch ($type) {
+        case 'ASIN':
+        case 'ISBN':
+        case 'SKU':
+        case 'UPC':
+        case 'EAN':
+            break;
+        default:
+            COM_errorLog("invalid item ID type '$type' for items " . print_r($asins,true));
+            return $retval;
+        }
         $params = array(
             'Operation' => 'ItemLookup',
             'ItemId' => $asins,
-            'IdType' => 'ASIN',
+            'IdType' => $type,
         );
+        if ($type != 'ASIN') {
+            $params['SearchIndex'] = 'All';
+        }
 
         $obj = self::_makeRequest($params);
         if (isset($obj->Items->Request->Errors->Error->Code)) {
@@ -669,6 +684,17 @@ class Item
             $_CONF_ASTORE['perpage'] = 10;
         }
         return ceil($count / $_CONF_ASTORE['perpage']);
+    }
+
+
+    public function getByISBN($isbn)
+    {
+        $data = Cache::getCache($isbn);
+        if ($data === NULL) {
+            $data = self::_getAmazon($isbn, 'ISBN');
+            Cache::setCache($isbn, $data);
+        }
+        return $data;
     }
 
 

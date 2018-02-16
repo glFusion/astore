@@ -3,9 +3,9 @@
 *   glFusion API functions for the Astore plugin
 *
 *   @author     Lee Garner <lee@leegarner.com>
-*   @copyright  Copyright (c) 2017 Lee Garner <lee@leegarner.com>
+*   @copyright  Copyright (c) 2017-2018 Lee Garner <lee@leegarner.com>
 *   @package    astore
-*   @version    0.1.0
+*   @version    0.2.0
 *   @license    http://opensource.org/licenses/gpl-2.0.php
 *               GNU Public License v2 or later
 *   @filesource
@@ -534,6 +534,32 @@ function ASTORE_show($page = 1, $asin='')
     }
     $T->parse('output', 'store');
     return $T->finish($T->get_var('output'));
+}
+
+
+/**
+*   Get item information.
+*
+*   @param  array   $args       Arguments
+*   @param  array   &$output    Pointer to output value
+*   @param  array   &$svc_msg   Unused
+*   @return integer             Status code
+*/
+function service_getiteminfo_astore($args, &$output, &$svc_msg)
+{
+    $output = NULL;
+    if (!isset($args['keytype']) || !isset($args['keyval'])) {
+        return PLG_RET_ERROR;
+    }
+
+    switch(strtolower($args['keytype'])) {
+    case 'isbn':
+        $output = Astore\Item::getByISBN($args['keyval']);
+        break;
+    default:
+        return PLG_RET_ERROR;
+    }
+    return PLG_RET_OK;
 }
 
 ?>

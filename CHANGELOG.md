@@ -1,7 +1,9 @@
 # Changelog - Astore plugin for glFusion
 
-## Version 0.1.2
+## Version 0.2.0
 Release TBD
+- Add service function to get item information
+- Support multiple ID types, e.g. "ISBN"
 - Add admin menu to manually clear cache
 - Add centerblock option to replace home page
 - Implement glFusion 1.8.0 caching
