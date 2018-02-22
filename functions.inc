@@ -426,7 +426,7 @@ function plugin_autotags_astore($op, $content = '', $autotag = '')
         break;
     case 'parse':
         $HTML = '';
-        switch( $autotag['tag'] ) {
+        switch ($autotag['tag']) {
         case 'astore':
             // Get a specific product
             $Item = new Astore\Item($autotag['parm1']);
@@ -434,9 +434,11 @@ function plugin_autotags_astore($op, $content = '', $autotag = '')
             break;
         case 'astore_link':
             $Item = new Astore\Item($autotag['parm1']);
-            $desc = empty($autotag['parm2']) ? $Item->Title() : $autotag['parm2'];
-            $HTML = COM_createLink($desc, $Item->DetailPageURL(),
-                array('target' => '_blank'));
+            if ($Item->Data()) {        // Make sure some valid data was returned
+                $desc = empty($autotag['parm2']) ? $Item->Title() : $autotag['parm2'];
+                $HTML = COM_createLink($desc, $Item->DetailPageURL(),
+                    array('target' => '_blank'));
+            }
             break;
         }
         $content = str_replace($autotag['tagstr'], $HTML, $content);
@@ -555,6 +557,9 @@ function service_getiteminfo_astore($args, &$output, &$svc_msg)
     switch(strtolower($args['keytype'])) {
     case 'isbn':
         $output = Astore\Item::getByISBN($args['keyval']);
+        if (empty($output)) {
+            return PLG_RET_PRECONDITION_FAILED;
+        }
         break;
     default:
         return PLG_RET_ERROR;

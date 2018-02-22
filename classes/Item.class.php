@@ -262,11 +262,19 @@ class Item
 
     public function EditorialReview()
     {
-        return $this->data->EditorialReviews->EditorialReview->Content;
+        if (isset($this->data->EditorialReviews->EditorialReview->Content)) {
+            return $this->data->EditorialReviews->EditorialReview->Content;
+        } else {
+            return '';
+        }
     }
     public function Features()
     {
-        return $this->data->ItemAttributes->Feature;
+        if (isset($this->data->ItemAttributes->Feature)) {
+            return $this->data->ItemAttributes->Feature;
+        } else {
+            return '';
+        }
     }
 
 
@@ -320,10 +328,18 @@ class Item
     }
     public function DetailPageUrl()
     {
-        return self::stripAWStag($this->data->DetailPageURL);
+        if (isset($this->data->DetailPageURL)) {
+            return self::stripAWStag($this->data->DetailPageURL);
+        } else {
+            return '';
+        }
     }
     public function SmallImage()
     {
+        if (!isset($this->data->ImageSets->ImageSet)) {
+            return '';
+        }
+
         $img = $this->data->ImageSets->ImageSet;
         if (is_array($img)) {
             return $img[0]->SmallImage;
@@ -333,6 +349,10 @@ class Item
     }
     public function MediumImage()
     {
+        if (!isset($this->data->ImageSets->ImageSet)) {
+            return '';
+        }
+
         $img = $this->data->ImageSets->ImageSet;
         if (is_array($img)) {
             return $img[0]->MediumImage;
@@ -342,6 +362,10 @@ class Item
     }
     public function LargeImage()
     {
+        if (!isset($this->data->ImageSets->ImageSet)) {
+            return '';
+        }
+
         $img = $this->data->ImageSets->ImageSet;
         if (is_array($img)) {
             return $img[0]->LargeImage;
@@ -351,7 +375,11 @@ class Item
     }
     public function Similar()
     {
-        return $this->data->SimilarProducts;
+        if (isset($this->data->SimilarProducts)) {
+            return $this->data->SimilarProducts;
+        } else {
+            return '';
+        }
     }
     public function isPrime()
     {
@@ -432,7 +460,11 @@ class Item
                 }
                 self::AddToCatalog($asin, $title);
             }
-            return $data[$asin];
+            if (isset($data[$asin])) {
+                return $data[$asin];
+            } else {
+                return NULL;
+            }
         } else {
             return $data;
         }
@@ -484,7 +516,7 @@ class Item
 
         $obj = self::_makeRequest($params);
         if (isset($obj->Items->Request->Errors->Error->Code)) {
-            self::_debug($asin . ': ' . $obj->Error->Message, true);
+            self::_debug($asins . ': ' . $obj->Items->Request->Errors->Error->Message, true);
         } elseif (is_array($obj->Items->Item)) {
             $Item = $obj->Items->Item;
             foreach ($Item as $i) {
@@ -687,7 +719,7 @@ class Item
     }
 
 
-    public function getByISBN($isbn)
+    public static function getByISBN($isbn)
     {
         $data = Cache::getCache($isbn);
         if ($data === NULL) {
