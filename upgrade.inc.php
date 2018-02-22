@@ -3,9 +3,9 @@
 *   Upgrade routines for the Astore plugin.
 *
 *   @author     Lee Garner <lee@leegarner.com>
-*   @copyright  Copyright (c) 2017 Lee Garner <lee@leegarner.com>
+*   @copyright  Copyright (c) 2017-2018 Lee Garner <lee@leegarner.com>
 *   @package    astore
-*   @version    0.0.2
+*   @version    0.2.0
 *   @license    http://opensource.org/licenses/gpl-2.0.php
 *               GNU Public License v2 or later
 *   @filesource
@@ -45,6 +45,7 @@ function astore_do_upgrade()
     $conf = config::get_instance();
 
     if (!COM_checkVersion($current_ver, '0.2.0')) {
+        $current_ver = '0.2.0';
         // Adds tag-hiding feature based on HTTP header and admin status
         $conf->add('notag_header', $_ASTORE_DEFAULT['notag_header'],
                 'text', 0, 0, 0, 130, true, $_CONF_ASTORE['pi_name']);
@@ -52,7 +53,7 @@ function astore_do_upgrade()
                 'select', 0, 0, 2, 140, true, $_CONF_ASTORE['pi_name']);
         $conf->add('cb_enable', $_ASTORE_DEFAULT['cb_enable'],
                 'select', 0, 0, 2, 150, true, $me);
-        if (!astore_do_upgrade_sql($installed_ver)) return false;
+        if (!astore_do_upgrade_sql($current_ver)) return false;
         // Sync title names from cache into catalog title field.
         // Need this to have titles in admin list when cache table is removed.
         $sql1 = "SELECT cat.asin, cache.data
@@ -71,7 +72,7 @@ function astore_do_upgrade()
                 }
             }
         }
-        if (!astore_do_update_version($installed_ver)) return false;
+        if (!astore_do_update_version($current_ver)) return false;
     }
 
     // Final extra check to catch code-only patch versions
@@ -122,8 +123,9 @@ function astore_do_upgrade_sql($version)
     require_once ASTORE_PI_PATH . "/sql/{$_DB_dbms}_install.php";
 
     // If no sql statements passed in, return success
-    if (!is_array($ASTORE_UPGRADE[$version]))
+    if (!isset($ASTORE_UPGRADE[$version]) || !is_array($ASTORE_UPGRADE[$version])) {
         return true;
+    }
 
     // Execute SQL now to perform the upgrade
     COM_errorLOG("--Updating Astore to version $version");
