@@ -52,7 +52,7 @@ function astore_do_upgrade()
         $conf->add('notag_admins', $_ASTORE_DEFAULT['notag_admins'],
                 'select', 0, 0, 2, 140, true, $_CONF_ASTORE['pi_name']);
         $conf->add('cb_enable', $_ASTORE_DEFAULT['cb_enable'],
-                'select', 0, 0, 2, 150, true, $me);
+                'select', 0, 0, 2, 150, true, $_CONF_ASTORE['pi_name']);
         if (!astore_do_upgrade_sql($current_ver)) return false;
         // Sync title names from cache into catalog title field.
         // Need this to have titles in admin list when cache table is removed.
@@ -156,7 +156,7 @@ function astore_upgrade_0_1_0()
         $c->add('cb_replhome', $_ASTORE_DEFAULT['cb_replhome'],
                 'select',0, 1, 3, 120, true, $_CONF_ASTORE['pi_name']);
         $c->add('block_limit', $_ASTORE_DEFAULT['block_limit'],
-                'text',0, 0, 3, 130, true, $me);
+                'text',0, 0, 3, 130, true, $_CONF_ASTORE['pi_name']);
     }
 
     if (!astore_do_upgrade_sql('0.1.0')) return false;
