@@ -76,7 +76,7 @@ class Item
         global $_CONF_ASTORE;
 
         if (!function_exists('curl_init') || !function_exists('curl_setopt')) {
-            throw new \Exception("cURL support is required, but can't be found.");
+            return NULL;
         }
 
         // Make sure a request hasn't been made within the last second
@@ -515,6 +515,7 @@ class Item
         }
 
         $obj = self::_makeRequest($params);
+        if (!is_object($obj)) return $retval;
         if (isset($obj->Items->Request->Errors->Error->Code)) {
             self::_debug($asins . ': ' . $obj->Items->Request->Errors->Error->Message, true);
         } elseif (is_array($obj->Items->Item)) {
