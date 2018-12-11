@@ -32,7 +32,7 @@ class Cache
      * @param   string  $asin   Item number
      * @return  mixed       Item object, NULL if not present
      */
-    public static function getCache($asin)
+    public static function get($asin)
     {
         if (version_compare(GVERSION, self::MIN_GVERSION, '<')) {
             global $_TABLES;
@@ -59,7 +59,7 @@ class Cache
      * @param   string  $data   JSON data object
      * @return  boolean     True on success, False on error
      */
-    public static function setCache($asin, $data)
+    public static function set($asin, $data)
     {
         global $_CONF_ASTORE;
 

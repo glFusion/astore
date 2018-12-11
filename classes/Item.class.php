@@ -558,11 +558,11 @@ class Item
         global $_CONF_ASTORE;
 
         // Return from cache if found and not expired
-        $data = Cache::getCache($asin);
+        $data = Cache::get($asin);
         if (empty($data)) {
             $data = self::_getAmazon(array($asin));
             if (!empty($data) && $_CONF_ASTORE['auto_add_catalog']) {
-                if (isset($data->ItemAttributes->Title)) {  
+                if (isset($data->ItemAttributes->Title)) {
                     $title = $data->ItemAttributes->Title;
                 } else {
                     $title = '';
@@ -632,12 +632,12 @@ class Item
         } elseif (is_array($obj->Items->Item)) {
             $Item = $obj->Items->Item;
             foreach ($Item as $i) {
-                Cache::setCache($i->ASIN, $i);
+                Cache::set($i->ASIN, $i);
                 $retval[$i->ASIN] = $i;
             }
         } elseif (is_object($obj->Items->Item)) {
             $i = $obj->Items->Item;
-            Cache::setCache($i->ASIN, $i);
+            Cache::set($i->ASIN, $i);
             $retval[$i->ASIN] = $i;
         }
         return $retval;
@@ -687,7 +687,7 @@ class Item
             $res = DB_query($sql);
             $asins = array();
             while ($A = DB_fetchArray($res, false)) {
-                $data = Cache::getCache($A['asin']);
+                $data = Cache::get($A['asin']);
                 if ($data) {
                     $allitems[$A['asin']] = new self($A['asin'], $data);
                 } else {
@@ -709,7 +709,7 @@ class Item
                     $allitems[$asin]->data = $info;
                     if ($_CONF_ASTORE['auto_add_catalog']) {
                         // Automatically add featured items to catalog
-                        if (isset($info->ItemAttributes->Title)) {  
+                        if (isset($info->ItemAttributes->Title)) {
                             $title = $info->ItemAttributes->Title;
                         } else {
                             $title = '';
@@ -759,7 +759,7 @@ class Item
                 $allitems[$asin]->data = $info;
                 if ($_CONF_ASTORE['auto_add_catalog'] || $tocatalog) {
                     // Automatically add items to catalog
-                    if (isset($info->ItemAttributes->Title)) {  
+                    if (isset($info->ItemAttributes->Title)) {
                         $title = $info->ItemAttributes->Title;
                     } else {
                         $title = '';
@@ -860,10 +860,10 @@ class Item
      */
     public static function getByISBN($isbn)
     {
-        $data = Cache::getCache($isbn);
+        $data = Cache::get($isbn);
         if ($data === NULL) {
             $data = self::_getAmazon($isbn, 'ISBN');
-            Cache::setCache($isbn, $data);
+            Cache::set($isbn, $data);
         }
         return $data;
     }
