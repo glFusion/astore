@@ -1,15 +1,15 @@
 <?php
 /**
-*   Astore admin entry point.
-*
-*   @author     Lee Garner <lee@leegarner.com>
-*   @copyright  Copyright (c) 2017 Lee Garner <lee@leegarner.com>
-*   @package    astore
-*   @version    0.1.0
-*   @license    http://opensource.org/licenses/gpl-2.0.php
-*               GNU Public License v2 or later
-*   @filesource
-*/
+ * Astore admin entry point.
+ *
+ * @author      Lee Garner <lee@leegarner.com>
+ * @copyright   Copyright (c) 2017 Lee Garner <lee@leegarner.com>
+ * @package     astore
+ * @version     v0.1.0
+ * @license     http://opensource.org/licenses/gpl-2.0.php
+ *              GNU Public License v2 or later
+ * @filesource
+ */
 
 /** Import core glFusion libraries */
 require_once '../../../lib-common.php';
@@ -139,17 +139,19 @@ if (isset($_GET['msg'])) {
 }
 
 echo COM_siteHeader('none', $LANG_ASTORE['admin_title']);
+$outputHandle = outputHandler::getInstance();
+$outputHandle->addScriptFile(ASTORE_PI_PATH . '/js/ajax.js');
 echo ASTORE_adminMenu($view);
 echo $content;
 echo COM_siteFooter();
 exit;
 
 /**
-*   Create the administrator menu
-*
-*   @param  string  $view   View being shown, so set the help text
-*   @return string      Administrator menu
-*/
+ * Create the administrator menu.
+ *
+ * @param   string  $view   View being shown, so set the help text
+ * @return  string      Administrator menu
+ */
 function ASTORE_adminMenu($view='')
 {
     global $_CONF, $LANG_ADMIN, $LANG_ASTORE, $_CONF_ASTORE;
@@ -197,10 +199,11 @@ function ASTORE_adminMenu($view='')
 
 
 /**
-*   Show the admin list
-*
-*   @return string  HTML for item list
-*/
+ * Show the admin list.
+ *
+ * @param   string  $import_fld     ID of item to import
+ * @return  string  HTML for item list
+ */
 function ASTORE_adminItemList($import_fld = '')
 {
     global $LANG_ADMIN, $LANG_ASTORE,
@@ -212,16 +215,34 @@ function ASTORE_adminItemList($import_fld = '')
     $form_arr = array();
 
     $header_arr = array(
-        array(  'text' => 'ASIN',
-                'field' => 'asin',
-                'sort' => true),
-        array(  'text' => $LANG_ASTORE['title'],
-                'field' => 'title',
-                'sort' => false),
-        array(  'text' => $LANG_ADMIN['delete'],
-                'field' => 'delete',
-                'sort' => false,
-                'align' => 'center'),
+        array(
+            'text' => 'ASIN',
+            'field' => 'asin',
+            'sort' => true,
+        ),
+        array(
+            'text' => $LANG_ASTORE['title'],
+            'field' => 'title',
+            'sort' => false,
+        ),
+        array(
+            'text' => $LANG_ADMIN['enabled'],
+            'field' => 'enabled',
+            'sort' => 'false',
+            'align' => 'center',
+        ),
+        array(
+            'text' => $LANG_ASTORE['last_update'],
+            'field' => 'ts',
+            'sort' => 'true',
+            'nowrap' => true,
+        ),
+        array(
+            'text' => $LANG_ADMIN['delete'],
+            'field' => 'delete',
+            'sort' => false,
+            'align' => 'center',
+        ),
     );
 
     $text_arr = array(
@@ -233,7 +254,7 @@ function ASTORE_adminItemList($import_fld = '')
     $defsort_arr = array('field' => 'asin', 'direction' => 'asc');
     $query_arr = array(
         'table' => 'astore_catalog',
-        'sql' => "SELECT asin, title FROM {$_TABLES['astore_catalog']}",
+        'sql' => "SELECT * FROM {$_TABLES['astore_catalog']}",
     );
 
     $T = new Template(ASTORE_PI_PATH . '/templates');
@@ -250,14 +271,14 @@ function ASTORE_adminItemList($import_fld = '')
 
 
 /**
-*   Get the correct display for a single field in the astore admin list
-*
-*   @param  string  $fieldname  Field variable name
-*   @param  string  $fieldvalue Value of the current field
-*   @param  array   $A          Array of all field names and values
-*   @param  array   $icon_arr   Array of system icons
-*   @return string              HTML for field display within the list cell
-*/
+ * Get the correct display for a single field in the astore admin list.
+ *
+ * @param   string  $fieldname  Field variable name
+ * @param   string  $fieldvalue Value of the current field
+ * @param   array   $A          Array of all field names and values
+ * @param   array   $icon_arr   Array of system icons
+ * @return  string              HTML for field display within the list cell
+ */
 function ASTORE_getAdminField($fieldname, $fieldvalue, $A, $icon_arr)
 {
     global $_CONF, $LANG_ACCESS, $_CONF_ASTORE;
@@ -283,6 +304,12 @@ function ASTORE_getAdminField($fieldname, $fieldvalue, $A, $icon_arr)
         } else {
             $retval = $fieldvalue;
         }
+        break;
+
+    case 'enabled':
+        $chk = $fieldvalue == 1 ? 'checked="checked"' : '';
+        $retval = '<input type="checkbox" data-uk-tooltip class="" value="1" ' . $chk .
+                "onclick='ASTORE_toggle(this,\"{$A['asin']}\",\"{$fieldname}\");' />" . LB;
         break;
 
     default:

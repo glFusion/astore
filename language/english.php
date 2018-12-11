@@ -1,20 +1,20 @@
 <?php
 /**
-*   Default English Language file for the Astore plugin.
-*
-*   @author     Lee Garner <lee@leegarner.com>
-*   @copyright  Copyright (c) 2017 Lee Garner <lee@leegarner.com>
-*   @package    astore
-*   @version    0.1.1
-*   @license    http://opensource.org/licenses/gpl-2.0.php 
-*               GNU Public License v2 or later
-*   @filesource
-*/
+ * Default English Language file for the Astore plugin.
+ *
+ * @author      Lee Garner <lee@leegarner.com>
+ * @copyright   Copyright (c) 2017 Lee Garner <lee@leegarner.com>
+ * @package     astore
+ * @version     v0.1.1
+ * @license     http://opensource.org/licenses/gpl-2.0.php 
+ *              GNU Public License v2 or later
+ * @filesource
+ */
 
 /**
-* The plugin's lang array
-* @global array $LANG_ASTORE
-*/
+ * The plugin's lang array.
+ * @global array $LANG_ASTORE
+ */
 $LANG_ASTORE = array(
 'admin_title' => 'Amazon Store Administration',
 'shop_now'  => 'Shop Now',
@@ -37,7 +37,17 @@ $LANG_ASTORE = array(
 'search' => 'Search',
 'more_results' => 'More Results',
 'back_to_store' => 'Back to Store',
+'last_update' => 'Last Update',
 'err_adm_import_size' => 'Your import string contained more than 10 items. The remaining items have been placed in the import field for you to submit again',
+'enabled' => 'Enabled',
+'disabled' => 'Disabled',
+'msg_item_updated'  => 'Item has been %1$s',
+'msg_item_nochange' => 'Item has not been changed',
+);
+
+$LANG_ASTORE_AUTOTAG = array(
+    'desc_astore' => 'Include an item tile from the store',
+    'desc_astore_link' => 'Create a link to an item in the store',
 );
 
 // Localization of the Admin Configuration UI
