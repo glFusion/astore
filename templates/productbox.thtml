@@ -1,5 +1,6 @@
 {# begin {templatelocation} #}
 <!-- BEGIN productbox -->
+<li class="uk-vertical-align-top astore">
 <div class="ast-product-box">
   <div>
   <a target="_blank" href="{item_url}">
@@ -33,5 +34,6 @@
     </span>
   </div>
 </div>
+</li>
 <!-- END productbox -->
 {# end {templatelocation} #}

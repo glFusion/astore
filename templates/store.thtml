@@ -39,7 +39,9 @@
   <div class="ast-featured-description">{long_description}</div>
 </div>
 <!-- END featured -->
+<ul class="uk-grid uk-grid-width-small-1-3 uk-grid-width-medium-1-4 uk-grid-width-large-1-5" data-uk-grid-margin>
 {productboxes}
+</ul>
 <div class="ast-pagination">
   {pagination}
 </div>

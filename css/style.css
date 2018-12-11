@@ -3,7 +3,7 @@
     float: left;
     margin: 4px 4px 4px 4px;
     position: relative;
-    width: 132px;
+/*    width: 132px;*/
     padding: 4px;
     font-family: Helvetica;
 }
@@ -276,3 +276,6 @@ div.ast-product-box .ast-unavail {
     width: 100%;
 }
 
+.uk-grid>*.astore {
+    padding-left: 10px;
+}
