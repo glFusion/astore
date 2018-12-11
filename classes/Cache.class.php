@@ -46,7 +46,7 @@ class Cache
                 return NULL;
             }
         } else {
-            return \glFusion\Cache::getInstance()
+            return \glFusion\Cache\Cache::getInstance()
                 ->get(self::_makeKey($asin));
         }
     }
@@ -81,7 +81,7 @@ class Cache
             //echo $sql;die;
             DB_query($sql);
         } else {
-            return \glFusion\Cache::getInstance()
+            return \glFusion\Cache\Cache::getInstance()
                 ->set(self::_makeKey($asin), $data, self::TAG, $cache_secs);
         }
     }
@@ -110,7 +110,7 @@ class Cache
             global $_VARS;
             $ts = $_VARS['astore_ts'];
         } else {
-            $ts = (int)\glFusion\Cache::getInstance()->get('astore_ts');
+            $ts = (int)\glFusion\Cache\Cache::getInstance()->get('astore_ts');
         }
         if (!$ts) {
             $ts = time();
@@ -136,13 +136,13 @@ class Cache
                 SET value = '{$_VARS['astore_ts']}'
                 WHERE name = 'astore_ts'");
         } else {
-            return \glFusion\Cache::getInstance()->set('astore_ts', time(), self::TAG);
+            return \glFusion\Cache\Cache::getInstance()->set('astore_ts', time(), self::TAG);
         }
     }
 
 
     /**
-     * Clear the cache, forcing future requests to be refreshed from Amazo.
+     * Clear the cache, forcing future requests to be refreshed from Amazon.
      *
      * @return  boolean     True on success, False on error
      */
@@ -152,7 +152,7 @@ class Cache
             global $_TABLES;
             DB_query("TRUNCATE {$_TABLES['astore_cache']}");
         } else {
-            \glFusion\Cache::getInstance()->deleteItemsByTag(self::TAG);
+            return \glFusion\Cache\Cache::getInstance()->deleteItemsByTag(self::TAG);
         }
     }
 
