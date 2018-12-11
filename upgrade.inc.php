@@ -1,24 +1,24 @@
 <?php
 /**
-*   Upgrade routines for the Astore plugin.
-*
-*   @author     Lee Garner <lee@leegarner.com>
-*   @copyright  Copyright (c) 2017-2018 Lee Garner <lee@leegarner.com>
-*   @package    astore
-*   @version    0.2.0
-*   @license    http://opensource.org/licenses/gpl-2.0.php
-*               GNU Public License v2 or later
-*   @filesource
-*/
+ * Upgrade routines for the Astore plugin.
+ *
+ * @author      Lee Garner <lee@leegarner.com>
+ * @copyright   Copyright (c) 2017-2018 Lee Garner <lee@leegarner.com>
+ * @package     astore
+ * @version     v0.2.0
+ * @license     http://opensource.org/licenses/gpl-2.0.php
+ *              GNU Public License v2 or later
+ * @filesource
+ */
 
 require_once __DIR__ . '/install_defaults.php';
 
 /**
-*   Perform the upgrade starting at the current version.
-*
-*   @param  string  $current_ver    Current installed version to be upgraded
-*   @return integer                 Error code, 0 for success
-*/
+ * Perform the upgrade starting at the current version.
+ *
+ * @param   string  $current_ver    Current installed version to be upgraded
+ * @return  integer                 Error code, 0 for success
+ */
 function astore_do_upgrade()
 {
     global $_TABLES, $_CONF_ASTORE, $_PLUGIN_INFO, $_ASTORE_DEFAULT;
@@ -84,12 +84,12 @@ function astore_do_upgrade()
 
 
 /**
-*   Update the plugin version.
-*   Done at each update step to keep the version up to date
-*
-*   @param  string  $version    Version to set
-*   @return boolean     True on success, False on failure
-*/
+ * Update the plugin version.
+ * Done at each update step to keep the version up to date
+ *
+ * @param   string  $version    Version to set
+ * @return  boolean     True on success, False on failure
+ */
 function astore_do_update_version($version)
 {
     global $_TABLES, $_CONF_ASTORE;
@@ -112,15 +112,16 @@ function astore_do_update_version($version)
 
 
 /**
-*   Actually perform any sql updates
-*   @param string $version  Version being upgraded TO
-*   @param array  $sql      Array of SQL statement(s) to execute
-*/
+ * Actually perform any sql updates.
+ *
+ * @param   string $version  Version being upgraded TO
+ * @return  boolean     True on success, False on error
+ */
 function astore_do_upgrade_sql($version)
 {
     global $_TABLES, $_CONF_ASTORE, $ASTORE_UPGRADE, $_DB_dbms;
 
-    require_once ASTORE_PI_PATH . "/sql/{$_DB_dbms}_install.php";
+    require_once __DIR__ "/sql/mysql_install.php";
 
     // If no sql statements passed in, return success
     if (!isset($ASTORE_UPGRADE[$version]) || !is_array($ASTORE_UPGRADE[$version])) {
@@ -143,9 +144,11 @@ function astore_do_upgrade_sql($version)
 
 
 /**
-*   Upgrade to version 0.1.0.
-*   Adds configuration item for centerblock replacing home page.
-*/
+ * Upgrade to version 0.1.0.
+ * Adds configuration item for centerblock replacing home page.
+ *
+ * @return  boolean     True on success, False on error
+ */
 function astore_upgrade_0_1_0()
 {
     global $_CONF_ASTORE, $ASTORE_DEFAULT;
@@ -165,9 +168,11 @@ function astore_upgrade_0_1_0()
 
 
 /**
-*   Upgrade to version 0.1.7.
-*   Adds configuration item for centerblock replacing home page.
-*/
+ * Upgrade to version 0.1.7.
+ * Adds configuration item for centerblock replacing home page.
+ *
+ * @return  boolean     True on success, False on error
+ */
 function astore_upgrade_0_1_7()
 {
     global $_CONF_ASTORE, $ASTORE_DEFAULT, $UPGRADE;

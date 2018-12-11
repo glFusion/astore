@@ -1,23 +1,24 @@
 <?php
 /**
-*   glFusion API functions for the Astore plugin
-*
-*   @author     Lee Garner <lee@leegarner.com>
-*   @copyright  Copyright (c) 2017-2018 Lee Garner <lee@leegarner.com>
-*   @package    astore
-*   @version    0.2.0
-*   @license    http://opensource.org/licenses/gpl-2.0.php
-*               GNU Public License v2 or later
-*   @filesource
-*/
+ * glFusion API functions for the Astore plugin.
+ *
+ * @author      Lee Garner <lee@leegarner.com>
+ * @copyright   Copyright (c) 2017-2018 Lee Garner <lee@leegarner.com>
+ * @package     astore
+ * @version     v0.2.0
+ * @license     http://opensource.org/licenses/gpl-2.0.php
+ *              GNU Public License v2 or later
+ * @filesource
+ */
 
 if (!defined ('GVERSION')) {
     die ('This file can not be used on its own.');
 }
 
-/** Global configuration array, in case this is included within a function
-*   @global array
-*/
+/**
+ * Global configuration array, in case this is included within a function.
+ * @global array
+ */
 global $_CONF_ASTORE;
 
 define ('ASTORE_PI_PATH', __DIR__);
@@ -64,12 +65,13 @@ spl_autoload_register(function ($class)
 
 
 /**
-*   Create the centerblock, if needed
-*   @param  integer $where  Which area is being displayed now
-*   @param  integer $page   Page number
-*   @param  string  $topic  Topic ID, or empty string
-*   @return string          HTML for centerblock
-*/
+ * Create the centerblock, if needed.
+ *
+ * @param   integer $where  Which area is being displayed now
+ * @param   integer $page   Page number
+ * @param   string  $topic  Topic ID, or empty string
+ * @return  string          HTML for centerblock
+ */
 function plugin_centerblock_astore($where=1,$page=1,$topic ='')
 {
     global $_CONF_ASTORE;
@@ -91,12 +93,12 @@ function plugin_centerblock_astore($where=1,$page=1,$topic ='')
 
 
 /**
-*   Called by the plugin Editor to display the current plugin code version
-*   This may be different than the version installed and registered currently.
-*   If newer then you may want to run the update
-*
-*   @return string  version number
-*/
+ * Called by the plugin Editor to display the current plugin code version.
+ * This may be different than the version installed and registered currently.
+ * If newer then you may want to run the update.
+ *
+ * @return  string  version number
+ */
 function plugin_chkVersion_astore()
 {
     global $_CONF_ASTORE;
@@ -105,11 +107,10 @@ function plugin_chkVersion_astore()
 
 
 /**
-*   This will put an option for astore in the command and control block on
-*   moderation.php
-*
-*   @return mixed   array(title, url, icon), or boolean false when not allowed
-*/
+ * This will put an option for astore in the command and control block on moderation.php.
+ *
+ * @return  mixed   array(title, url, icon), or boolean false when not allowed
+ */
 function plugin_cclabel_astore()
 {
     global $_CONF_ASTORE;
@@ -124,10 +125,10 @@ function plugin_cclabel_astore()
 
 
 /**
-*   Returns the main menu items for the plugin.
-*
-*   @return array   Associative array of menu items to be added to menu
-*/
+ * Returns the main menu items for the plugin.
+ *
+ * @return  array   Associative array of menu items to be added to menu
+ */
 function plugin_getmenuitems_astore()
 {
     global $_CONF, $_CONF_ASTORE;
@@ -141,10 +142,10 @@ function plugin_getmenuitems_astore()
 
 
 /**
-*   Returns the administrative option for this plugin
-*
-*   @return mixed   array(title, url, num. astore), or false when not allowed
-*/
+ * Returns the administrative option for this plugin.
+ *
+ * @return  mixed   array(title, url, num. astore), or false when not allowed
+ */
 function plugin_getadminoption_astore()
 {
     global $_TABLES, $_CONF_ASTORE;
@@ -160,10 +161,10 @@ function plugin_getadminoption_astore()
 
 
 /**
-*   Update the Astore plugin
-*
-*   @return integer Message number to display (true = generic success msg)
-*/
+ * Update the Astore plugin.
+ *
+ * @return  integer Message number to display (true = generic success msg)
+ */
 function plugin_upgrade_astore()
 {
     require_once __DIR__ . '/upgrade.inc.php';
@@ -172,13 +173,13 @@ function plugin_upgrade_astore()
 
 
 /**
-*   Make changes needed when the plugin is enabled or disabled.
-*
-*   Uses the PHP block function name instead of the block name to
-*   catch user-created blocks that rely on this plugin.
-*
-*   @param  boolean $enable     True if we're being enabled, False otherwise
-*/
+ * Make changes needed when the plugin is enabled or disabled.
+ *
+ * Uses the PHP block function name instead of the block name to
+ * catch user-created blocks that rely on this plugin.
+ *
+ * @param   boolean $enabled    True if we're being enabled, False otherwise
+ */
 function plugin_enablestatechange_astore($enabled)
 {
     global $_TABLES, $_PLUGINS;
@@ -207,11 +208,11 @@ function plugin_enablestatechange_astore($enabled)
 
 
 /**
-*   Receives notification of anothe plugin's deletion
-*
-*   @param  mixed   $id     Item ID
-*   @param  string  $type   Plugin Name
-*/
+ * Receives notification of anothe plugin's deletion.
+ *
+ * @param  mixed   $id     Item ID
+ * @param  string  $type   Plugin Name
+ */
 function plugin_itemdeleted_astore($id, $type)
 {
     global $_TABLES;
@@ -225,10 +226,10 @@ function plugin_itemdeleted_astore($id, $type)
 
 
 /**
-*   Checks that the current user has plugin moderator rights.
-*
-*   @return boolean     Returns true if moderator
-*/
+ * Checks that the current user has plugin moderator rights.
+ *
+ * @return  boolean     Returns true if moderator
+ */
 function plugin_ismoderator_astore()
 {
     static $isMod = NULL;
@@ -241,11 +242,11 @@ function plugin_ismoderator_astore()
 
 
 /**
-*   Checks that the current user has plugin admin rights.
-*   Not a glFusion core function, but similar
-*
-*   @return boolean     Returns true if administrator
-*/
+ * Checks that the current user has plugin admin rights.
+ * Not a glFusion core function, but similar
+ *
+ * @return  boolean     Returns true if administrator
+ */
 function plugin_isadmin_astore()
 {
     static $isAdmin = NULL;
@@ -258,10 +259,10 @@ function plugin_isadmin_astore()
 
 
 /**
-* Returns the URL of the plugin's icon
-*
-* @return   string      URL of the icon
-*/
+ * Returns the URL of the plugin's icon.
+ *
+ * @return  string      URL of the icon
+ */
 function plugin_geticon_astore()
 {
     return ASTORE_URL . '/images/astore.png';
@@ -269,16 +270,16 @@ function plugin_geticon_astore()
 
 
 /**
-*   Automatic uninstall function for plugins
-*
-*   This code is automatically uninstalling the plugin.
-*   It passes an array to the core code function that removes
-*   tables, groups, features and php blocks from the tables.
-*   Additionally, this code can perform special actions that cannot be
-*   foreseen by the core code (interactions with other plugins for example)
-*
-*   @return   array     Elements to be removed
-*/
+ * Automatic uninstall function for plugins.
+ *
+ * This code is automatically uninstalling the plugin.
+ * It passes an array to the core code function that removes
+ * tables, groups, features and php blocks from the tables.
+ * Additionally, this code can perform special actions that cannot be
+ * foreseen by the core code (interactions with other plugins for example)
+ *
+ * @return  array     Elements to be removed
+ */
 function plugin_autouninstall_astore ()
 {
     global $_CONF_ASTORE;
@@ -332,9 +333,9 @@ function plugin_autouninstall_astore ()
 
 
 /**
- *  Get additional CSS into the site header.
+ * Get additional CSS into the site header.
  *
- *  @return array List of paths to Javascript files
+ * @return  array List of paths to Javascript files
  */
 function plugin_getheadercss_astore()
 {
@@ -361,31 +362,30 @@ function plugin_getheadercss_astore()
 
 
 /**
-*   Get the URL to the configuration help file
-*
-*   @param  string  $doclang    Document language
-*   @return string              URL to document
-*/
+ * Get the URL to the configuration help file.
+ *
+ * @param   string  $option     Help option to display
+ * @param   string  $doclang    Document language
+ * @return  string              URL to document
+ */
 function plugin_getconfigelementhelp_astore($option, $doclang='english')
 {
     global $_CONF_ASTORE;
 
     $url = LGLIB_getDocUrl('config', $_CONF_ASTORE['pi_name'], $doclang);
-
     if (!empty($option)) {
         $url .= '#desc_' . $option;
     }
-
     return array($url, 0);
 }
 
 
 /**
-*   Encrypt the AWS secret key config item
-*
-*   @param  string  $value  Secret Key
-*   @return string          Encrypted value
-*/
+ * Encrypt the AWS secret key config item.
+ *
+ * @param   string  $value  Secret Key
+ * @return  string          Encrypted value
+ */
 function plugin_configmanager_aws_secret_key_astore_validate($value)
 {
     global $_VARS;
@@ -397,8 +397,8 @@ function plugin_configmanager_aws_secret_key_astore_validate($value)
 
 
 /**
-*   Perform scheduled functions, such as removing old cache entries
-*/
+ * Perform scheduled functions, such as removing old cache entries.
+ */
 function plugin_runScheduledTask_astore()
 {
     global $_TABLES;
@@ -409,20 +409,33 @@ function plugin_runScheduledTask_astore()
 
 
 /**
-*   Implements the autotags
-*   - astore:       Display a product box
-*   - astore_link:  Display a text link
-*
-*   @param  string  $op         operation to perform
-*   @param  string  $content    item (e.g. story text), including the autotag
-*   @param  array   $autotag    parameters used in the autotag
-*   @param  mixed               tag names (for $op='tagname') or formatted content
-*/
+ * Implements the autotags.
+ * - astore:       Display a product box
+ * - astore_link:  Display a text link
+ *
+ * @param   string  $op         operation to perform
+ * @param   string  $content    item (e.g. story text), including the autotag
+ * @param   array   $autotag    parameters used in the autotag
+ * @param   mixed               tag names (for $op='tagname') or formatted content
+ */
 function plugin_autotags_astore($op, $content = '', $autotag = '')
 {
+    global $LANG_ASTORE_AUTOTAG;
+
     switch ($op) {
     case 'tagname':
         return array('astore', 'astore_link');
+        break;
+    case 'desc':
+        switch ($content) {
+        case 'astore' :
+        case 'astore_link' :
+            return LGLIB_getVar($LANG_ASTORE_AUTOTAG, 'desc_' . $content);
+            break;
+        default :
+            return '';
+            break;
+        }
         break;
     case 'parse':
         $HTML = '';
@@ -454,12 +467,12 @@ function plugin_autotags_astore($op, $content = '', $autotag = '')
 ////////////////////////////////////////////
 
 /**
-*   Get an icon from the CSS icon set, either UIkit or FontAwesome
-*
-*   @param  string  $name   Base name of icon, e.g. "edit" for "uk-icon-edit"
-*   @param  string  $style  Style name from local CSS
-*   @return string      Class names for icon
-*/
+ * Get an icon from the CSS icon set, either UIkit or FontAwesome.
+ *
+ * @param   string  $name   Base name of icon, e.g. "edit" for "uk-icon-edit"
+ * @param   string  $style  Style name from local CSS
+ * @return  string      Class names for icon
+ */
 function ASTORE_getIcon($name, $style='info')
 {
     global $_CONF_ASTORE;
@@ -474,13 +487,23 @@ function ASTORE_getIcon($name, $style='info')
     }
 }
 
+
+/**
+ * Show products in a grid.
+ *
+ * @todo: May be deprecated?
+ * @param   integer $page   Page to show
+ * @param   string  $asin   ASIN to retrieve.
+ * @return  string  HTML for page
+ */
 function ASTORE_show($page = 1, $asin='')
 {
     global $_CONF_ASTORE;
+    echo "here";die;
 
     if ($page < 1) $page = 1;
     if (!empty($asin) && $page == 1) {
-        Astore\Item::Require($asin);
+        Astore\Item::RequireASIN($asin);
     }
     $items = Astore\Item::getAll($page);
     $T = new Template(ASTORE_PI_PATH . '/templates');
@@ -540,13 +563,13 @@ function ASTORE_show($page = 1, $asin='')
 
 
 /**
-*   Get item information.
-*
-*   @param  array   $args       Arguments
-*   @param  array   &$output    Pointer to output value
-*   @param  array   &$svc_msg   Unused
-*   @return integer             Status code
-*/
+ * Get item information.
+ *
+ * @param   array   $args       Arguments
+ * @param   array   $output     Pointer to output value
+ * @param   array   $svc_msg    Unused
+ * @return  integer             Status code
+ */
 function service_getiteminfo_astore($args, &$output, &$svc_msg)
 {
     $output = NULL;

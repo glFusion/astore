@@ -1,15 +1,15 @@
 <?php
 /**
-*   Public entry page for the Amazon Astore plugin.
-*
-*   @author     Lee Garner <lee@leegarner.com>
-*   @copyright  Copyright (c) 2017 Lee Garner <lee@leegarner.com>
-*   @package    astore
-*   @version    0.1.0
-*   @license    http://opensource.org/licenses/gpl-2.0.php
-*               GNU Public License v2 or later
-*   @filesource
-*/
+ * Public entry page for the Amazon Astore plugin.
+ *
+ * @author      Lee Garner <lee@leegarner.com>
+ * @copyright   Copyright (c) 2017 Lee Garner <lee@leegarner.com>
+ * @package     astore
+ * @version     0.1.0
+ * @license     http://opensource.org/licenses/gpl-2.0.php
+ *              GNU Public License v2 or later
+ * @filesource
+ */
 
 require_once '../lib-common.php';
 
@@ -77,7 +77,6 @@ case 'search':
         'search' => 'search.thtml',
         'moreresults' => 'moreresults.thtml',
     ) );
-    //$T->set_var('productboxes', ASTORE_showProducts($items));
     $T->set_var('productboxes', Astore\Item::showProducts($items));
     $T->parse('output', 'search');
     $content .= $T->finish($T->get_var('output'));
@@ -92,9 +91,13 @@ default:
     $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
     if ($page < 1) $page = 1;
     if (!empty($asin) && $page == 1) {
-        Astore\Item::Require($asin);
+        Astore\Item::RequireASIN($asin);
     }
     $items = Astore\Item::getAll($page);
+/*    foreach ($items as $x) {
+        echo $x->asin . "<br />\n";
+    }
+    exit;*/
     $T = new Template(ASTORE_PI_PATH . '/templates');
     $T->set_file(array(
         'store' => 'store.thtml',
@@ -131,7 +134,6 @@ default:
         ) );
     }
 
-    //$T->set_var('productboxes', ASTORE_showProducts($items));
     $T->set_var('productboxes', Astore\Item::showProducts($items));
 
     // Display pagination
@@ -152,6 +154,14 @@ default:
     break;
 }
 
+
+/**
+ * Display products in a grid.
+ *
+ * @deprecated
+ * @param   array   $items  Array of items to show
+ * @return  string      HTML for product list
+ */
 function ASTORE_showProducts($items)
 {
     global $_CONF_ASTORE;

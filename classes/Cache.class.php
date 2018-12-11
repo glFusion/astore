@@ -1,34 +1,40 @@
 <?php
 /**
-*   Class to handle Cache operations
-*
-*   @author     Lee Garner <lee@leegarner.com>
-*   @copyright  Copyright (c) 2018 Lee Garner <lee@leegarner.com>
-*   @package    astore
-*   @version    0.1.2
-*   @license    http://opensource.org/licenses/gpl-2.0.php
-*               GNU Public License v2 or later
-*   @filesource
-*/
+ * Class to handle Cache operations/
+ *
+ * @author      Lee Garner <lee@leegarner.com>
+ * @copyright   Copyright (c) 2018 Lee Garner <lee@leegarner.com>
+ * @package     astore
+ * @version     v0.1.2
+ * @license     http://opensource.org/licenses/gpl-2.0.php
+ *              GNU Public License v2 or later
+ * @filesource
+ */
 namespace Astore;
 
 /**
-*   Class for Amazon Items
-*   @package astore
-*/
+ * Class for caching items.
+ * @package astore
+ */
 class Cache
 {
-    private static $tag = 'astore';
+    /** Tag applied to all cache items and prepended to cache IDs.
+     * @const string */
+    const TAG = 'astore';
+
+    /** Minimum glFusion version that supports caching.
+     * @const string */
+    const MIN_GVERSION = '2.0.0';
 
     /**
-    *   Get item information from the cache, if present
-    *
-    *   @param  string  $asin   Item number
-    *   @return mixed       Item object, NULL if not present
-    */
+     * Get item information from the cache, if present.
+     *
+     * @param   string  $asin   Item number
+     * @return  mixed       Item object, NULL if not present
+     */
     public static function getCache($asin)
     {
-        if (version_compare(GVERSION, '1.8.0', '<')) {
+        if (version_compare(GVERSION, self::MIN_GVERSION, '<')) {
             global $_TABLES;
 
             $asin = DB_escapeString($asin);
@@ -47,18 +53,19 @@ class Cache
 
 
     /**
-    *   Sets an item's data into the cache
-    *
-    *   @param  string  $asin   Item number
-    *   @param  string  $data   JSON data object
-    */
+     * Sets an item's data into the cach.
+     *
+     * @param   string  $asin   Item number
+     * @param   string  $data   JSON data object
+     * @return  boolean     True on success, False on error
+     */
     public static function setCache($asin, $data)
     {
         global $_CONF_ASTORE;
 
         $cache_secs = (int)$_CONF_ASTORE['aws_cache_min'] * 60;
         if ($cache_secs < 600) $cache_secs = 1800;
-        if (version_compare(GVERSION, '1.8.0', '<')) {
+        if (version_compare(GVERSION, self::MIN_GVERSION, '<')) {
             global $_TABLES;
 
             $asin = DB_escapeString($asin);
@@ -74,32 +81,32 @@ class Cache
             //echo $sql;die;
             DB_query($sql);
         } else {
-            \glFusion\Cache::getInstance()
-            ->set(self::_makeKey($asin), $data, self::$tag, $cache_secs);
+            return \glFusion\Cache::getInstance()
+                ->set(self::_makeKey($asin), $data, self::TAG, $cache_secs);
         }
     }
 
 
     /**
-    *   Create a unique cache key.
-    *
-    *   @param  string  $key    Original key, usually an ASIN
-    *   @return string          Encoded key string to use as a cache ID
-    */
+     * Create a unique cache key.
+     *
+     * @param   string  $key    Original key, usually an ASIN
+     * @return  string          Encoded key string to use as a cache ID
+     */
     private static function _makeKey($key)
     {
-        return self::$tag . '_' . md5($key);
+        return self::TAG . '_' . md5($key);
     }
 
 
     /**
-    *   Get the timestamp of the last Amazon query
-    *
-    *   @return integer     Timestamp value
-    */
+     * Get the timestamp of the last Amazon query.
+     *
+     * @return  integer     Timestamp value
+     */
     public static function getTimestamp()
     {
-        if (version_compare(GVERSION, '1.8.0', '<')) {
+        if (version_compare(GVERSION, self::MIN_GVERSION, '<')) {
             global $_VARS;
             $ts = $_VARS['astore_ts'];
         } else {
@@ -114,12 +121,14 @@ class Cache
 
 
     /**
-    *   Update the timestamp in cache with the current time.
-    *   Expiration is not set.
-    */
+     * Update the timestamp in cache with the current time.
+     * Expiration is not set.
+     *
+     * @return  boolean     True on success, False on error
+     */
     public static function setTimestamp()
     {
-        if (version_compare(GVERSION, '1.8.0', '<')) {
+        if (version_compare(GVERSION, self::MIN_GVERSION, '<')) {
             global $_TABLES, $_VARS;
 
             $_VARS['astore_ts'] = time();
@@ -127,21 +136,23 @@ class Cache
                 SET value = '{$_VARS['astore_ts']}'
                 WHERE name = 'astore_ts'");
         } else {
-            \glFusion\Cache::getInstance()->set('astore_ts', time(), self::$tag);
+            return \glFusion\Cache::getInstance()->set('astore_ts', time(), self::TAG);
         }
     }
 
 
     /**
-    *   Clear the cache, forcing future requests to be refreshed from Amazon
-    */
+     * Clear the cache, forcing future requests to be refreshed from Amazo.
+     *
+     * @return  boolean     True on success, False on error
+     */
     public static function clearCache()
     {
-        if (version_compare(GVERSION, '1.8.0', '<')) {
+        if (version_compare(GVERSION, self::MIN_GVERSION, '<')) {
             global $_TABLES;
             DB_query("TRUNCATE {$_TABLES['astore_cache']}");
         } else {
-            \glFusion\Cache::getInstance()->deleteItemsByTag(self::$tag);
+            \glFusion\Cache::getInstance()->deleteItemsByTag(self::TAG);
         }
     }
 

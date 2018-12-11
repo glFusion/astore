@@ -1,31 +1,33 @@
 <?php
 /**
-*   Class to retrieve and format Amazon Store items
-*
-*   @author     Lee Garner <lee@leegarner.com>
-*   @copyright  Copyright (c) 2017 Lee Garner <lee@leegarner.com>
-*   @package    astore
-*   @version    0.1.0
-*   @license    http://opensource.org/licenses/gpl-2.0.php
-*               GNU Public License v2 or later
-*   @filesource
-*/
+ * Class to retrieve and format Amazon Store items.
+ *
+ * @author      Lee Garner <lee@leegarner.com>
+ * @copyright   Copyright (c) 2017 Lee Garner <lee@leegarner.com>
+ * @package     astore
+ * @version     0.1.0
+ * @license     http://opensource.org/licenses/gpl-2.0.php
+ *              GNU Public License v2 or later
+ * @filesource
+ */
 namespace Astore;
 
 /**
-*   Class for Amazon ItemSearch
-*   @package astore
-*/
+ * Class for Amazon Item Search
+ * @package astore
+ */
 class Search extends Item
 {
-    private $obj;   // Search results object
+    /** Search results object.
+     * @var object */
+    private $obj;
 
     /**
-    *   Retrieve a single item
-    *
-    *   @param  string  $asin   Amazon item ID
-    *   @return object          Data object
-    */
+     * Retrieve a single item.
+     *
+     * @param   string  $query  Query string
+     * @return  object          Data object
+     */
     public function doSearch($query)
     {
         $retval = array();
@@ -60,10 +62,10 @@ class Search extends Item
 
 
     /**
-    *   Get the total number of items returned by the search
-    *
-    *   @return integer     Number of items, zero on error
-    */
+     * Get the total number of items returned by the search.
+     *
+     * @return  integer     Number of items, zero on error
+     */
     public function Count()
     {
         if (isset($this->obj->Items->TotalResults)) {
@@ -76,10 +78,10 @@ class Search extends Item
 
 
     /**
-    *   Get the total number of pages for pagination
-    *
-    *   @return integer     Number of pages, zero on error
-    */
+     * Get the total number of pages for pagination.
+     *
+     * @return  integer     Number of pages, zero on error
+     */
     public function Pages()
     {
         if (isset($this->obj->Items->TotalPages)) {
@@ -92,10 +94,10 @@ class Search extends Item
 
 
     /**
-    *   Get the Amazon URL to More Results
-    *
-    *   @return string  URL, NULL if not set
-    */
+     * Get the Amazon URL to More Results.
+     *
+     * @return  string  URL, NULL if not set
+     */
     public function MoreResultsURL()
     {
         if (isset($this->obj->Items->MoreSearchResultsUrl)) {

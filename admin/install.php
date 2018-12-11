@@ -1,15 +1,15 @@
 <?php
 /**
-*   Manual installation for the Astore plugin
-*
-*   @author     Lee Garner <lee@leegarner.com>
-*   @copyright  Copyright (c) 2017Lee Garner <lee@leegarner.com>
-*   @package    astore
-*   @version    0.0.1
-*   @license    http://opensource.org/licenses/gpl-2.0.php 
-*               GNU Public License v2 or later
-*   @filesource
-*/
+ * Manual installation for the Astore plugin.
+ *
+ * @author      Lee Garner <lee@leegarner.com>
+ * @copyright   Copyright (c) 2017Lee Garner <lee@leegarner.com>
+ * @package     astore
+ * @version     v0.0.1
+ * @license     http://opensource.org/licenses/gpl-2.0.php 
+ *              GNU Public License v2 or later
+ * @filesource
+ */
 
 /** Include core glFusion library */
 require_once '../../../lib-common.php';
@@ -30,9 +30,7 @@ if (!SEC_inGroup('Root')) {
     exit;
 }
 
-/**
-* Main Function
-*/
+// MAIN
 if (SEC_checkToken()) {
     $action = COM_applyFilter($_GET['action']);
     if ($action == 'install') {
