@@ -42,6 +42,7 @@ class Item
      * @var array */
     protected static $required_asins = array();
 
+
     /**
      * Constructor. Sets up internal variables.
      *
@@ -218,7 +219,7 @@ class Item
         static $secretkey = NULL;
 
         if ($secretkey === NULL) {
-            if (isset($_VARS['guid'])) {
+            if (isset($_VARS['guid']) && version_compare(GVERSION, '2.0.0', '<')) {
                 $secretkey = COM_decrypt($_CONF_ASTORE['aws_secret_key'], $_VARS['guid']);
             } else {
                 $secretkey = $_CONF_ASTORE['aws_secret_key'];
@@ -655,73 +656,69 @@ class Item
     {
         global $_TABLES, $_CONF_ASTORE;
 
-            $allitems = array();
+        $allitems = array();
+        $orderby = '';
+        switch ($_CONF_ASTORE['sort']) {
+        case 'rand':
+            $orderby = 'RAND()';
+            break;
+        case 'lifo':
+            $orderby = 'ts DESC, asin DESC';
+            break;
+        case 'fifo':
+            $orderby = 'ts ASC, asin ASC';
+            break;
+        case 'none':
+        default:
             $orderby = '';
-            switch ($_CONF_ASTORE['sort']) {
-            case 'rand':
-                $orderby = 'RAND()';
-                break;
-            case 'lifo':
-                $orderby = 'ts DESC, asin DESC';
-                break;
-            case 'fifo':
-                $orderby = 'ts ASC, asin ASC';
-                break;
-            case 'none':
-            default:
-                $orderby = '';
-                break;
-            }
-            $where = $enabled ? ' WHERE enabled = 1' : '';
-            if ($orderby != '') $orderby = "ORDER BY $orderby";
-            if ($page > 0) {
-                $max = (int)$_CONF_ASTORE['perpage'];
-                $start = ((int)$page - 1) * $max;
-                $limit = "LIMIT $start, $max";
+            break;
+        }
+        $where = $enabled ? ' WHERE enabled = 1' : '';
+        if ($orderby != '') $orderby = "ORDER BY $orderby";
+        if ($page > 0) {
+            $max = (int)$_CONF_ASTORE['perpage'];
+            $start = ((int)$page - 1) * $max;
+            $limit = "LIMIT $start, $max";
+        } else {
+            $limit = '';
+        }
+        $sql = "SELECT asin FROM {$_TABLES['astore_catalog']}
+            $where $orderby $limit";
+        //echo $sql;die;
+        $res = DB_query($sql);
+        $asins = array();
+        while ($A = DB_fetchArray($res, false)) {
+            $data = Cache::get($A['asin']);
+            if ($data) {
+                $allitems[$A['asin']] = new self($A['asin'], $data);
             } else {
-                $limit = '';
+                // Item not in cache, add to list to get from Amazon
+                $asins[] = $A['asin'];
             }
-            $sql = "SELECT asin FROM {$_TABLES['astore_catalog']}
-                    $where $orderby $limit";
-            //echo $sql;die;
-            $res = DB_query($sql);
-            $asins = array();
-            while ($A = DB_fetchArray($res, false)) {
-                $data = Cache::get($A['asin']);
-                if ($data) {
-                    $allitems[$A['asin']] = new self($A['asin'], $data);
-                } else {
-                    // Item not in cache, add to list to get from Amazon
-                    $asins[] = $A['asin'];
-                }
+        }
+        foreach (self::$required_asins as $asin) {
+            if (!isset($allitems[$asin])) {
+                // Push requested ASINs to the beginning
+                array_unshift($asins, $asin);
             }
-            foreach (self::$required_asins as $asin) {
-                if (!isset($allitems[$asin])) {
-                    // Push requested ASINs to the beginning
-                    array_unshift($asins, $asin);
-                }
-            }
-            // Retrieve from Amazon any items not in cache
-            if (!empty($asins)) {
-                $data = self::_getAmazon($asins);
-                foreach ($data as $asin=>$info) {
-                    $allitems[$asin] = new self();
-                    $allitems[$asin]->data = $info;
-                    if ($_CONF_ASTORE['auto_add_catalog']) {
-                        // Automatically add featured items to catalog
-                        if (isset($info->ItemAttributes->Title)) {
-                            $title = $info->ItemAttributes->Title;
-                        } else {
-                            $title = '';
-                        }
-                        self::AddToCatalog($asin, $title);
+        }
+        // Retrieve from Amazon any items not in cache
+        if (!empty($asins)) {
+            $data = self::_getAmazon($asins);
+            foreach ($data as $asin=>$info) {
+                $allitems[$asin] = new self();
+                $allitems[$asin]->data = $info;
+                if ($_CONF_ASTORE['auto_add_catalog']) {
+                    // Automatically add featured items to catalog
+                    if (isset($info->ItemAttributes->Title)) {
+                        $title = $info->ItemAttributes->Title;
+                    } else {
+                        $title = '';
                     }
+                    self::AddToCatalog($asin, $title);
                 }
             }
-            COM_errorLog($sql);
-            foreach ($allitems as $x) {
-                COM_errorLog("ASIN: {$x->asin}");
-            }
+        }
         return $allitems;
     }
 
