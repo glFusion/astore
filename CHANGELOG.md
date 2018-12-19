@@ -2,6 +2,7 @@
 
 ## Version 0.2.0
 Release TBD
+- Remove dependence on LGLib
 - Add service function to get item information
 - Support multiple ID types, e.g. "ISBN"
 - Add admin menu to manually clear cache

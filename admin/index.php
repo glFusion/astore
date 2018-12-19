@@ -104,11 +104,12 @@ case 'additem':
                 $msg = sprintf($LANG_ASTORE['add_error'], $asin);
                 $level = 'error';
             }
-            LGLIB_storeMessage(array(
+            COM_setMsg(sprintf($msg, $asin), $level);
+/*            LGLIB_storeMessage(array(
                 'message' => sprintf($msg, $asin),
                 'level' => $level,
                 'pi_code' => $_CONF_ASTORE['pi_name'],
-            ) );
+            ) );*/
         }
     }
     echo COM_refresh(ASTORE_ADMIN_URL);

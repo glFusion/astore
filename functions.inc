@@ -187,15 +187,6 @@ function plugin_enablestatechange_astore($enabled)
     $enabled = $enabled == 1 ? 1 : 0;
     $blockfns = array('phpblock_astore_');
 
-    // If trying to enable the plugin but lgLib is not available,
-    // take no action and return
-    if ($enabled && !in_array('lglib', $_PLUGINS)) {
-        // Re-disable the plugin
-        DB_change($_TABLES['plugins'], 'pi_enabled', 0, 'pi_name', 'astore');
-        $enable = false;
-        $enabled = 0;
-    }
-
     if ($enabled == 0) {
         foreach ($blockfns as $blockfn) {
         $sql = "UPDATE {$_TABLES['blocks']}
@@ -215,13 +206,6 @@ function plugin_enablestatechange_astore($enabled)
  */
 function plugin_itemdeleted_astore($id, $type)
 {
-    global $_TABLES;
-
-    // If the lgLib plugin is disabled or removed, disable thie plugin
-    if ($type == 'lglib' && $id == '*') {
-        plugin_enablestatechange_astore(false);
-        DB_change($_TABLES['plugins'], 'pi_enabled', 0, 'pi_name', 'astore');
-    }
 }
 
 
@@ -370,9 +354,7 @@ function plugin_getheadercss_astore()
  */
 function plugin_getconfigelementhelp_astore($option, $doclang='english')
 {
-    global $_CONF_ASTORE;
-
-    $url = LGLIB_getDocUrl('config', $_CONF_ASTORE['pi_name'], $doclang);
+    $url = ASTORE_getDocUrl('config', $doclang);
     if (!empty($option)) {
         $url .= '#desc_' . $option;
     }
@@ -389,8 +371,10 @@ function plugin_getconfigelementhelp_astore($option, $doclang='english')
 function plugin_configmanager_aws_secret_key_astore_validate($value)
 {
     global $_VARS;
-    if (isset($_VARS['guid'])) {
-        $value = COM_encrypt($value,$_VARS['guid']);
+    if (version_compare('GVERSION', '2.0.0', '<')) {
+        if (isset($_VARS['guid'])) {
+            $value = COM_encrypt($value,$_VARS['guid']);
+        }
     }
     return $value;
 }
@@ -430,7 +414,8 @@ function plugin_autotags_astore($op, $content = '', $autotag = '')
         switch ($content) {
         case 'astore' :
         case 'astore_link' :
-            return LGLIB_getVar($LANG_ASTORE_AUTOTAG, 'desc_' . $content);
+            $tag = 'desc_' . $content;
+            return isset($LANG_ASTORE_AUTOTAG[$tag]) ? $LANG_ASTORE_AUTOTAG[$tag] : '';
             break;
         default :
             return '';
@@ -589,5 +574,45 @@ function service_getiteminfo_astore($args, &$output, &$svc_msg)
     }
     return PLG_RET_OK;
 }
+
+
+/**
+ * Get the link to a documentation file.
+ * Returns the URL to the file, or to the directory if no file requested.
+ *
+ * @param   string  $file       HTML file
+ * @param   string  $doclang    Documentation language, default English
+ * @return  s tring              URL to document directory or file
+ */
+function ASTORE_getDocURL($file='', $doclang='english')
+{
+    global $_CONF;
+
+    $doc_path = "{$_CONF['path_html']}$pi_name/docs/$doclang/";
+    $doc_url = '';
+
+    if ($file != '') {
+        // Split out any .html extension to insert ".legacy" if needed
+        $fparts = pathinfo($file);
+        $file = $fparts['filename'];
+        if (version_compare(GVERSION, '1.6.0', '<')) {
+            $file .= '.legacy';
+        }
+        $file .= '.html';
+
+        if (!is_file($doc_path . $file)) {
+            $doclang = 'english';
+        }
+        $doc_url = "{$_CONF['site_url']}/$pi_name/docs/$doclang/$file";
+    } else {
+        if (!is_dir($doc_path)) {
+            $doclang = 'english';
+        }
+        $doc_url = "{$_CONF['site_url']}/$pi_name/docs/$doclang/";
+    }
+    return $doc_url;
+}
+
+
 
 ?>
