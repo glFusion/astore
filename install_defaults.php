@@ -26,23 +26,197 @@ if (!defined('GVERSION')) {
  *
  * @global array
  */
-global $_ASTORE_DEFAULT;
-$_ASTORE_DEFAULT = array(
-    'aws_store_title' => '',
-    'aws_access_key' => '',
-    'aws_secret_key' => '',
-    'aws_assoc_id' => '',
-    'aws_country' => 'com',
-    'aws_cache_min' => 30,
-    'auto_add_catalog' => false, // automatically add requested items to catalog
-    'debug_aws' => false,
-    'perpage'   => 10,
-    'max_feat_desc' => 600,
-    'max_blk_desc' => 50,
-    'sort' => 'none',       // storefront item sorting
-    'notag_header' => '',   // Do not set associate tag if this header exists
-    'notag_admins' => true, // Do not set associate tag for logged-in admins
-    'cb_enable' => false,   // Enable centerblock?
+$astoreConfigData = array(
+    array(
+        'name' => 'sg_main',
+        'default_value' => NULL,
+        'type' => 'subgroup',
+        'subgroup' => 0,
+        'fieldset' => 0,
+        'selection_array' => NULL,
+        'sort' => 0,
+        'set' => true,
+        'group' => 'astore',
+    ),
+    array(
+        'name' => 'fs_main',
+        'default_value' => NULL,
+        'type' => 'fieldset',
+        'subgroup' => 0,
+        'fieldset' => 0,
+        'selection_array' => NULL,
+        'sort' => 0,
+        'set' => true,
+        'group' => 'astore',
+    ),
+    array(
+        'name' => 'aws_store_title',
+        'default_value' => '',
+        'type' => 'text',
+        'subgroup' => 0,
+        'fieldset' => 0,
+        'selection_array' => 0,
+        'sort' => 10,
+        'set' => true,
+        'group' => 'astore',
+    ),
+    array(
+        'name' => 'aws_access_key',
+        'default_value' => '',
+        'type' => 'text',
+        'subgroup' => 0,
+        'fieldset' => 0,
+        'selection_array' => 0,
+        'sort' => 20,
+        'set' => true,
+        'group' => 'astore',
+    ),
+    array(
+        'name' => 'aws_secret_key',
+        'default_value' => '',
+        'type' => 'passwd',
+        'subgroup' => 0,
+        'fieldset' => 0,
+        'selection_array' => 0,
+        'sort' => 30,
+        'set' => true,
+        'group' => 'astore',
+    ),
+    array(
+        'name' => 'aws_assoc_id',
+        'default_value' => '',
+        'type' => 'text',
+        'subgroup' => 0,
+        'fieldset' => 0,
+        'selection_array' => 0,
+        'sort' => 40,
+        'set' => true,
+        'group' => 'astore',
+    ),
+    array(
+        'name' => 'aws_country',
+        'default_value' => 'com',
+        'type' => 'select',
+        'subgroup' => 0,
+        'fieldset' => 0,
+        'selection_array' => 1,
+        'sort' => 50,
+        'set' => true,
+        'group' => 'astore',
+    ),
+    array(
+        'name' => 'aws_cache_min',
+        'default_value' => '30',
+        'type' => 'text',
+        'subgroup' => 0,
+        'fieldset' => 0,
+        'selection_array' => 0,
+        'sort' => 60,
+        'set' => true,
+        'group' => 'astore',
+    ),
+    array(
+        'name' => 'debug_aws',
+        'default_value' => false,,
+        'type' => 'select',
+        'subgroup' => 0,
+        'fieldset' => 0,
+        'selection_array' => 2,
+        'sort' => 70,
+        'set' => true,
+        'group' => 'astore',
+    ),
+    // automatically add requested items to catalog
+    array(
+        'name' => 'auto_add_catalog',
+        'default_value' => false,
+        'type' => 'select',
+        'subgroup' => 0,
+        'fieldset' => 0,
+        'selection_array' => 2,
+        'sort' => 80,
+        'set' => true,
+        'group' => 'astore',
+    ),
+    array(
+        'name' => 'perpage',
+        'default_value' => '10',
+        'type' => 'text',
+        'subgroup' => 0,
+        'fieldset' => 0,
+        'selection_array' => 0,
+        'sort' => 90,
+        'set' => true,
+        'group' => 'astore',
+    ),
+    array(
+        'name' => 'max_feat_desc',
+        'default_value' => '600',
+        'type' => 'text',
+        'subgroup' => 0,
+        'fieldset' => 0,
+        'selection_array' => 0,
+        'sort' => 100,
+        'set' => true,
+        'group' => 'astore',
+    ),
+    array(
+        'name' => 'max_blk_desc',
+        'default_value' => '50',
+        'type' => 'text',
+        'subgroup' => 0,
+        'fieldset' => 0,
+        'selection_array' => 0,
+        'sort' => 110,
+        'set' => true,
+        'group' => 'astore',
+    ),
+    array(
+        'name' => 'sort',
+        'default_value' => 'none',
+        'type' => 'select',
+        'subgroup' => 0,
+        'fieldset' => 0,
+        'selection_array' => 3,
+        'sort' => 120,
+        'set' => true,
+        'group' => 'astore',
+    ),
+    // Do not set associate tag if this header exists
+    array(
+        'name' => 'notag_header',
+        'default_value' => '',
+        'type' => 'text',
+        'subgroup' => 0,
+        'fieldset' => 0,
+        'selection_array' => 0,
+        'sort' => 130,
+        'set' => true,
+        'group' => 'astore',
+    ),
+    // Do not set associate tag for logged-in admins
+    array(
+        'name' => 'notag_admins',
+        'default_value' => true,
+        'type' => 'select',
+        'subgroup' => 0,
+        'fieldset' => 0,
+        'selection_array' => 2,
+        'sort' => 140,
+        'set' => true,
+        'group' => 'astore',
+    ),
+    array(
+        'name' => 'cb_enable',
+        'default_value' => false,
+        'type' => 'select',
+        'subgroup' => 0,
+        'fieldset' => 0,
+        'selection_array' => 2,
+        'sort' => 150,
+        'set' => true,
+        'group' => 'astore',
+    ),
 );
 
 /**
@@ -53,50 +227,16 @@ $_ASTORE_DEFAULT = array(
  */
 function plugin_initconfig_astore($admin_group)
 {
-    global $_CONF_ASTORE, $_ASTORE_DEFAULT;
+    global $astoreConfigData;
 
-    $me = $_CONF_ASTORE['pi_name'];
     $c = config::get_instance();
-    if (!$c->group_exists($me)) {
-
-        $c->add('sg_main', NULL, 'subgroup', 0, 0, NULL, 0, true, $me);
-
-        $c->add('fs_main', NULL, 'fieldset', 0, 0, NULL, 0, true, $me);
-
-        $c->add('store_title', $_ASTORE_DEFAULT['store_title'],
-                'text', 0, 0, 0, 10, true, $me);
-        $c->add('aws_access_key', $_ASTORE_DEFAULT['aws_access_key'],
-                'text', 0, 0, 0, 20, true, $me);
-        $c->add('aws_secret_key', $_ASTORE_DEFAULT['aws_secret_key'],
-                'passwd', 0, 0, 3, 30, true, $me);
-        $c->add('aws_assoc_id', $_ASTORE_DEFAULT['aws_assoc_id'],
-                'text', 0, 0, 0, 40, true, $me);
-        $c->add('aws_country', $_ASTORE_DEFAULT['aws_country'],
-                'select', 0, 0, 1, 50, true, $me);
-        $c->add('aws_cache_min', $_ASTORE_DEFAULT['aws_cache_min'],
-                'text', 0, 0, 0, 60, true, $me);
-        $c->add('debug_aws', $_ASTORE_DEFAULT['debug_aws'],
-                'select', 0, 0, 2, 70, true, $me);
-        $c->add('auto_add_catalog', $_ASTORE_DEFAULT['auto_add_catalog'],
-                'select', 0, 0, 2, 80, true, $me);
-        $c->add('perpage', $_ASTORE_DEFAULT['perpage'],
-                'text', 0, 0, 0, 90, true, $me);
-        $c->add('max_feat_desc', $_ASTORE_DEFAULT['max_feat_desc'],
-                'text', 0, 0, 0, 100, true, $me);
-        $c->add('max_blk_desc', $_ASTORE_DEFAULT['max_blk_desc'],
-                'text', 0, 0, 0, 110, true, $me);
-        $c->add('sort', $_ASTORE_DEFAULT['sort'],
-                'select', 0, 0, 3, 120, true, $me);
-        $c->add('notag_header', $_ASTORE_DEFAULT['notag_header'],
-                'text', 0, 0, 0, 130, true, $me);
-        $c->add('notag_admins', $_ASTORE_DEFAULT['notag_admins'],
-                'select', 0, 0, 2, 140, true, $me);
-        $c->add('cb_enable', $_ASTORE_DEFAULT['cb_enable'],
-                'select', 0, 0, 2, 150, true, $me);
-        return true;
-    } else {
-        return false;
+    if (!$c->group_exists('astore')) {
+        USES_lib_install();
+        foreach ($astoreConfigData AS $cfgItem) {
+            _addConfigItem($cfgItem);
+        }
     }
+    return true;
 }
 
 ?>
