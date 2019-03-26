@@ -105,11 +105,6 @@ case 'additem':
                 $level = 'error';
             }
             COM_setMsg(sprintf($msg, $asin), $level);
-/*            LGLIB_storeMessage(array(
-                'message' => sprintf($msg, $asin),
-                'level' => $level,
-                'pi_code' => $_CONF_ASTORE['pi_name'],
-            ) );*/
         }
     }
     echo COM_refresh(ASTORE_ADMIN_URL);
@@ -288,7 +283,9 @@ function ASTORE_getAdminField($fieldname, $fieldvalue, $A, $icon_arr)
 
     switch($fieldname) {
     case 'asin':
-        $retval = COM_createLink($fieldvalue, ASTORE_URL . '/index.php?mode=detail&asin=' . $fieldvalue);
+        $retval = COM_createLink($fieldvalue,
+            COM_buildUrl(ASTORE_URL . '/index.php?mode=detail&asin=' . $fieldvalue)
+        );
         break;
 
     case 'delete':
