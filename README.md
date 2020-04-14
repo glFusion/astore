@@ -1,4 +1,10 @@
 # Amazon Store Plugin for glFusion
+
+## DEPRECATED
+Amazon's guidelines prevent further development of this plugin.
+
+See https://docs.aws.amazon.com/AWSECommerceService/latest/DG/TroubleshootingApplications.html#EfficiencyGuidelines
+
 This plugin provides a storefront for curated Amazon products, similar to
 the "Astore" product that Amazon is retiring on October 27, 2017.
 Using the Product Advertising API you can display a curated set of products on your site.
