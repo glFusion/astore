@@ -1,5 +1,10 @@
 # Changelog - Astore plugin for glFusion
 
+## DEPRECATED
+Amazon's guidelines prevent further development of this plugin.
+
+See https://docs.aws.amazon.com/AWSECommerceService/latest/DG/TroubleshootingApplications.html#EfficiencyGuidelines
+
 ## Version 0.2.0
 Release TBD
 - Remove dependence on LGLib
