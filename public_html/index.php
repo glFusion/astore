@@ -27,10 +27,10 @@ case 'detail':
         $listprice = $item->ListPrice('raw');
         $lowestprice = $item->LowestPrice('raw');
         if (
-            ($lowestprice && $listprice && $lowestprice < $listprice) ||
+            ($lowestprice && $listprice && ($lowestprice < $listprice)) ||
             ($lowestprice && !$listprice) ) {
             $T->set_var(array(
-                'lowestprice'   => $item->LowestPrice(),
+                'show_lowest' => true,
             ) );
         }
         $T->set_var(array(
@@ -40,7 +40,7 @@ case 'detail':
             'img_width' => $item->LargeImage()->Width,
             'img_height' => $item->LargeImage()->Height,
             'listprice' => $item->ListPrice(),
-            'iconset'   => $_CONF_ASTORE['_iconset'],
+            'lowestprice' => $item->LowestPrice(),
             'long_description' => $item->EditorialReview(),
             'available' => $item->isAvailable(),
             'offers_url'    => $item->OffersURL(),
@@ -122,7 +122,6 @@ default:
                 'formattedprice' => $item->LowestPrice(),
                 'long_description' => COM_truncate($item->EditorialReview(),
                     $_CONF_ASTORE['max_feat_desc'], '...'),
-                'iconset'   => $_CONF_ASTORE['_iconset'],
                 'offers_url' => $item->OffersURL(),
                 'available' => $item->isAvailable(),
             ) );
@@ -187,7 +186,6 @@ function ASTORE_showProducts($items)
             'img_height' => $item->MediumImage()->Height,
             'formattedprice' => $item->LowestPrice(),
             'displayprice' => $item->DisplayPrice(),
-            'iconset'   => $_CONF_ASTORE['_iconset'],
             'long_description' => '',
             'offers_url' => $item->OffersURL(),
             'available' => $item->isAvailable(),

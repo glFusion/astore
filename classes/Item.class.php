@@ -64,6 +64,19 @@ class Item
 
 
     /**
+     * Get an instance of an item.
+     * Caching is handled in Retrieve() so no need to implement here.
+     *
+     * @param   string  $asin   Item ID
+     * @return  object      Item object
+     */
+    public static function getInstance($asin)
+    {
+        return new self($asin);
+    }
+
+
+    /**
      * Return the raw data object.
      *
      * @return  object  simpleXML object containing item data
@@ -220,6 +233,7 @@ class Item
 
         if ($secretkey === NULL) {
             if (isset($_VARS['guid']) && version_compare(GVERSION, '2.0.0', '<')) {
+                // glFusion 2.0.0 already decrypts passwd config items
                 $secretkey = COM_decrypt($_CONF_ASTORE['aws_secret_key'], $_VARS['guid']);
             } else {
                 $secretkey = $_CONF_ASTORE['aws_secret_key'];
@@ -535,7 +549,6 @@ class Item
                 'img_height' => $item->MediumImage()->Height,
                 'formattedprice' => $item->LowestPrice(),
                 'displayprice' => $item->DisplayPrice(),
-                'iconset'   => $_CONF_ASTORE['_iconset'],
                 'long_description' => '',
                 'offers_url' => $item->OffersURL(),
                 'available' => $item->isAvailable(),
@@ -544,6 +557,59 @@ class Item
             $T->parse('pb', 'productbox', true);
         }
         $T->parse('output', 'products');
+        return $T->finish($T->get_var('output'));
+    }
+
+
+    /**
+     * Display the product detail page for a single item.
+     *
+     * @return  string  HTML for product detail page
+     */
+    public function showDetail()
+    {
+        $T = new \Template(ASTORE_PI_PATH . '/templates');
+        $T->set_file('detail', 'detail.thtml');
+        if (!$this->isError()) {
+            $listprice = $this->ListPrice('raw');
+            $lowestprice = $this->LowestPrice('raw');
+            // If there's a lower price than list, display the "view offers" link
+            if (
+                ($lowestprice && $listprice && ($lowestprice < $listprice)) ||
+                ($lowestprice && !$listprice) ) {
+                $T->set_var(array(
+                    'show_lowest' => true,
+                ) );
+            }
+            $T->set_var(array(
+                'item_url'  => $this->DetailPageURL(),
+                'title'     => $this->Title(),
+                'img_url'   => $this->LargeImage()->URL,
+                'img_width' => $this->LargeImage()->Width,
+                'img_height' => $this->LargeImage()->Height,
+                'listprice' => $this->ListPrice(),
+                'lowestprice' => $this->LowestPrice(),
+                'long_description' => $this->EditorialReview(),
+                'available' => $this->isAvailable(),
+                'offers_url'    => $this->OffersURL(),
+                'is_prime'  => $this->isPrime(),
+            ) );
+            $features = $this->Features();
+            if (!empty($features)) {
+                $T->set_var('has_features', true);
+                $T->set_block('detail', 'Features', 'fb');
+                foreach ($features as $feature) {
+                    $T->set_var('feature', $feature);
+                    $T->parse('fb', 'Features', true);
+                }
+            }
+        } else {
+            $T->set_var(array(
+                'message'   => $LANG_ASTORE['item_not_found'],
+                'msg_class' => 'danger',
+            ) );
+        }
+        $T->parse('output', 'detail');
         return $T->finish($T->get_var('output'));
     }
 
@@ -560,7 +626,7 @@ class Item
 
         // Return from cache if found and not expired
         $data = Cache::get($asin);
-        if (empty($data)) {
+        if ($data === NULL) {
             $data = self::_getAmazon(array($asin));
             if (!empty($data) && $_CONF_ASTORE['auto_add_catalog']) {
                 if (isset($data->ItemAttributes->Title)) {
@@ -859,6 +925,7 @@ class Item
     {
         $data = Cache::get($isbn);
         if ($data === NULL) {
+            COM_errorLog("$isbn not found in cache");
             $data = self::_getAmazon($isbn, 'ISBN');
             Cache::set($isbn, $data);
         }
@@ -868,10 +935,11 @@ class Item
 
     /**
      * Remove any associate-related tags from the product URL for admins.
+     * The entire query string is removed as it is not needed.
      * This is to avoid artifically inflating the click count at Amazon
      * during testing by admins.
      * If the configured header is present, or an admin is logged in and
-     * admins should not see associate links, then strip the associate infl.
+     * admins should not see associate links, then strip the associate info.
      *
      * @param   string  $url    Product URL
      * @return  string          URL without associate tags

@@ -16,10 +16,10 @@ require_once __DIR__ . '/install_defaults.php';
 /**
  * Perform the upgrade starting at the current version.
  *
- * @param   string  $current_ver    Current installed version to be upgraded
- * @return  integer                 Error code, 0 for success
+ * @param   boolean $dvlp   True to ignore errors for development update
+ * @return  integer         Error code, 0 for success
  */
-function astore_do_upgrade()
+function astore_do_upgrade($dvlp=false)
 {
     global $_TABLES, $_CONF_ASTORE, $_PLUGIN_INFO, $_ASTORE_DEFAULT;
 
@@ -46,34 +46,42 @@ function astore_do_upgrade()
 
     if (!COM_checkVersion($current_ver, '0.2.0')) {
         $current_ver = '0.2.0';
-        // Adds tag-hiding feature based on HTTP header and admin status
-        $conf->add('notag_header', $_ASTORE_DEFAULT['notag_header'],
-                'text', 0, 0, 0, 130, true, $_CONF_ASTORE['pi_name']);
-        $conf->add('notag_admins', $_ASTORE_DEFAULT['notag_admins'],
-                'select', 0, 0, 2, 140, true, $_CONF_ASTORE['pi_name']);
-        $conf->add('cb_enable', $_ASTORE_DEFAULT['cb_enable'],
-                'select', 0, 0, 2, 150, true, $_CONF_ASTORE['pi_name']);
-        if (!astore_do_upgrade_sql($current_ver)) return false;
-        // Sync title names from cache into catalog title field.
-        // Need this to have titles in admin list when cache table is removed.
-        $sql1 = "SELECT cat.asin, cache.data
+        // Check a column that's added in this update to see if the
+        // title field needs to be sync'd from cache to the catalog.
+        if (!_ASTOREtableHasColumn('enabled')) {
+            $update_title = true;
+        } else {
+            $update_title = false;
+        }
+        if (!astore_do_upgrade_sql($current_ver, $dvlp)) return false;
+        if ($update_title) {
+            // Sync title names from cache into catalog title field.
+            // Need this to have titles in admin list when cache table is removed.
+            $sql1 = "SELECT cat.asin, cache.data
                 FROM {$_TABLES['astore_catalog']} cat
                 LEFT JOIN {$_TABLES['astore_cache']} cache
                     ON cache.asin = cat.asin";
-        $res1 = DB_query($sql1);
-        if ($res1) {
-            while ($A = DB_fetchArray($res1, false)) {
-                $item = new Astore\Item($A['asin'], @json_decode($A['data']));
-                if (!empty($item->Title())) {
-                    $sql2 = "UPDATE {$_TABLES['astore_catalog']}
-                        SET title = '" . DB_escapeString($item->Title()) . "'
-                        WHERE asin = '" . DB_escapeString($A['asin']) . "'";
-                    DB_query($sql2, 1);
+            $res1 = DB_query($sql1);
+            if ($res1) {
+                while ($A = DB_fetchArray($res1, false)) {
+                    $item = new Astore\Item($A['asin'], @json_decode($A['data']));
+                    if (!empty($item->Title())) {
+                        $sql2 = "UPDATE {$_TABLES['astore_catalog']}
+                            SET title = '" . DB_escapeString($item->Title()) . "'
+                            WHERE asin = '" . DB_escapeString($A['asin']) . "'";
+                        DB_query($sql2, 1);
+                    }
                 }
             }
         }
         if (!astore_do_update_version($current_ver)) return false;
     }
+
+    // Update the plugin configuration
+    USES_lib_install();
+    global $astoreConfigData;
+    require_once __DIR__ . '/install_defaults.php';
+    _update_config('astore', $astoreConfigData);
 
     // Final extra check to catch code-only patch versions
     if (!COM_checkVersion($current_ver, $installed_ver)) {
@@ -114,10 +122,11 @@ function astore_do_update_version($version)
 /**
  * Actually perform any sql updates.
  *
- * @param   string $version  Version being upgraded TO
+ * @param   string  $version    Version being upgraded TO
+ * @param   boolean $dvlp       True to ignore errors and continue
  * @return  boolean     True on success, False on error
  */
-function astore_do_upgrade_sql($version)
+function astore_do_upgrade_sql($version, $dvlp=false)
 {
     global $_TABLES, $_CONF_ASTORE, $ASTORE_UPGRADE, $_DB_dbms;
 
@@ -129,13 +138,13 @@ function astore_do_upgrade_sql($version)
     }
 
     // Execute SQL now to perform the upgrade
-    COM_errorLOG("--Updating Astore to version $version");
+    COM_errorLog("--Updating Astore to version $version");
     foreach($ASTORE_UPGRADE[$version] as $sql) {
-        COM_errorLOG("Astore Plugin $version update: Executing SQL => $sql");
+        COM_errorLog("Astore Plugin $version update: Executing SQL => $sql");
         DB_query($sql, '1');
         if (DB_error()) {
             COM_errorLog("SQL Error during Astore Plugin update",1);
-            return false;
+            if (!$dvlp) return false;
             break;
         }
     }
@@ -144,48 +153,20 @@ function astore_do_upgrade_sql($version)
 
 
 /**
- * Upgrade to version 0.1.0.
- * Adds configuration item for centerblock replacing home page.
+ * Check if a column exists in a table
  *
- * @return  boolean     True on success, False on error
+ * @param   string  $table      Table Key, defined in paypal.php
+ * @param   string  $col_name   Column name to check
+ * @return  boolean     True if the column exists, False if not
  */
-function astore_upgrade_0_1_0()
+function _ASTOREtableHasColumn($table, $col_name)
 {
-    global $_CONF_ASTORE, $ASTORE_DEFAULT;
+    global $_TABLES;
 
-    // Add new configuration items
-    $c = config::get_instance();
-    if ($c->group_exists($_CONF_ASTORE['pi_name'])) {
-        $c->add('cb_replhome', $_ASTORE_DEFAULT['cb_replhome'],
-                'select',0, 1, 3, 120, true, $_CONF_ASTORE['pi_name']);
-        $c->add('block_limit', $_ASTORE_DEFAULT['block_limit'],
-                'text',0, 0, 3, 130, true, $_CONF_ASTORE['pi_name']);
-    }
-
-    if (!astore_do_upgrade_sql('0.1.0')) return false;
-    return astore_do_update_version('0.1.0');
+    $col_name = DB_escapeString($col_name);
+    $res = DB_query("SHOW COLUMNS FROM {$_TABLES[$table]} LIKE '$col_name'");
+    return DB_numRows($res) == 0 ? false : true;
 }
 
-
-/**
- * Upgrade to version 0.1.7.
- * Adds configuration item for centerblock replacing home page.
- *
- * @return  boolean     True on success, False on error
- */
-function astore_upgrade_0_1_7()
-{
-    global $_CONF_ASTORE, $ASTORE_DEFAULT, $UPGRADE;
-
-    // Add new configuration items
-    $c = config::get_instance();
-    if ($c->group_exists($_CONF_ASTORE['pi_name'])) {
-        $c->add('uagent_dontshow', $_ASTORE_DEFAULT['uagent_dontshow'],
-                '%text', 0, 1, 0, 25, true, $_CONF_ASTORE['pi_name']);
-    }
-
-    if (!astore_do_upgrade_sql('0.1.7')) return false;
-    return astore_do_update_version('0.1.7');
-}
 
 ?>

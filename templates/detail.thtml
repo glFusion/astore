@@ -12,7 +12,7 @@
       <img src="{img_url}" style="max-width: {img_width}; max-height: {img_height};" />
     </a>
   </div>
-  <div class="ast-detail-price">{lowestprice}</div>
+  <div class="ast-detail-price">{listprice}</div>
   <div class="ast-a-detail-button">
     <span class="ast-a-button ast-a-button-primary">
       <a target="_blank" href="{item_url}" style="text-decoration:none" rel="nofollow">
@@ -30,7 +30,7 @@
 {!if is_prime}
   <img src="{site_url}/astore/images/prime.v101.svg" />
 {!endif}
-{!if lowestprice}
+{!if show_lowest}
   <div class="ast-detail-offers">
     Available from {lowestprice}: <a target="_blank" href="{offers_url}">{$LANG_ASTORE['more_offers']}</a>
   </div>

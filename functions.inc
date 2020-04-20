@@ -41,11 +41,6 @@ if (file_exists(ASTORE_PI_PATH . '/config.php')) {
     include_once ASTORE_PI_PATH . '/config.php';
 }
 
-// Mark whether this is a uikit theme. Save to global conf var
-// so it's available where needed.
-$_CONF_ASTORE['_is_uikit'] = $_SYSTEM['framework'] == 'uikit' ? true : false;
-$_CONF_ASTORE['_iconset'] = $_CONF_ASTORE['_is_uikit'] ? 'uk-icon' : 'fa fa';
-
 define ('ASTORE_ADMIN_URL',
         $_CONF['site_admin_url'] . '/plugins/'.$_CONF_ASTORE['pi_name']);
 define ('ASTORE_URL',
@@ -371,10 +366,8 @@ function plugin_getconfigelementhelp_astore($option, $doclang='english')
 function plugin_configmanager_aws_secret_key_astore_validate($value)
 {
     global $_VARS;
-    if (version_compare('GVERSION', '2.0.0', '<')) {
-        if (isset($_VARS['guid'])) {
-            $value = COM_encrypt($value,$_VARS['guid']);
-        }
+    if (version_compare('GVERSION', '2.0.0', '<') && isset($_VARS['guid'])) {
+        $value = COM_encrypt($value,$_VARS['guid']);
     }
     return $value;
 }
@@ -445,6 +438,17 @@ function plugin_autotags_astore($op, $content = '', $autotag = '')
 }
 
 
+/**
+ * Return true to enable service functions.
+ *
+ * @return  boolean     True to enable web services
+ */
+function plugin_wsEnabled_astore()
+{
+    return true;
+}
+
+
 ////////////////////////////////////////////
 //
 //  Public Plugin-Specific Functions Follow
@@ -465,11 +469,7 @@ function ASTORE_getIcon($name, $style='info')
     if ($style != '')
         $style = ' ast-icon-' . $style;
 
-    if ($_CONF_ASTORE['_is_uikit']) {
-        return 'uk-icon uk-icon-' . $name . $style;
-    } else {
-        return 'fa fa-' . $name . $style;
-    }
+    return 'uk-icon uk-icon-' . $name . $style;
 }
 
 
@@ -515,7 +515,6 @@ function ASTORE_show($page = 1, $asin='')
                 'formattedprice' => $item->LowestPrice(),
                 'long_description' => COM_truncate($item->EditorialReview(),
                     $_CONF_ASTORE['max_feat_desc'], '...'),
-                'iconset'   => $_CONF_ASTORE['_iconset'],
                 'offers_url' => $item->OffersURL(),
                 'available' => $item->isAvailable(),
             ) );
@@ -612,7 +611,5 @@ function ASTORE_getDocURL($file='', $doclang='english')
     }
     return $doc_url;
 }
-
-
 
 ?>
