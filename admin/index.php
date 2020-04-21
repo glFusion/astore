@@ -26,9 +26,8 @@ USES_lib_admin();
 $action = '';
 $actionval = '';
 $expected = array(
-    'additem', 'delitem', 'importcsv', 'exportcsv', 'clearcache',
-    'import',
-    'mode', 'view',
+    'saveitem', 'delitem', 'importcsv', 'exportcsv', 'clearcache',
+    'edit',
 );
 
 foreach ($expected as $provided) {
@@ -84,8 +83,9 @@ case 'delitem':
     $view = 'items';
     break;
 
-case 'additem':
-    $asin = isset($_POST['asin']) ? $_POST['asin'] : '';
+case 'saveitem':
+    $status = Astore\Item::getInstance($POST['id'])->Save($_POST);
+    /*$asin = isset($_POST['asin']) ? $_POST['asin'] : '';
     if (!empty($asin)) {
         $item = new Astore\Item($asin);
         // Item is already added to the catalog if auto_add_catalog is set
@@ -106,7 +106,7 @@ case 'additem':
             }
             COM_setMsg(sprintf($msg, $asin), $level);
         }
-    }
+    }*/
     echo COM_refresh(ASTORE_ADMIN_URL);
     break;
 
@@ -121,8 +121,12 @@ default:
 }
 
 switch ($view) {
+case 'edit':
+    $content .= Astore\Item::getInstance($actionval)->Edit();
+    break;
+
 case 'items':
-    $content .= ASTORE_adminItemList($import_fld);
+    $content .= Astore\Item::adminList($import_fld);
     break;
 }
 
@@ -137,61 +141,10 @@ if (isset($_GET['msg'])) {
 echo COM_siteHeader('none', $LANG_ASTORE['admin_title']);
 $outputHandle = outputHandler::getInstance();
 $outputHandle->addScriptFile(ASTORE_PI_PATH . '/js/ajax.js');
-echo ASTORE_adminMenu($view);
+echo Astore\Menu::Admin($view);
 echo $content;
 echo COM_siteFooter();
 exit;
-
-/**
- * Create the administrator menu.
- *
- * @param   string  $view   View being shown, so set the help text
- * @return  string      Administrator menu
- */
-function ASTORE_adminMenu($view='')
-{
-    global $_CONF, $LANG_ADMIN, $LANG_ASTORE, $_CONF_ASTORE;
-
-    $act_items = false;
-    $act_categories = false;
-
-    switch ($view) {
-    case 'items':
-        $act_items = true;
-        break;
-    }
-
-    $menu_arr = array(
-        array(
-            'url'  => ASTORE_ADMIN_URL . '/index.php',
-            'text' => $LANG_ASTORE['items'],
-            'active' => $act_items,
-        ),
-        array(
-            'url'   => ASTORE_ADMIN_URL . '/index.php?exportcsv=x',
-            'text'  => $LANG_ASTORE['export'],
-        ),
-        array(
-            'url'   => ASTORE_ADMIN_URL . '/index.php?clearcache=x',
-            'text'  => $LANG_ASTORE['clearcache'],
-        ),
-        array(
-            'url'  => $_CONF['site_admin_url'],
-            'text' => $LANG_ADMIN['admin_home'],
-        ),
-    );
-
-    $T = new \Template(ASTORE_PI_PATH . '/templates');
-    $T->set_file('title', 'admin.thtml');
-    $T->set_var(array(
-        'version'   => $_CONF_ASTORE['pi_version'],
-        'icon' => plugin_geticon_astore(),
-    ) );
-    $retval = $T->parse('', 'title');
-    $retval .= ADMIN_createMenu($menu_arr, '',
-            plugin_geticon_astore());
-    return $retval;
-}
 
 
 /**

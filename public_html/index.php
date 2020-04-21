@@ -20,17 +20,18 @@ $content = '';
 
 switch ($mode) {
 case 'detail':
-    $item = new Astore\Item($asin);
+    $content .= Astore\Item::getInstance($asin)->showDetail();
+    /*$item = new Astore\Item($asin);
     $T = new Template(ASTORE_PI_PATH . '/templates');
     $T->set_file('detail', 'detail.thtml');
     if (!$item->isError()) {
         $listprice = $item->ListPrice('raw');
         $lowestprice = $item->LowestPrice('raw');
         if (
-            ($lowestprice && $listprice && $lowestprice < $listprice) ||
+            ($lowestprice && $listprice && ($lowestprice < $listprice)) ||
             ($lowestprice && !$listprice) ) {
             $T->set_var(array(
-                'lowestprice'   => $item->LowestPrice(),
+                'show_lowest' => true,
             ) );
         }
         $T->set_var(array(
@@ -40,7 +41,7 @@ case 'detail':
             'img_width' => $item->LargeImage()->Width,
             'img_height' => $item->LargeImage()->Height,
             'listprice' => $item->ListPrice(),
-            'iconset'   => $_CONF_ASTORE['_iconset'],
+            'lowestprice' => $item->LowestPrice(),
             'long_description' => $item->EditorialReview(),
             'available' => $item->isAvailable(),
             'offers_url'    => $item->OffersURL(),
@@ -62,7 +63,7 @@ case 'detail':
         ) );
     }
     $T->parse('output', 'detail');
-    $content .= $T->finish($T->get_var('output'));
+    $content .= $T->finish($T->get_var('output'));*/
     break;
 
 case 'search':
@@ -90,6 +91,22 @@ case 'search':
 default:
     $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
     if ($page < 1) $page = 1;
+    $content = '';
+
+    $Catalog = new Astore\Catalog;
+    $content .= $Catalog->Render();
+    /*$Items = Astore\Item::getPage($page);
+    $content .= '<ul class="uk-grid uk-grid-match uk-grid-width-1-3 uk-grid-width-medium-1-5 uk-grid-width-large-1-8">';
+    foreach ($Items as $Item) {
+        if ($Item->getUrl() == NULL) {
+            continue;
+        }
+        $content .= '<li style="margin-bottom:10px;">' . $Item->getUrl() . '</li>';
+    }
+    $content .= '</ul>';*/
+    break;
+
+
     if (!empty($asin) && $page == 1) {
         Astore\Item::RequireASIN($asin);
     }
@@ -122,7 +139,6 @@ default:
                 'formattedprice' => $item->LowestPrice(),
                 'long_description' => COM_truncate($item->EditorialReview(),
                     $_CONF_ASTORE['max_feat_desc'], '...'),
-                'iconset'   => $_CONF_ASTORE['_iconset'],
                 'offers_url' => $item->OffersURL(),
                 'available' => $item->isAvailable(),
             ) );
@@ -187,7 +203,6 @@ function ASTORE_showProducts($items)
             'img_height' => $item->MediumImage()->Height,
             'formattedprice' => $item->LowestPrice(),
             'displayprice' => $item->DisplayPrice(),
-            'iconset'   => $_CONF_ASTORE['_iconset'],
             'long_description' => '',
             'offers_url' => $item->OffersURL(),
             'available' => $item->isAvailable(),

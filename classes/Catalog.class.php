@@ -1,11 +1,12 @@
 <?php
 /**
- * Common elements for Amazon Items.
+ * Create an amazon store catalog.
  *
  * @author      Lee Garner <lee@leegarner.com>
- * @copyright   Copyright (c) 2017-2020 Lee Garner <lee@leegarner.com>
+ * @copyright   Copyright (c) 2020 Lee Garner <lee@leegarner.com>
  * @package     astore
  * @version     v0.2.0
+ * @since       v0.2.0
  * @license     http://opensource.org/licenses/gpl-2.0.php
  *              GNU Public License v2 or later
  * @filesource
@@ -17,95 +18,37 @@ namespace Astore;
  * Class for Amazon Items.
  * @package astore
  */
-class Item
+class Catalog
 {
     /** Cache tag applied to all cached items from this plugin.
      * @var string */
-    protected static $tag = 'astore';
+    protected static $tag = 'astore_cat';
 
-    /** Data holder for search results.
-     * @var object */
-    protected $data = NULL;
-
-    /** Item record ID.
-     * @var integer */
-    private $id = 0;
-
-    /** Item short name/description.
+    /** Featured item.
      * @var string */
-    private $title = '';
-
-    /** Item ASIN identifier.
-     * @var string */
-    private $asin;
-
-    /** URL to the Amazon ad.
-     * @var string */
-    private $url = '';
-
-    /** Is the item allowed to be displayed?
-     * @var boolean */
-    private $enabled = 1;
-
-    /** Is the item featured?
-     * @var boolean */
-    private $featured = 0;
-
-    /** ASIN of the featured item, if any.
-     * @var string */
-    private $featured_asin = '';
+    private $Featured = NULL;
 
 
-    /**
-     * Constructor. Sets up internal variables.
-     *
-     * @param   string|array    $id     Item id or record
-     */
-    public function __construct($id)
-    {
-        if (is_array($id)) {
-            $this->setVars($id);
-        } elseif (is_numeric($id)) {
-            $this->id = (int)$id;
-            if (!$this->Read()) {
-                $this->id = 0;
-            }
-        }
-    }
-
-
-    private function Read()
+    public function getFeatured()
     {
         global $_TABLES;
+        return NULL;
 
-        $retval = false;
         $sql = "SELECT * FROM {$_TABLES['astore_catalog']}
-            WHERE id = {$this->id}
+            WHERE enabled=1
             LIMIT 1";
         $res = DB_query($sql);
         if ($res) {
             $A = DB_fetchArray($res, false);
-            if (is_array($A)) {
-                $this->setVars($A);
-                $retval = true;
-            }
+            $this->Featured = new Item($A);
         }
-        return $retval;
-    }
-
-
-    private function setVars($A)
-    {
-        $this->id = (int)$A['id'];
-        $this->asin = trim($A['asin']);
-        $this->title = trim($A['title']);
-        $this->enabled = isset($A['enabled']) && $A['enabled'] ? 1 : 0;
-        $this->url = trim($A['url']);
+        return $this->Featured;
     }
 
 
     public function getPage($page=1, $orderby='id')
     {
+        return '';
         global $_TABLES;
 
         $retval = array();
@@ -122,176 +65,23 @@ class Item
             $ord = 'RAND()';
             break;
         }
-
+        if ($this->Featured) {
+            $exclude = "AND asin <> '{$this->Featured->getASIN()}'";
+        } else {
+            $exclude = '';
+        }
         $start = ($page - 1) * $perpage;
         $sql = "SELECT * FROM {$_TABLES['astore_catalog']}
-            WHERE enabled=1
+            WHERE enabled=1 $exclude
             ORDER BY $ord
             LIMIT $start, $perpage";
         $res = DB_query($sql);
         if ($res) {
             while ($A = DB_fetchArray($res, false)) {
-                $retval[] = new self($A);
+                $retval[] = new Item($A);
             }
         }
         return $retval;
-    }
-
-
-    public static function getInstance($id)
-    {
-        return new self($id);
-    }
-
-
-    public function getNativeUrl()
-    {
-    }
-    public function getUrl()
-    {
-        global $_CONF_ASTORE;
-
-        $region = 'US';
-        $language = 'en_US';
-        /*if (
-            (
-                $_CONF_ASTORE['notag_header'] != '' &&
-                isset($_SERVER['HTTP_' . strtoupper($_CONF_ASTORE['notag_header'])])
-            ) ||
-            ($_CONF_ASTORE['notag_admins'] && plugin_ismoderator_astore())
-        ) {
-            $tag = '';
-            $tag = '&tracking_id=' . 'gadgetsfixit-20';
-        } else {*/
-            $tag = '&tracking_id=' . 'gadgetsfixit-20';
-        //}
-
-        $base_url = '<iframe style="width:120px;height:240px;" marginwidth="0" ' .
-            'marginheight="0" scrolling="no" frameborder="0" ' .
-            'src="//ws-na.amazon-adsystem.com/widgets/q?ServiceVersion=20070822&OneJS=1&Operation=GetAdHtml&MarketPlace=%s&source=ss&ref=as_ss_li_til&ad_type=product_link%s&language=%s&marketplace=amazon&region=%s&placement=%s&asins=%s&show_border=true&link_opens_in_new_window=true"></iframe>';
-        $url = sprintf($base_url, $region, $tag, $language, $region, $this->asin, $this->asin);
-        return $url;
-    }
-
-
-    /**
-     * Return the ASIN, to allow public access to it.
-     *
-     * @return  string  Item ID
-     */
-    public function getASIN()
-    {
-        return $this->asin;
-    }
-
-
-    /**
-     * Add an item to the catalog if not already present.
-     *
-     * @param   string  $asin   Item number
-     * @param   string  $title  Item title to store in catalog
-     * @return  boolean         True on success, False on DB error
-     */
-    public function Save($A=NULL)
-    {
-        global $_TABLES;
-
-        if (is_array($A)) {
-            $this->setVars($A);
-        }
-        $sql = "INSERT INTO {$_TABLES['astore_catalog']} SET
-            id = {$this->id},
-            asin = '" . DB_escapeString($this->asin) . "',
-            title = '" . DB_escapeString($this->title) . "',
-            enabled = '{$this->isEnabled()}'
-            ON DUPLICATE KEY UPDATE
-            asin = '" . DB_escapeString($this->asin) . "',
-            title = '" . DB_escapeString($this->title) . "',
-            enabled = '{$this->isEnabled()}'";
-        DB_query($sql);
-        return DB_error() ? false : true;
-    }
-
-
-    public function isEnabled()
-    {
-        return $this->enabled ? 1 : 0;
-    }
-
-
-   /**
-     * Log a debug message if aws_debug is enabled.
-     *
-     * @param   string  $text   Message to be logged
-     * @param   boolean $force  True to log message regardless of debug setting
-     */
-    protected static function _debug($text, $force = false)
-    {
-        global $_CONF_ASTORE;
-
-        if ($force || (isset($_CONF_ASTORE['debug_aws']) && $_CONF_ASTORE['debug_aws'])) {
-            COM_errorLog('Astore:: ' . $text);
-        }
-    }
-
-
-    /**
-     * Decrypt the AWS secret key from the configuration.
-     *
-     * @return  string      Decrypted key
-     */
-    private static function _secretKey()
-    {
-        global $_CONF_ASTORE, $_VARS;
-        static $secretkey = NULL;
-
-        if ($secretkey === NULL) {
-            if (isset($_VARS['guid']) && version_compare(GVERSION, '2.0.0', '<')) {
-                $secretkey = COM_decrypt($_CONF_ASTORE['aws_secret_key'], $_VARS['guid']);
-            } else {
-                $secretkey = $_CONF_ASTORE['aws_secret_key'];
-            }
-        }
-        return $secretkey;
-    }
-
-
-    /**
-     * Determine if an item is available at all from Amazon.
-     * Returns False if not available from Amazon nor from other sellers.
-     *
-     * @return  boolean     True if available, False if not
-     */
-    public function isAvailable()
-    {
-        $retval = true;
-        if (isset($this->data->Offers->TotalOffers)) {
-            $x = (int)$this->data->Offers->TotalOffers;
-            if ($x == 0) {
-                if (!isset($this->data->OfferSummary->LowestNewPrice)) {
-                    $retval = false;
-                }
-            }
-        }
-        return $retval;
-    }
-
-
-    /**
-     * Determine if this item is being sold by Amazon.
-     *
-     * @return  boolean True if available, False if sold only by others
-     */
-    private function _haveAmazonOffers()
-    {
-        if (!isset($this->data->Offers->TotalOffers)) {
-            return false;
-        } else {
-            $x = $this->data->Offers->TotalOffers;
-            if (!$x)
-                return false;
-        }
-        return true;
     }
 
 
@@ -301,44 +91,34 @@ class Item
      * @param   array   $items  Array of item objects
      * @return  string      HTML for the product page
      */
-    public static function showProducts($items)
+    public function Render($page=1)
     {
         global $_CONF_ASTORE;
 
-        if (!is_array($items)) {
-            $items = array($items);
+        if ($page == 1) {
+            $this->Featured = $this->getFeatured();
         }
+        $Items = $this->getPage($page);
+
         $T = new \Template(ASTORE_PI_PATH . '/templates');
         $T->set_file(array(
-            'products' => 'productbox.thtml',
+            'catalog' => 'catalog.thtml',
         ) );
-        $T->set_block('products', 'productbox', 'pb');
-        foreach ($items as $item) {
-            if ($item->isError()) continue;
-            if (!$item->isAvailable()) {
-                $item->Disable();
-                continue;
-            }
+        $T->set_block('catalog', 'products', 'pb');
+
+        foreach ($Items as $Item) {
             $T->set_var(array(
-                'item_url'  => $item->DetailPageURL(),
-                'lowestprice'   => $item->LowestPrice(),
-                'listprice' => $item->ListPrice(),
-                'title'     => COM_truncate($item->Title(),
-                        $_CONF_ASTORE['max_blk_desc'], '...'),
-                'img_url'   => $item->MediumImage()->URL,
-                'img_width' => $item->MediumImage()->Width,
-                'img_height' => $item->MediumImage()->Height,
-                'formattedprice' => $item->LowestPrice(),
-                'displayprice' => $item->DisplayPrice(),
-                'iconset'   => $_CONF_ASTORE['_iconset'],
-                'long_description' => '',
-                'offers_url' => $item->OffersURL(),
-                'available' => $item->isAvailable(),
-                'is_prime' => $item->isPrime() ? true : false,
+                'item_data'  => $Item->getURL(),
             ) );
-            $T->parse('pb', 'productbox', true);
+            $T->parse('pb', 'products', true);
         }
-        $T->parse('output', 'products');
+        $T->set_var(array(
+            'tracking_id' => 'gadgetsfixit-20',
+        ) );
+        if ($this->Featured) {
+            $T->set_var('featured_asin', $this->Featured->getASIN());
+        }
+        $T->parse('output', 'catalog');
         return $T->finish($T->get_var('output'));
     }
 
