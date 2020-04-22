@@ -1,19 +1,23 @@
 <?php
 /**
- * Class to handle Cache operations/
+ * Class to handle Cache operations.
  *
  * @author      Lee Garner <lee@leegarner.com>
- * @copyright   Copyright (c) 2018 Lee Garner <lee@leegarner.com>
+ * @copyright   Copyright (c) 2018-2020 Lee Garner <lee@leegarner.com>
  * @package     astore
- * @version     v0.1.2
+ * @version     v0.2.0
+ * @since       v0.1.0
  * @license     http://opensource.org/licenses/gpl-2.0.php
  *              GNU Public License v2 or later
  * @filesource
  */
 namespace Astore;
 
+
 /**
  * Class for caching items.
+ * Uses the cache setting for glFusion >= 2.0.0, or a local DB table
+ * for earlier versions.
  * @package astore
  */
 class Cache
@@ -65,6 +69,7 @@ class Cache
 
         $cache_secs = (int)$_CONF_ASTORE['aws_cache_min'] * 60;
         if ($cache_secs < 600) $cache_secs = 1800;
+        $cache_secs = rand($cache_secs * .75, $cache_secs * 1.25);
         if (version_compare(GVERSION, self::MIN_GVERSION, '<')) {
             global $_TABLES;
 
@@ -153,6 +158,18 @@ class Cache
             DB_query("TRUNCATE {$_TABLES['astore_cache']}");
         } else {
             return \glFusion\Cache\Cache::getInstance()->deleteItemsByTag(self::TAG);
+        }
+    }
+
+
+    public static function delete($asin)
+    {
+        if (version_compare(GVERSION, self::MIN_GVERSION, '<')) {
+            global $_TABLES;
+            DB_delete($_TABLES['astore_cache'], 'asin', $asin);
+        } else {
+            \glFusion\Cache\Cache::getInstance()
+                ->delete(self::_makeKey($asin));
         }
     }
 
