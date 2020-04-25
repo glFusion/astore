@@ -5,9 +5,9 @@
  * and upgrade not referenced any more once the plugin is installed.
  *
  * @author      Lee Garner <lee@leegarner.com>
- * @copyright   Copyright (c) 2017 Lee Garner <lee@leegarner.com>
+ * @copyright   Copyright (c) 2017-2020 Lee Garner <lee@leegarner.com>
  * @package     astore
- * @version     v0.1.0
+ * @version     v0.2.0
  * @license     http://opensource.org/licenses/gpl-2.0.php
  *              GNU Public License v2 or later
  * @filesource
@@ -106,7 +106,7 @@ $astoreConfigData = array(
     ),
     array(
         'name' => 'aws_cache_min',
-        'default_value' => '30',
+        'default_value' => '180',
         'type' => 'text',
         'subgroup' => 0,
         'fieldset' => 0,
