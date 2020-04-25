@@ -20,6 +20,12 @@ $LANG_ASTORE = array(
 'shop_now'  => 'Shop Now',
 'title'     => 'Description',
 'items'     => 'Items',
+'category'  => 'Category',
+'categories' => 'Categories',
+'admin' => 'Admin',
+'name' => 'Name',
+'order' => 'Order',
+'mnu_newcat' => 'New Category',
 'version'   => 'Version',
 'new_asin'  => 'New Item No.',
 'add_item'  => 'Add Item(s)',
@@ -43,6 +49,11 @@ $LANG_ASTORE = array(
 'disabled' => 'Disabled',
 'msg_item_updated'  => 'Item has been %1$s',
 'msg_item_nochange' => 'Item has not been changed',
+'q_del_item' => 'Are you sure you want to delete this item?',
+'first' => 'First',
+'last' => 'Last',
+'delete' => 'Delete',
+'hlp_unchk_all' => 'Uncheck all',
 );
 
 $LANG_ASTORE_AUTOTAG = array(

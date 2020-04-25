@@ -14,12 +14,25 @@
 global $_TABLES;
 
 $_SQL['astore_catalog'] = "CREATE TABLE {$_TABLES['astore_catalog']} (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `asin` varchar(32) NOT NULL,
+  `cat_id` int(11) unsigned NOT NULL DEFAULT '1',
   `title` text,
+  `url` text,
   `ts` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `enabled` tinyint(1) unsigned NOT NULL DEFAULT '1',
-  PRIMARY KEY (`asin`),
-  KEY `ts` (`ts`,`asin`)
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `idx_asin` (`asin`),
+  KEY `idx_cat` (`cat_id`),
+  KEY `idx_ts` (`ts`,`asin`)
+) ENGINE=MyISAM";
+
+$_SQL['astore_categories'] = "CREATE TABLE {$_TABLES['astore_categories']} (
+  `cat_id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `cat_name` varchar(40) NOT NULL DEFAULT '',
+  `orderby` int(3) NOT NULL DEFAULT '9999',
+  PRIMARY KEY (`cat_id`),
+  KEY `idx_orderby` (`orderby`)
 ) ENGINE=MyISAM";
 
 $_SQL['astore_cache'] = "CREATE TABLE {$_TABLES['astore_cache']} (
@@ -27,6 +40,7 @@ $_SQL['astore_cache'] = "CREATE TABLE {$_TABLES['astore_cache']} (
   `type` tinyint(1) unsigned NOT NULL DEFAULT '0',
   `data` text,
   `exp` int(11) unsigned NOT NULL,
+  `ts` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`asin`),
   KEY `exp` (`exp`)
 ) ENGINE=MyISAM";
@@ -37,8 +51,21 @@ $ASTORE_UPGRADE = array(
     ),
     '0.2.0' => array(
         "ALTER TABLE {$_TABLES['astore_catalog']} DROP KEY `ts`",
-        "ALTER TABLE {$_TABLES['astore_catalog']} ADD KEY `ts` (`ts`, `asin`)",
+        "ALTER TABLE {$_TABLES['astore_catalog']} ADD KEY `idx_ts` (`ts`, `asin`)",
+        "ALTER TABLE {$_TABLES['astore_catalog']} DROP PRIMARY KEY",
+        "ALTER TABLE {$_TABLES['astore_catalog']} ADD `id` int(11) unsigned NOT NULL AUTO_INCREMENT PRIMARY KEY FIRST",
+        "ALTER TABLE {$_TABLES['astore_catalog']} ADD `cat_id` int(11) unsigned NOT NULL DEFAULT '`' AFTER `asin`";
+        "ALTER TABLE {$_TABLES['astore_catalog']} ADD UNIQUE KEY `idx_asin` (`asin)",
+        "ALTER TABLE {$_TABLES['astore_catalog']} ADD `url` text AFTER `title`";
         "ALTER TABLE {$_TABLES['astore_catalog']} ADD `enabled` tinyint(1) unsigned NOT NULL DEFAULT '1'",
+        "CREATE TABLE {$_TABLES['astore_categories']} (
+          `cat_id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+          `cat_name` varchar(40) NOT NULL DEFAULT '',
+          `orderby` int(3) NOT NULL DEFAULT '9999',
+          PRIMARY KEY (`cat_id`),
+          KEY `idx_orderby` (`orderby`)
+        ) ENGINE=MyISAM",
+        "ALTER TABLE {$_TABLES['astore_cache']} ADD `ts` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP AFTER `exp`",
     ),
 );
 

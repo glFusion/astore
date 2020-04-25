@@ -1,6 +1,15 @@
 {# begin {templatelocation} #}
-<div class="ast-store-link">
-  <a href="{site_url}/astore/index.php">{$LANG_ASTORE['back_to_store']}</a>
+<div class="uk-grid uk-grid-width-1-2">
+    <div>
+      <a class="uk-button uk-button-primary" href="{site_url}/astore/index.php">{$LANG_ASTORE['back_to_store']}</a>
+    </div>
+{!if is_admin}
+    <div>
+        <div class="floatright">
+        <a class="uk-button uk-button-danger uk-button-small" href="{site_admin_url}/plugins/astore/index.php">{$LANG_ASTORE['admin']}</a>
+        </div>
+    </div>
+{!endif}
 </div>
 {!if item_url}
 <div class="ast-product-detail">
@@ -32,7 +41,7 @@
 {!endif}
 {!if show_lowest}
   <div class="ast-detail-offers">
-    Available from {lowestprice}: <a target="_blank" href="{offers_url}">{$LANG_ASTORE['more_offers']}</a>
+    Available from {lowestprice}
   </div>
 {!elseif offers_url}
     <a target="_blank" href="{offers_url}">{$LANG_ASTORE['more_offers']}</a>

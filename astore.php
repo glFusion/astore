@@ -24,6 +24,7 @@ global $_TABLES;
 global $_DB_table_prefix;
 
 $_TABLES['astore_catalog']  = $_DB_table_prefix . 'astore_catalog';
+$_TABLES['astore_categories']  = $_DB_table_prefix . 'astore_categories';
 $_TABLES['astore_cache']    = $_DB_table_prefix . 'astore_cache';
 
 $_CONF_ASTORE['pi_name']           = 'astore';

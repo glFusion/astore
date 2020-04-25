@@ -3,7 +3,7 @@
  * glFusion API functions for the Astore plugin.
  *
  * @author      Lee Garner <lee@leegarner.com>
- * @copyright   Copyright (c) 2017-2018 Lee Garner <lee@leegarner.com>
+ * @copyright   Copyright (c) 2017-2020 Lee Garner <lee@leegarner.com>
  * @package     astore
  * @version     v0.2.0
  * @license     http://opensource.org/licenses/gpl-2.0.php
@@ -76,11 +76,15 @@ function plugin_centerblock_astore($where=1,$page=1,$topic ='')
     $display = '';
 
     // Centerblock must be enabled, and only works on the homepage
-    if (isset($_CONF_ASTORE['cb_enable']) && $_CONF_ASTORE['cb_enable'] &&
-            $on_homepage) {
+    if (
+        isset($_CONF_ASTORE['cb_enable']) &&
+        $_CONF_ASTORE['cb_enable'] &&
+        $on_homepage
+    ) {
         $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+        $Catalog = new Astore\Catalog;
         $display .= COM_siteHeader();
-        $display .= ASTORE_show($page);
+        $display .= $Catalog->Render($page);
         $display .= COM_siteFooter();
     }
     return $display;
@@ -341,6 +345,19 @@ function plugin_getheadercss_astore()
 
 
 /**
+ * Get additional Javascript into the site header.
+ *
+ * @return  array List of paths to Javascript files
+ */
+function plugin_getheaderjs_astore()
+{
+    return array(
+        __DIR__ . '/js/ajax.js',
+    );
+}
+
+
+/**
  * Get the URL to the configuration help file.
  *
  * @param   string  $option     Help option to display
@@ -474,79 +491,6 @@ function ASTORE_getIcon($name, $style='info')
 
 
 /**
- * Show products in a grid.
- *
- * @todo: May be deprecated?
- * @param   integer $page   Page to show
- * @param   string  $asin   ASIN to retrieve.
- * @return  string  HTML for page
- */
-function ASTORE_show($page = 1, $asin='')
-{
-    global $_CONF_ASTORE;
-    echo "here";die;
-
-    if ($page < 1) $page = 1;
-    if (!empty($asin) && $page == 1) {
-        Astore\Item::RequireASIN($asin);
-    }
-    $items = Astore\Item::getAll($page);
-    $T = new Template(ASTORE_PI_PATH . '/templates');
-    $T->set_file(array(
-        'store' => 'store.thtml',
-    ) );
-    if (!empty($asin) && $page == 1) {
-        if (!isset($items[$asin])) {
-            $item = new Astore\Item($asin);
-        } else {
-            $item = $items[$asin];
-            unset($items[$asin]);
-        }
-        if (!$item->isError()) {
-            $T->set_block('store', 'featured', 'fb');
-            $T->set_var(array(
-                'item_url'  => $item->DetailPageURL(),
-                'lowestprice' => $item->LowestPrice(),
-                'listprice' => $item->ListPrice(),
-                'title'     => $item->Title(),
-                'img_url'   => $item->MediumImage()->URL,
-                'img_width' => $item->MediumImage()->Width,
-                'img_height' => $item->MediumImage()->Height,
-                'formattedprice' => $item->LowestPrice(),
-                'long_description' => COM_truncate($item->EditorialReview(),
-                    $_CONF_ASTORE['max_feat_desc'], '...'),
-                'offers_url' => $item->OffersURL(),
-                'available' => $item->isAvailable(),
-            ) );
-            $T->parse('fb', 'featured');
-        }
-    } else {
-        $T->set_var(array(
-            'store_title'   => $_CONF_ASTORE['store_title'],
-        ) );
-    }
-
-    $T->set_var('productboxes', Astore\Item::showProducts($items));
-
-    // Display pagination
-    $count = Astore\Item::Count();
-    $pagenav_args = '';
-    if (isset($_CONF_ASTORE['perpage']) &&
-            $_CONF_ASTORE['perpage'] > 0 &&
-            $count > $_CONF_ASTORE['perpage'] ) {
-        $T->set_var('pagination',
-            COM_printPageNavigation(ASTORE_URL . '/index.php' . $pagenav_args,
-                        $page,
-                        ceil($count / $_CONF_ASTORE['perpage'])));
-    } else {
-        $T->set_var('pagination', '');
-    }
-    $T->parse('output', 'store');
-    return $T->finish($T->get_var('output'));
-}
-
-
-/**
  * Get item information.
  *
  * @param   array   $args       Arguments
@@ -583,33 +527,74 @@ function service_getiteminfo_astore($args, &$output, &$svc_msg)
  * @param   string  $doclang    Documentation language, default English
  * @return  s tring              URL to document directory or file
  */
-function ASTORE_getDocURL($file='', $doclang='english')
+function ASTORE_getDocUrl($file='', $doclang='english')
 {
     global $_CONF;
 
-    $doc_path = "{$_CONF['path_html']}$pi_name/docs/$doclang/";
+    $doc_path = "{$_CONF['path_html']}astore/docs/$doclang/";
     $doc_url = '';
 
     if ($file != '') {
-        // Split out any .html extension to insert ".legacy" if needed
-        $fparts = pathinfo($file);
-        $file = $fparts['filename'];
-        if (version_compare(GVERSION, '1.6.0', '<')) {
-            $file .= '.legacy';
-        }
         $file .= '.html';
-
         if (!is_file($doc_path . $file)) {
             $doclang = 'english';
         }
-        $doc_url = "{$_CONF['site_url']}/$pi_name/docs/$doclang/$file";
+        $doc_url = "{$_CONF['site_url']}/astore/docs/$doclang/$file";
     } else {
         if (!is_dir($doc_path)) {
             $doclang = 'english';
         }
-        $doc_url = "{$_CONF['site_url']}/$pi_name/docs/$doclang/";
+        $doc_url = "{$_CONF['site_url']}/astore/docs/$doclang/";
     }
     return $doc_url;
 }
+
+
+/**
+ * Get a form or URL parameter.
+ * Checks $_POST, then $_GET, and returns the raw value if found.
+ * Returns NULL if the parameter is not set.
+ * If `array` is specified and the parameter is a string, then it is
+ * assumed to be a comma-separated set of values.
+ *
+ * @param   string  $name   Name of parameter
+ * @param   string  $type   Type of parameter, default "string"
+ * @return  mixed       Value of parameter, or NULL if not found
+ */
+function ASTORE_getParam($name, $type = 'string')
+{
+    if (isset($_POST[$name])) {
+        $value = $_POST[$name];
+    } elseif (isset($_GET[$name])) {
+        $value = $_GET[$name];
+    } else {
+        return NULL;
+    }
+
+    switch($type) {
+    case 'int':
+        return (int)$value;
+        break;
+    case 'array':
+        if (is_string($value)) {
+            $value = explode(',', $value);
+        } elseif (is_array($value)) {
+            $vals = array();
+            foreach($value as $val) {
+                if (strpos($val, ',') > 0) {
+                    $vals = array_merge($vals, explode(',', $val));
+                } else {
+                    $vals[] = $val;
+                }
+            }
+            $value = array_unique($vals);
+        }
+    default:
+        return $value;
+        break;
+    }
+}
+
+
 
 ?>

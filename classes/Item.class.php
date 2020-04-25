@@ -3,7 +3,7 @@
  * Common elements for Amazon Items.
  *
  * @author      Lee Garner <lee@leegarner.com>
- * @copyright   Copyright (c) 2017-2018 Lee Garner <lee@leegarner.com>
+ * @copyright   Copyright (c) 2017-2020 Lee Garner <lee@leegarner.com>
  * @package     astore
  * @version     v0.2.0
  * @license     http://opensource.org/licenses/gpl-2.0.php
@@ -22,21 +22,29 @@ class Item
      * @var string */
     protected static $endpoint = 'webservices.amazon.com';
 
-    /** Amazon web services URI, append to $endpoint.
-     * @var string */
-    protected static $uri = '/onca/xml';
-
-    /** Cache tag applied to all cached items from this plugin.
-     * @var string */
-    protected static $tag = 'astore';
-
     /** Data holder for search results.
      * @var object */
-    protected $data;
+    private $data;
 
     /** Amazon ASIN number.
      * @var string */
-    public $asin;
+    private $asin = '';
+
+    /** Record ID.
+     * @var integer */
+    private $id = 0;
+
+    /** Enabled?
+     * @var boolean */
+    private $enabled = 1;
+
+    /** Category ID.
+     * @var integer */
+    private $cat_id = 1;
+
+    /** Flag to indicate that a valid item was retrieved.
+     * @var boolean */
+    private $is_valid = 0;
 
     /** ASINs that are required for display.
      * @var array */
@@ -49,17 +57,75 @@ class Item
      * @param   string  $asin   Optional ASIN to fetch
      * @param   mixed   $data   Optional data to load into object
      */
-    public function __construct($asin='', $data = '')
+    public function __construct($asin='', $data='')
     {
         $this->asin = $asin;
         if (!empty($this->asin)) {
+            $this->Read();
             // If data is provided, just use it. Otherwise load from catalog.
             if (!empty($data)) {
                 $this->data = $data;
-            } else {
+            } elseif ($this->is_valid) {
+                //$this->data = self::Retrieve($asin);
                 $this->data = self::Retrieve($asin);
+                if (!empty($this->data)) {
+                    $this->title = $this->Title();
+                }
             }
         }
+    }
+
+
+    private function Read()
+    {
+        global $_TABLES;
+
+        $sql = "SELECT * FROM {$_TABLES['astore_catalog']}
+            WHERE asin = '" . DB_escapeString($this->asin) . "'";
+        $res = DB_query($sql);
+        if ($res) {
+            $A = DB_fetchArray($res, false);
+            $this->setVars($A);
+            $this->is_valid = 1;
+        }
+        return $this;
+    }
+
+
+    /**
+     * Set the variables into local properties.
+     *
+     * @param   array   $A  Array of properties from the DB or form.
+     * @return  object  $this
+     */
+    public function setVars($A)
+    {
+        $this->asin = trim($A['asin']);
+        $this->title = trim($A['title']);
+        $this->url = trim($A['url']);
+        $this->cat_id = (int)$A['cat_id'];
+        $this->enabled = isset($A['enabled']) && $A['enabled'] ? 1 : 0;
+    }
+
+
+    public function setASIN($asin)
+    {
+        $this->asin = $asin;
+        return $this;
+    }
+
+
+    public function setData($data)
+    {
+        $this->data = $data;
+        return $this;
+    }
+
+
+    public function setTitle($title)
+    {
+        $this->title = $title;
+        return $this;
     }
 
 
@@ -108,7 +174,7 @@ class Item
      * @param   array   $params     Paramaters to merge with the basics
      * @return  object      SimpleXML object with the results
      */
-    protected static function _makeRequest($params)
+    protected function _makeRequest($params)
     {
         global $_CONF_ASTORE;
 
@@ -122,39 +188,63 @@ class Item
         }
 
         $base_params = array(
-            'Service' => 'AWSECommerceService',
-            'AWSAccessKeyId' => $_CONF_ASTORE['aws_access_key'],
-            'AssociateTag' => $_CONF_ASTORE['aws_assoc_id'],
-            'ResponseGroup' => 'Images,ItemAttributes,Offers,EditorialReview',
-            'Timestamp' => gmdate('Y-m-d\TH:i:s\Z'),
+            'Marketplace' => 'www.amazon.com',
+            'LanguagesOfPreference' => array('en_US'),
+            'PartnerTag' => $_CONF_ASTORE['aws_assoc_id'],
+            'PartnerType' => 'Associates',
+            'Resources' => array(
+                'Images.Primary.Small',
+                'ItemInfo.Title',
+                'ItemInfo.Features',
+                'Offers.Summaries.HighestPrice',
+                'ParentASIN',
+            ),
         );
         $params = array_merge($base_params, $params);
         ksort($params);
-        $pairs = array();
+        /*$pairs = array();
         foreach ($params as $key=>$value) {
             $pairs[] = rawurlencode($key) . '=' . rawurlencode($value);
+        }*/
+        $payload = json_encode($params);
+
+        $path = '/paapi5/getitems';
+        $awsv4 = new AwsV4();
+        $awsv4->setRegionName("us-east-1");
+        $awsv4->setServiceName("ProductAdvertisingAPI");
+        $awsv4->setPath ($path);
+        $awsv4->setPayload ($payload);
+        $awsv4->setRequestMethod ("POST");
+        $awsv4->addHeader ('content-encoding', 'amz-1.0');
+        $awsv4->addHeader ('content-type', 'application/json; charset=utf-8');
+        $awsv4->addHeader ('host', self::$endpoint);
+        $awsv4->addHeader ('x-amz-target', 'com.amazon.paapi5.v1.ProductAdvertisingAPIv1.GetItems');
+        $headers = $awsv4->getHeaders ();
+        
+        $headerString = "";
+        foreach ( $headers as $key => $value ) {
+            $headerString .= $key . ': ' . $value . "\r\n";
         }
-        $query_string = implode('&', $pairs);
-        $string_to_sign = "GET\n".self::$endpoint."\n".self::$uri."\n".$query_string;
-        $signature = base64_encode(hash_hmac('sha256', $string_to_sign,
-                self::_secretKey(), true));
-        $request_url = 'http://'.self::$endpoint.self::$uri.'?'.$query_string.
-                '&Signature='.rawurlencode($signature);
+        $params = array (
+            'http' => array (
+                'header' => $headerString,
+                'method' => 'POST',
+                'content' => $payload
+            )
+        );
 
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $request_url);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_TIMEOUT, 20);
-        curl_setopt($ch, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_1_0);
-        curl_setopt($ch, CURLOPT_ENCODING, '');
-        curl_setopt($ch, CURLINFO_HEADER_OUT, true);
+        $stream = stream_context_create ( $params );
+        $fp = @fopen ( 'https://' . self::$endpoint . $path, 'rb', false, $stream );
 
-        $responseContent = curl_exec($ch);
-        $responseHeaders = curl_getinfo($ch);
-        curl_close($ch);
-        Cache::setTimestamp();
-
-        return self::_XmlToJson($responseContent);
+        if (! $fp) {
+            throw new \Exception ( "Exception Occured" );
+        }
+        $response = @stream_get_contents ( $fp );
+        if ($response === false) {
+            throw new \Exception ( "Exception Occured" );
+        }
+        $response = json_decode($response,true);
+        return $response;
     }
 
 
@@ -301,31 +391,16 @@ class Item
 
 
     /**
-     * Get the editorial review content for the item.
-     *
-     * @return  string      Editorial review content
-     */
-    public function EditorialReview()
-    {
-        if (isset($this->data->EditorialReviews->EditorialReview->Content)) {
-            return $this->data->EditorialReviews->EditorialReview->Content;
-        } else {
-            return '';
-        }
-    }
-
-
-    /**
      * Get the feature list for the item.
      *
      * @return  string  Feature list
      */
     public function Features()
     {
-        if (isset($this->data->ItemAttributes->Feature)) {
-            return $this->data->ItemAttributes->Feature;
+        if (isset($this->data->ItemInfo->Features->DisplayValues)) {
+            return $this->data->ItemInfo->Features->DisplayValues;
         } else {
-            return '';
+            return array();
         }
     }
 
@@ -357,11 +432,11 @@ class Item
     {
         switch ($fmt) {
         case 'formatted':
-            $p = $this->data->OfferSummary->LowestNewPrice->FormattedPrice;
+            $p = $this->data->Offers->Summaries[0]->LowestPrice->DisplayAmount;
             break;
         case 'raw':
         case 'amount':
-            $p = $this->data->OfferSummary->LowestNewPrice->Amount;
+            $p = $this->data->Offers->Summaries[0]->LowestPrice->Amount;
             break;
         }
         return $p;
@@ -379,14 +454,14 @@ class Item
         $p = 'N/A';
         switch ($fmt) {
         case 'formatted':
-            if (isset($this->data->ItemAttributes->ListPrice->FormattedPrice)) {
-                $p = $this->data->ItemAttributes->ListPrice->FormattedPrice;
+            if (isset($this->data->Offers->Listings[0]->Price->DisplayAmount)) {
+                $p = $this->data->Offers->Listings[0]->Price->DisplayAmount;
             }
             break;
         case 'raw':
         case 'amount':
-            if (isset($this->data->ItemAttributes->ListPrice->Amount)) {
-                $p = $this->data->ItemAttributes->ListPrice->Amount;
+            if (isset($this->data->Offers->Listings[0]->Price->Amount)) {
+                $p = $this->data->Offers->Listings[0]->Price->Amount;
             }
             break;
         }
@@ -401,8 +476,8 @@ class Item
      */
     public function Title()
     {
-        if (isset($this->data->ItemAttributes->Title)) {
-            return $this->data->ItemAttributes->Title;
+        if (isset($this->data->ItemInfo->Title->DisplayValue)) {
+            return $this->data->ItemInfo->Title->DisplayValue;
         } else {
             return '';
         }
@@ -431,15 +506,15 @@ class Item
      */
     public function SmallImage()
     {
-        if (!isset($this->data->ImageSets->ImageSet)) {
+        if (!isset($this->data->Images->Primary)) {
             return '';
         }
 
-        $img = $this->data->ImageSets->ImageSet;
-        if (is_array($img)) {
-            return $img[0]->SmallImage;
+        $obj = $this->data->Images->Primary;
+        if (isset($obj->Small)) {
+            return $obj->Small;
         } else {
-            return $img->SmallImage;
+            return '';
         }
     }
 
@@ -451,15 +526,17 @@ class Item
      */
     public function MediumImage()
     {
-        if (!isset($this->data->ImageSets->ImageSet)) {
+        if (!isset($this->data->Images->Primary)) {
             return '';
         }
 
-        $img = $this->data->ImageSets->ImageSet;
-        if (is_array($img)) {
-            return $img[0]->MediumImage;
+        $obj = $this->data->Images->Primary;
+        if (isset($obj->Medium)) {
+            return $obj->Medium;
+        } elseif (isset($obj->Small)) {
+            return $obj->Small;
         } else {
-            return $img->MediumImage;
+            return '';
         }
     }
 
@@ -471,15 +548,17 @@ class Item
      */
     public function LargeImage()
     {
-        if (!isset($this->data->ImageSets->ImageSet)) {
+        if (!isset($this->data->Images->Primary)) {
             return '';
         }
 
-        $img = $this->data->ImageSets->ImageSet;
-        if (is_array($img)) {
-            return $img[0]->LargeImage;
+        $obj = $this->data->Images->Primary;
+        if (isset($obj->Large)) {
+            return $obj->Large;
+        } elseif (isset($obj->Medium)) {
+            return $obj->Medium;
         } else {
-            return $img->LargeImage;
+            return '';
         }
     }
 
@@ -506,11 +585,55 @@ class Item
      */
     public function isPrime()
     {
-        if (isset($this->data->Offers->Offer->OfferListing->IsEligibleForPrime)) {
-            return (int)$this->data->Offers->Offer->OfferListing->IsEligibleForPrime;
+        if (isset($this->data->Offers->Listings[0]->DeliveryInfo->IsPrimeEligible)) {
+            return $this->data->Offers->Listings[0]->DeliveryInfo->IsPrimeEligible ? 1 : 0;
         } else {
             return 0;
         }
+    }
+
+
+    public function detailPage()
+    {
+        $T = new \Template(ASTORE_PI_PATH . '/templates');
+        $T->set_file('detail', 'detail.thtml');
+        $listprice = $this->ListPrice('raw');
+        $lowestprice = $this->LowestPrice('raw');
+        if (
+            ($lowestprice && $listprice && ($lowestprice < $listprice)) ||
+            ($lowestprice && !$listprice)
+        ) {
+            $T->set_var(array(
+                'show_lowest' => true,
+            ) );
+        }
+        $T->set_var(array(
+            'item_url'  => $this->DetailPageURL(),
+            'title'     => $this->Title(),
+            'img_url'   => $this->LargeImage()->URL,
+            'img_width' => $this->LargeImage()->Width,
+            'img_height' => $this->LargeImage()->Height,
+            'listprice' => $this->ListPrice(),
+            'lowestprice' => $this->LowestPrice(),
+            'long_description' => '',       // not available in APIv5
+            'available' => $this->isAvailable(),
+            'offers_url' => $this->OffersURL(),
+            'is_prime'  => $this->isPrime(),
+            'is_admin'  => plugin_ismoderator_astore(),
+        ) );
+        $features = $this->Features();
+        if (!empty($features)) {
+            $T->set_var('has_features', true);
+            $T->set_block('detail', 'Features', 'fb');
+            foreach ($features as $feature) {
+                $T->set_var('feature', $feature);
+                $T->parse('fb', 'Features', true);
+            }
+        }
+        $T->parse('output', 'detail');
+        $retval = $T->finish($T->get_var('output'));
+        //var_dump($retval);die;
+        return $retval;
     }
 
 
@@ -538,10 +661,11 @@ class Item
                 $item->Disable();
                 continue;
             }
+
             $T->set_var(array(
                 'item_url'  => $item->DetailPageURL(),
                 'lowestprice'   => $item->LowestPrice(),
-                'listprice' => $item->ListPrice(),
+                //'listprice' => $item->ListPrice(),
                 'title'     => COM_truncate($item->Title(),
                         $_CONF_ASTORE['max_blk_desc'], '...'),
                 'img_url'   => $item->MediumImage()->URL,
@@ -627,23 +751,22 @@ class Item
         // Return from cache if found and not expired
         $data = Cache::get($asin);
         if ($data === NULL) {
-            $data = self::_getAmazon(array($asin));
-            if (!empty($data) && $_CONF_ASTORE['auto_add_catalog']) {
-                if (isset($data->ItemAttributes->Title)) {
-                    $title = $data->ItemAttributes->Title;
+            $api = new API;
+            $aws = $api->getItems(array($asin));
+            foreach ($aws as $asin=>$data) {
+                // Automatically add featured items to catalog
+                if (isset($data->ItemInfo->Title)) {
+                    $title = $data->ItemInfo->Title->DisplayValue;
                 } else {
                     $title = '';
                 }
-                self::AddToCatalog($asin, $title);
+                if ($_CONF_ASTORE['auto_add_catalog']) {
+                    self::AddToCatalog($asin, $title);
+                }
+                Cache::set($asin, $data);
             }
-            if (isset($data[$asin])) {
-                return $data[$asin];
-            } else {
-                return NULL;
-            }
-        } else {
-            return $data;
         }
+        return $data;
     }
 
 
@@ -655,7 +778,7 @@ class Item
      * @param   string  $type   Type of item number (ASIN or ISBN)
      * @return  array   Array of Item objects
      */
-    protected static function _getAmazon($asins, $type='ASIN')
+    protected static function X_getAmazon($asins, $type='ASIN')
     {
         global $_CONF_ASTORE;
 
@@ -667,7 +790,10 @@ class Item
                 // Amazon only allows 10 ASINs in a query
                 array_splice($asins, 0, ASTORE_MAX_QUERY);
             }
-            $asins = implode(',', $asins);
+            //$asins = implode(',', $asins);
+        }
+        if (empty($asins)) {
+            return false;
         }
 
         self::_debug("Getting $asins from Amazon");
@@ -685,14 +811,15 @@ class Item
         }
         $params = array(
             'Operation' => 'ItemLookup',
-            'ItemId' => $asins,
-            'IdType' => $type,
+            'ItemIds' => $asins,
+            'ItemIdType' => $type,
         );
         if ($type != 'ASIN') {
             $params['SearchIndex'] = 'All';
         }
-
+/*
         $obj = self::_makeRequest($params);
+        var_dump($obj);die;
         if (!is_object($obj)) return $retval;
         if (isset($obj->Items->Request->Errors->Error->Code)) {
             self::_debug($asins . ': ' . $obj->Items->Request->Errors->Error->Message, true);
@@ -706,8 +833,64 @@ class Item
             $i = $obj->Items->Item;
             Cache::set($i->ASIN, $i);
             $retval[$i->ASIN] = $i;
-        }
+        }*/
         return $retval;
+    }
+
+
+    public function Edit()
+    {
+        global $_TABLES;
+
+        $T = new \Template(ASTORE_PI_PATH . '/templates');
+        $T->set_file('form', 'edit.thtml');
+        $T->set_var(array(
+            'asin' => $this->asin,
+            'title' => $this->Title(),
+            'use_api' => true,
+            'ena_chk' => $this->isEnabled() ? 'checked="checked"' : '',
+            'url' => $this->url,
+            'cat_options' => COM_optionList(
+                $_TABLES['astore_categories'],
+                'cat_id,cat_name',
+                $this->cat_id,
+                1
+            ),
+        ) );
+        $T->parse('output', 'form');
+        return $T->finish($T->get_var('output'));
+    }
+
+
+    /**
+     * Add an item to the catalog if not already present.
+     *
+     * @param   string  $asin   Item number
+     * @param   string  $title  Item title to store in catalog
+     * @return  boolean         True on success, False on DB error
+     */
+    public function Save($A=NULL)
+    {
+        global $_TABLES;
+
+        if (is_array($A)) {
+            $this->setVars($A);
+        }
+        if (empty($this->asin)) {
+            return false;
+        }
+        $sql = "INSERT INTO {$_TABLES['astore_catalog']} SET
+            asin = '" . DB_escapeString($this->asin) . "',
+            title = '" . DB_escapeString($this->title) . "',
+            cat_id = $this->cat_id,
+            enabled = '{$this->isEnabled()}'
+            ON DUPLICATE KEY UPDATE
+            title = '" . DB_escapeString($this->title) . "',
+            cat_id = $this->cat_id,
+            enabled = '{$this->isEnabled()}'";
+        //echo $sql;die;
+        DB_query($sql);
+        return DB_error() ? false : true;
     }
 
 
@@ -715,32 +898,15 @@ class Item
      * Get an array of all item objects from the catalog.
      *
      * @param   integer $page       Page number of display
+     * @param   array   $cat_ids    Limit to these category IDs
      * @param   boolean $enabled    True to only get enabled items
      * @return  array       Array of item objects
      */
-    public static function getAll($page = 1, $enabled = true)
+    public static function getAll($page = 1, $cat_ids = array(), $enabled = true)
     {
         global $_TABLES, $_CONF_ASTORE;
 
         $allitems = array();
-        $orderby = '';
-        switch ($_CONF_ASTORE['sort']) {
-        case 'rand':
-            $orderby = 'RAND()';
-            break;
-        case 'lifo':
-            $orderby = 'ts DESC, asin DESC';
-            break;
-        case 'fifo':
-            $orderby = 'ts ASC, asin ASC';
-            break;
-        case 'none':
-        default:
-            $orderby = '';
-            break;
-        }
-        $where = $enabled ? ' WHERE enabled = 1' : '';
-        if ($orderby != '') $orderby = "ORDER BY $orderby";
         if ($page > 0) {
             $max = (int)$_CONF_ASTORE['perpage'];
             $start = ((int)$page - 1) * $max;
@@ -748,8 +914,34 @@ class Item
         } else {
             $limit = '';
         }
+        $orderby = '';
+        switch ($_CONF_ASTORE['sort']) {
+        case 'rand':
+            $orderby = 'RAND()';
+            $limit = '';
+            break;
+        case 'lifo':
+            $orderby = 'id DESC';
+            break;
+        case 'fifo':
+            $orderby = 'id ASC';
+            break;
+        case 'none':
+        default:
+            $orderby = '';
+            break;
+        }
+        $where = 'WHERE 1=1';
+        if (!empty($cat_ids)) {
+            $where .= ' AND cat_id in (' . implode(',', $cat_ids) . ')';
+        }
+        if ($enabled) {
+            $where .= ' AND enabled = 1';
+        }
+        if ($orderby != '') $orderby = "ORDER BY $orderby";
         $sql = "SELECT asin FROM {$_TABLES['astore_catalog']}
             $where $orderby $limit";
+
         //echo $sql;die;
         $res = DB_query($sql);
         $asins = array();
@@ -770,10 +962,12 @@ class Item
         }
         // Retrieve from Amazon any items not in cache
         if (!empty($asins)) {
-            $data = self::_getAmazon($asins);
+            $api = new API;
+            $data = $api->getItems($asins);
             foreach ($data as $asin=>$info) {
                 $allitems[$asin] = new self();
                 $allitems[$asin]->data = $info;
+                Cache::set($asin, $info);
                 if ($_CONF_ASTORE['auto_add_catalog']) {
                     // Automatically add featured items to catalog
                     if (isset($info->ItemAttributes->Title)) {
@@ -812,25 +1006,27 @@ class Item
             array_splice($bad, 0, ASTORE_MAX_QUERY);
             array_splice($asins, ASTORE_MAX_QUERY);
         }
-        $asins = implode(',', $asins);
+        //$asins = implode(',', $asins);
 
         // Retrieve from Amazon any items not in cache
         if (!empty($asins)) {
-            $data = self::_getAmazon($asins);
+            $api = new API;
+            $data = $api->getItems($asins);
             foreach ($data as $asin=>$info) {
                 $allitems[$asin] = new self();
                 $allitems[$asin]->data = $info;
-                if ($_CONF_ASTORE['auto_add_catalog'] || $tocatalog) {
-                    // Automatically add items to catalog
-                    if (isset($info->ItemAttributes->Title)) {
-                        $title = $info->ItemAttributes->Title;
-                    } else {
-                        $title = '';
-                    }
-                    self::AddToCatalog($asin, $title);
+                Cache::set($asin, $info);
+
+                // Items imported by admin are always added to the catalog
+                if (isset($info->ItemInfo->Title)) {
+                    $title = $info->ItemInfo->Title->DisplayValue;
+                } else {
+                    $title = '';
                 }
+                self::AddToCatalog($asin, $title);
             }
         }
+
         // Return the remaining ASINs to get with the next request
         return implode(',', $bad);
     }
@@ -865,7 +1061,7 @@ class Item
         global $_TABLES;
 
         DB_delete($_TABLES['astore_catalog'], 'asin', $asin);
-        DB_delete($_TABLES['astore_cache'], 'asin', $asin);
+        Cache::delete($asin);
     }
 
 
@@ -948,9 +1144,13 @@ class Item
     {
         global $_CONF_ASTORE;
 
-        if (($_CONF_ASTORE['notag_header'] != '' &&
-            isset($_SERVER['HTTP_' . strtoupper($_CONF_ASTORE['notag_header'])])) ||
-            $_CONF_ASTORE['notag_admins'] && plugin_ismoderator_astore()) {
+        if (
+            (
+                $_CONF_ASTORE['notag_header'] != '' &&
+                isset($_SERVER['HTTP_' . strtoupper($_CONF_ASTORE['notag_header'])])
+            ) ||
+            $_CONF_ASTORE['notag_admins'] && plugin_ismoderator_astore()
+        ) {
             return preg_replace('/\?.*/', '', $url);
         } else {
             return $url;
@@ -959,19 +1159,13 @@ class Item
 
 
     /**
-     * Convert the XML received from Amazon to JSON.
+     * Check if this item is enabled.
      *
-     * @param   string  $str    XML string
-     * @return  object          JSON object
+     * @return  integer     1 if enabled, 0 if not
      */
-    private static function _XmlToJson($str)
+    public function isEnabled()
     {
-        $str = str_replace(array("\n", "\r", "\t"), '', $str);
-        $str = trim(str_replace('"', "'", $str));
-        $simpleXml = simplexml_load_string($str);
-        $json = json_encode($simpleXml);
-        $json = json_decode($json); // back to object
-        return $json;
+        return $this->enabled ? 1 : 0;
     }
 
 
@@ -1011,6 +1205,176 @@ class Item
         } else {
             return $newval;
         }
+    }
+
+
+    public static function countByCategory($cat_id)
+    {
+        global $_TABLES;
+
+        return DB_count(
+            $_TABLES['astore_catalog'],
+            'cat_id',
+            (int)$cat_id
+        );
+    }
+
+
+    public function isValid()
+    {
+        return $this->is_valid ? 1 : 0;
+    }
+
+
+    /**
+     * Show the admin list.
+     *
+     * @param   string  $import_fld     ID of item to import
+     * @return  string  HTML for item list
+     */
+    function adminList($import_fld = '')
+    {
+        global $LANG_ADMIN, $LANG_ASTORE, $LANG01,
+            $_TABLES, $_CONF, $_CONF_ASTORE;
+
+        USES_lib_admin();
+
+        $retval = '';
+        $form_arr = array();
+
+        $header_arr = array(
+            /*array(
+                'text' => 'ID',
+                'field' => 'id',
+                'sort' => true,
+            ),*/
+            array(
+                'text' => 'ASIN',
+                'field' => 'asin',
+                'sort' => true,
+            ),
+            array(
+                'text' => $LANG01[4],
+                'field' => 'edit',
+                'sort' => false,
+                'align' => 'center',
+            ),
+            array(
+                'text' => $LANG_ASTORE['title'],
+                'field' => 'title',
+                'sort' => false,
+            ),
+            array(
+                'text' => $LANG_ADMIN['enabled'],
+                'field' => 'enabled',
+                'sort' => 'false',
+                'align' => 'center',
+            ),
+            array(
+                'text' => $LANG_ASTORE['last_update'],
+                'field' => 'ts',
+                'sort' => 'true',
+                'nowrap' => true,
+            ),
+            array(
+                'text' => $LANG_ADMIN['delete'],
+                'field' => 'delete',
+                'sort' => false,
+                'align' => 'center',
+            ),
+        );
+
+        $text_arr = array(
+            'has_extras' => false,
+            'form_url' => ASTORE_ADMIN_URL . '/index.php',
+        );
+
+        $options = array(
+            'chkdelete' => 'true',
+            'chkfield' => 'asin',
+        );
+        $defsort_arr = array(
+            'field' => 'asin',
+            'direction' => 'asc',
+        );
+        $query_arr = array(
+            'table' => 'astore_catalog',
+            'sql' => "SELECT * FROM {$_TABLES['astore_catalog']}",
+        );
+
+        $T = new \Template(ASTORE_PI_PATH . '/templates');
+        $T->set_file('form', 'newitem.thtml');
+        $T->set_var(array(
+            'import_fld' => $import_fld,
+        ) );
+        $T->parse('output', 'form');
+        $retval .= $T->finish($T->get_var('output'));
+        $retval .= ADMIN_list(
+            'astore_itemadminlist',
+            array(__CLASS__, 'getAdminField'),
+            $header_arr,
+            $text_arr, $query_arr, $defsort_arr, '', '', $options, $form_arr
+        );
+        return $retval;
+    }
+
+
+    /**
+     * Get the correct display for a single field in the astore admin list.
+     *
+     * @param   string  $fieldname  Field variable name
+     * @param   string  $fieldvalue Value of the current field
+     * @param   array   $A          Array of all field names and values
+     * @param   array   $icon_arr   Array of system icons
+     * @return  string              HTML for field display within the list cell
+     */
+    public static function getAdminField($fieldname, $fieldvalue, $A, $icon_arr)
+    {
+        global $_CONF, $LANG_ACCESS, $_CONF_ASTORE;
+
+        $retval = '';
+
+        switch($fieldname) {
+        case 'edit':
+            $retval = COM_createLink(
+                '<i class="uk-icon uk-icon-edit"></i>',
+                ASTORE_ADMIN_URL . '/index.php?edititem=' . $A['asin']
+            );
+            break;
+        case 'delete':
+            $retval = COM_createLink(
+                '<i class="uk-icon uk-icon-remove uk-text-danger"></i>',
+                ASTORE_ADMIN_URL . "/index.php?delitem={$A['asin']}",
+                array(
+                     'onclick' => "return confirm('Do you really want to delete this item?');",
+                ) );
+            break;
+    
+        case 'asin':
+            $retval = COM_createLink($fieldvalue,
+                COM_buildUrl(ASTORE_URL . '/detail.php?asin=' . $fieldvalue)
+            );
+            break;
+
+        case 'title':
+            if (empty($fieldvalue)) {
+                $retval = '<i class="uk-icon uk-icon-exclamation-triangle ast-icon-danger"></i>&nbsp;<span class="ast-icon-danger">Invalid Item</span>';
+            } else {
+                $retval = $fieldvalue;
+            }
+            break;
+
+        case 'enabled':
+            $chk = $fieldvalue == 1 ? 'checked="checked"' : '';
+            $retval = '<input type="checkbox" data-uk-tooltip class="" value="1" ' . $chk .
+                "onclick='ASTORE_toggle(this,\"{$A['asin']}\",\"{$fieldname}\");' />" . LB;
+            break;
+
+        default:
+            $retval = $fieldvalue;
+            break;
+        }
+        return $retval;
     }
 
 }

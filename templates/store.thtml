@@ -1,48 +1,149 @@
 {# begin {templatelocation} #}
 {!if store_title}
 <div class="ast-store-title">
-  <h1>{store_title}</h1>
+    <h1>{store_title}</h1>
+    <form class="uk-form uk-form-horizontal" method="post" action="{site_url}/astore/index.php?mode=search">
+        <input type="text" size="40" name="query" placeholder="{$LANG_ASTORE['search_query']}" />
+        <button class="uk-button uk-button-primary" name="search">{$LANG_ASTORE['search']}</button>
+    </form>
 </div>
 {!endif}
 
-<!-- BEGIN featured -->
-<div class="ast-featured-box">
-  <div style="float:left;width:140px">
-    <a target="_blank" href="{item_url}">
-      <img src="{img_url}" style="max-width: {img_width}; max-height: {img_height};" />
-    </a>
-  </div>
-  <div class="ast-featured-title">
-    {title}
-    <div>
-    <div class="ast-featured-price" style="float:left;">
-      {formattedprice}
+<div class="uk-grid">
+    <div class="uk-width-1-6 uk-hidden-small">
+        <form class="uk-form" id="adlistopts" method="get" action="{site_url}/astore/index.php">
+
+            <div class="uk-form-row">
+                <label class="uk-form-label">{$LANG_ASTORE['categories']}
+                    <i class="uk-icon uk-icon-refresh tooltip" title="{$LANG_ASTORE['hlp_unchk_all']}" onclick="ASTORE_uncheckAll('cats');"></i>
+                </label>
+                <div class="uk-form-controls">
+<!-- BEGIN CatChecks -->
+                    <input id="catchk_{cnt}" class="updform_chk" type="checkbox" value="{cat_id}" name="cats[]" {cat_chk} />
+                    <label for="catchk_{cnt}">{cat_name}</label><br />
+<!-- END CatChecks -->
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <div class="uk-width-5-6">
+
+{!if featured}
+        <div class="uk-grid">
+            <div class="uk-width-1-1 uk-width-medium-1-5">
+                <a target="_blank" href="{f_item_url}">
+                    <img src="{f_img_url}" style="max-width:{f_img_width};max-height:{f_img_height};" />
+                </a>
+            </div>
+            <div class="uk-width-1-1 uk-width-medium-3-5">
+                <span class="ast-featured-title">{f_title}</span>
+                <br />
+                <span class="ast-featured-price">{f_formattedprice}</span>
+{!if f_is_admin}
+                <a href="{site_admin_url}/plugins/astore/index.php?edititem={f_item_id}">
+                    <i class="uk-icon uk-icon-edit"></i>
+                </a>
+{!endif}
 {!if available}
 {!else}
-      <div class="ast-unavail">{$LANG_ASTORE['unavailable']}</div>
+                <div class="ast-unavail">{$LANG_ASTORE['unavailable']}</div>
 {!endif}
 {!if offers_url}
-      <a target="_blank" href="{offers_url}">{$LANG_ASTORE['more_offers']}</a>
+                <a target="_blank" href="{offers_url}">{$LANG_ASTORE['more_offers']}</a>
 {!endif}
+            </div>
+            <div class="uk-width-1-1 uk-width-medium-1-5">
+                <span class="ast-a-button ast-a-button-primary ast-floatright">
+                    <a target="_blank" href="{item_url}" style="text-decoration:none">
+                        <span class="ast-a-button-inner">
+                            <img src="{site_url}/astore/images/amazon-64x64.png" class="ast-a-icon ast-a-icon-shop-now" />
+                            <input class="ast-a-button-input" type="submit" value="Add to cart" />
+                            <span class="ast-a-button-text">{$LANG_ASTORE['shop_now']}</span>
+                        </span>
+                    </a>
+                </span>
+            </div>
+
+            <div class="ast-featured-description">{long_description}</div>
     </div>
-    <span class="ast-a-button ast-a-button-primary ast-floatright">
-      <a target="_blank" href="{item_url}" style="text-decoration:none">
-        <span class="ast-a-button-inner">
-          <img src="{site_url}/astore/images/amazon-64x64.png" class="ast-a-icon ast-a-icon-shop-now" />
-          <input class="ast-a-button-input" type="submit" value="Add to cart" />
-          <span class="ast-a-button-text">{$LANG_ASTORE['shop_now']}</span>
-        </span>
-      </a>
-    </span>
-    </div>
-  </div>
-  <div class="ast-featured-description">{long_description}</div>
+{!endif}
+
+<div style="clear:both;">
+    <ul class="uk-grid uk-grid-width-1-2 uk-grid-width-small-1-3 uk-grid-width-medium-1-4 uk-grid-width-large-1-5" data-uk-grid-margin data-uk-grid-match>
+<!-- BEGIN products -->
+        <li>
+            <div>
+                <a target="_blank" href="{item_url}">
+                    <img src="{img_url}" style="max-width: {img_width}; max-height: {img_height};" />
+                </a>
+            </div>
+            <div class="ast-product-title">
+                {title}
+            </div>
+            <div class="ast-product-price">
+{!if formattedprice}
+            <div>
+                {formattedprice}
+            </div>
+{!endif}
+{!if is_admin}
+                <a href="{site_admin_url}/plugins/astore/index.php?edititem={item_id}">
+                    <i class="uk-icon uk-icon-edit"></i>
+                </a>
+{!endif}
+{!if offers_url}
+                <a target="_blank" href="{offers_url}">{$LANG_ASTORE['more_offers']}</a>
+{!endif}
+{!if available}
+{!else}
+                <div class="ast-unavail">{$LANG_ASTORE['unavailable']}</div>
+{!endif}
+            </div>
+            <span class="ast-a-button ast-a-button-primary" >
+                <a target="_blank" href="{item_url}" style="text-decoration:none" rel="nofollow">
+                    <span class="ast-a-button-inner">
+                        <img src="{site_url}/astore/images/amazon-64x64.png" class="ast-a-icon ast-a-icon-shop-now" />
+                        <input class="ast-a-button-input" type="submit" value="Add to cart" />
+                        <span class="ast-a-button-text">{$LANG_ASTORE['shop_now']}</span>
+                    </span>
+                </a>
+            </span>
+        </li>
+<!-- END products -->
+    </ul>
 </div>
-<!-- END featured -->
-<ul class="uk-grid uk-grid-width-small-1-3 uk-grid-width-medium-1-4 uk-grid-width-large-1-5" data-uk-grid-margin>
-{productboxes}
-</ul>
 <div class="ast-pagination">
-  {pagination}
+    {pagination}
 </div>
+</div>
+<script>
+$('.updform_chk').on('click', function() {
+    $( "#adlistopts" ).submit();
+});
+$('.updform_sel').on('change', function() {
+    $( "#adlistopts" ).submit();
+});
+function ASTORE_uncheckAll(name)
+{
+    var f = document.getElementById("adlistopts");
+    var n=f.elements.length;
+    var submit = false;
+    for (i=0;i<n; i++) {
+        var field=f.elements[i];
+        if (
+            field.type == 'checkbox' &&
+            field.name.match(name) &&
+            field.checked == true
+        ) {
+            field.checked=false;
+            submit=true;
+        }
+    }
+    if (submit) {
+        $( "#adlistopts" ).submit();
+    }
+    return false;
+}
+</script>
 {# end {templatelocation} #}
