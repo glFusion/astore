@@ -83,6 +83,9 @@ function astore_do_upgrade($dvlp=false)
     require_once __DIR__ . '/install_defaults.php';
     _update_config('astore', $astoreConfigData);
 
+    // Clear the cache
+    Astore\Cache::clear();
+
     // Final extra check to catch code-only patch versions
     if (!COM_checkVersion($current_ver, $installed_ver)) {
         if (!astore_do_update_version($installed_ver)) return false;
