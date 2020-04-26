@@ -1,12 +1,11 @@
 # Changelog - Astore plugin for glFusion
 
-## DEPRECATED
-Amazon's guidelines prevent further development of this plugin.
-
-See https://docs.aws.amazon.com/AWSECommerceService/latest/DG/TroubleshootingApplications.html#EfficiencyGuidelines
-
 ## Version 0.2.0
 Release TBD
+- Add categories
+- Update to Product API v5
+- Increase default cache time to 3 hours
+- Adjust cache time up or down by 25% to help avoid exceeding request limits
 - Remove dependence on LGLib
 - Add service function to get item information
 - Support multiple ID types, e.g. "ISBN"
