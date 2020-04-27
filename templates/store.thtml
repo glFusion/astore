@@ -1,13 +1,13 @@
 {# begin {templatelocation} #}
-{!if store_title}
 <div class="ast-store-title">
+{!if store_title}
     <h1>{store_title}</h1>
+{!endif}
     <form class="uk-form uk-form-horizontal" method="post" action="{site_url}/astore/index.php?mode=search">
         <input type="text" size="40" name="query" placeholder="{$LANG_ASTORE['search_query']}" />
         <button class="uk-button uk-button-primary" name="search">{$LANG_ASTORE['search']}</button>
     </form>
 </div>
-{!endif}
 
 <div class="uk-grid">
     <div class="uk-width-1-6 uk-hidden-small">
