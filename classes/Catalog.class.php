@@ -183,6 +183,7 @@ class Catalog
         $T->set_var(array(
             'query'         => $this->query,
             'store_title'   => $_CONF_ASTORE['store_title'],
+            'page'          => $page,
         ) );
 
         $T->set_block('catlist', 'CatChecks', 'CC');
@@ -253,6 +254,9 @@ class Catalog
             // Display pagination, only if not searching Amazon
             $count = self::Count();
             $pagenav_args = '';
+            if (!empty($this->cat_ids)) {
+                $pagenav_args = '?' . http_build_query(array('cats'=>$this->cat_ids));
+            }
             if (
                 isset($_CONF_ASTORE['perpage']) &&
                 $_CONF_ASTORE['perpage'] > 0 &&

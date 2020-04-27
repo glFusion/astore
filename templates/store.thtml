@@ -18,6 +18,7 @@
                     <i class="uk-icon uk-icon-refresh tooltip" title="{$LANG_ASTORE['hlp_unchk_all']}" onclick="ASTORE_uncheckAll('cats');"></i>
                 </label>
                 <div class="uk-form-controls">
+                    <input type="hidden" name="page" value="{page}" />
 <!-- BEGIN CatChecks -->
                     <input id="catchk_{cnt}" class="updform_chk" type="checkbox" value="{cat_id}" name="cats[]" {cat_chk} />
                     <label for="catchk_{cnt}">{cat_name}</label><br />
