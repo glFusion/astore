@@ -49,7 +49,7 @@ function astore_do_upgrade($dvlp=false)
         $current_ver = '0.2.0';
         // Check a column that's added in this update to see if the
         // title field needs to be sync'd from cache to the catalog.
-        if (!_ASTOREtableHasColumn('enabled')) {
+        if (!_ASTOREtableHasColumn('astore_catalog', 'enabled')) {
             $update_title = true;
         } else {
             $update_title = false;
