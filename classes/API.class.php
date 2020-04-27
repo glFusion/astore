@@ -135,20 +135,6 @@ class API
             }
         }
         return $retval;
-        /*if (isset($obj->Items->Request->Errors->Error->Code)) {
-            self::_debug($asins . ': ' . $obj->Items->Request->Errors->Error->Message, true);
-        } elseif (is_array($obj->Items->Item)) {
-            $Item = $obj->Items->Item;
-            foreach ($Item as $i) {
-                Cache::set($i->ASIN, $i);
-                $retval[$i->ASIN] = $i;
-            }
-        } elseif (is_object($obj->Items->Item)) {
-            $i = $obj->Items->Item;
-            Cache::set($i->ASIN, $i);
-            $retval[$i->ASIN] = $i;
-        }*/
-        return $retval;
     }
 
 
@@ -161,7 +147,7 @@ class API
     public function searchItems($query)
     {
         $md5_query = md5($query);
-        $response = Cache::get($md5_query);
+        //$response = Cache::get($md5_query);
         if (!empty($response)) {
             self::_debug("Found '$query' in cache");
         } else {
@@ -239,7 +225,7 @@ class API
         }*/
         $payload = json_encode($params);
 
-        $awsv4 = new AwsV4();
+        $awsv4 = new AwsV4($this->access_key, $this->secret_key);
         $awsv4->setRegionName("us-east-1");
         $awsv4->setServiceName("ProductAdvertisingAPI");
         $awsv4->setPath ($this->path);
@@ -250,8 +236,26 @@ class API
         $awsv4->addHeader ('host', self::$endpoint);
         $awsv4->addHeader ('x-amz-target', 'com.amazon.paapi5.v1.ProductAdvertisingAPIv1.' . $this->hdr_target);
         $headers = $awsv4->getHeaders ();
-        
-        $headerString = "";
+        $hdr_arr = array();
+        foreach ($headers as $key => $value) {
+            $hdr_arr[] = $key . ': ' . $value;
+        }
+
+        $ch = curl_init();
+        curl_setopt_array($ch, array(
+            CURLOPT_RETURNTRANSFER => 1,
+            CURLOPT_POST => 1,
+            CURLOPT_URL => self::$endpoint . $this->path,
+            CURLOPT_USERAGENT => 'glFusion Astore',
+            CURLOPT_SSL_VERIFYPEER => false,
+            //CURLOPT_CONNECTTIMEOUT_MS => $this->curl_timeout, //timeout in milliseconds
+            //CURLOPT_USERPWD => $this->account . ':' . $this->api_key,
+            CURLOPT_HTTPHEADER => $hdr_arr,
+            CURLOPT_POSTFIELDS => $payload,
+        ) );
+        $response = curl_exec($ch);
+        $status = curl_getinfo($ch);
+        /*$headerString = "";
         foreach ( $headers as $key => $value ) {
             $headerString .= $key . ': ' . $value . "\r\n";
         }
@@ -270,7 +274,7 @@ class API
             //throw new \Exception ( "Exception Occured" );
             COM_errorLog("Error making request to $endpoint");
         }
-        $response = @stream_get_contents($fp);
+        $response = @stream_get_contents($fp);*/
         if ($response === false) {
             COM_errorLog("Received false from $endpoint");
             //throw new \Exception ( "Exception Occured" );

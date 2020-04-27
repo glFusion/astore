@@ -35,12 +35,10 @@ class AwsV4 {
     private $xAmzDate = null;
     private $currentDate = null;
 
-    public function __construct()
+    public function __construct($access_key, $secret_key)
     {
-        global $_CONF_ASTORE;
-
-        $this->accessKeyID = $_CONF_ASTORE['aws_access_key'];
-        $this->secretAccessKey = $_CONF_ASTORE['aws_secret_key'];
+        $this->accessKeyID = $access_key;
+        $this->secretAccessKey = $secret_key;
         $this->xAmzDate = $this->getTimeStamp ();
         $this->currentDate = $this->getDate ();
     }
