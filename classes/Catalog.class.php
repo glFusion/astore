@@ -45,12 +45,24 @@ class Catalog
     private $query = '';
 
 
+    /**
+     * Set the ASIN value.
+     *
+     * @param   string  $asin   ASIN value
+     * @return  object  $this
+     */
     public function setASIN($asin)
     {
         $this->asin = $asin;
         return $this;
     }
 
+
+    /**
+     * Set the featured item. Relies on `asin` being set.
+     *
+     * @return  object  Featured Item object
+     */
     public function getFeatured()
     {
         global $_TABLES;
@@ -64,6 +76,13 @@ class Catalog
     }
 
 
+    /**
+     * Get a page of items from the database.
+     *
+     * @param   integer $page       Page number to retrieve
+     * @param   string  $orderby    Optional field to order results
+     * @return  array       Array of Item objects
+     */
     public function getPage($page=1, $orderby='id')
     {
         global $_TABLES;
@@ -102,6 +121,13 @@ class Catalog
     }
 
 
+    /**
+     * Render the search results.
+     *
+     * @param   string  $query  Search query
+     * @param   integer $page   Page number to show
+     * @return  string      HTML for the item list
+     */
     public function renderSearch($query, $page=1)
     {
         $Item = new Item;
@@ -111,6 +137,14 @@ class Catalog
         return $this->Render($page);
     }
 
+
+
+    /**
+     * Render the item list view, no search.
+     *
+     * @param   integer $page   Page number to show
+     * @return  string      HTML for the item list
+     */
     public function renderItems($page=1)
     {
         $this->Items = Item::getAll($page, $this->cat_ids);
@@ -121,7 +155,7 @@ class Catalog
     /**
      * Display the products in a grid.
      *
-     * @param   array   $items  Array of item objects
+     * @param   integer $page   Page number to show
      * @return  string      HTML for the product page
      */
     public function Render($page=1)
@@ -268,7 +302,7 @@ class Catalog
     /**
      * Delete an item from the catalog and cache.
      *
-     * @param   string  $asin   Item number
+     * @param   string  $id     Item record ID
      */
     public static function Delete($id)
     {
@@ -494,22 +528,6 @@ class Catalog
             $text_arr, $query_arr, $defsort_arr, '', '', $options, $form_arr
         );
         return $retval;
-    }
-
-
-    public function Edit()
-    {
-        $T = new \Template(ASTORE_PI_PATH . '/templates');
-        $T->set_file('form', 'edit.thtml');
-        $T->set_var(array(
-            'id' => $this->id,
-            'asin' => $this->asin,
-            'title' => $this->title,
-            'ena_chk' => $this->isEnabled() ? 'checked="checked"' : '',
-            'url' => $this->url,
-        ) );
-        $T->parse('output', 'form');
-        return $T->finish($T->get_var('output'));
     }
 
 

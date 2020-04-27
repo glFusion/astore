@@ -152,6 +152,12 @@ class API
     }
 
 
+    /**
+     * Search Amazon for items matching a given query.
+     *
+     * @param   string  $query  Query string
+     * @return  array   Array of Item objects
+     */
     public function searchItems($query)
     {
         $md5_query = md5($query);

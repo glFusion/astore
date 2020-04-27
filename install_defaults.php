@@ -13,6 +13,7 @@
  * @filesource
  */
 
+/** Do nothing if GVERSION is not defined */
 if (!defined('GVERSION')) {
     die('This file can not be used on its own!');
 }
@@ -117,7 +118,7 @@ $astoreConfigData = array(
     ),
     array(
         'name' => 'debug_aws',
-        'default_value' => false,,
+        'default_value' => false,
         'type' => 'select',
         'subgroup' => 0,
         'fieldset' => 0,

@@ -11,6 +11,7 @@
  * @filesource
  */
 
+/** Include installation defaults to update config after upgrades. */
 require_once __DIR__ . '/install_defaults.php';
 
 /**
@@ -133,7 +134,7 @@ function astore_do_upgrade_sql($version, $dvlp=false)
 {
     global $_TABLES, $_CONF_ASTORE, $ASTORE_UPGRADE, $_DB_dbms;
 
-    require_once __DIR__ "/sql/mysql_install.php";
+    require_once __DIR__ . '/sql/mysql_install.php';
 
     // If no sql statements passed in, return success
     if (!isset($ASTORE_UPGRADE[$version]) || !is_array($ASTORE_UPGRADE[$version])) {

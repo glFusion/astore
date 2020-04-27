@@ -162,6 +162,11 @@ class Cache
     }
 
 
+    /**
+     * Delete a single item from cache.
+     *
+     * @param   string  $asin   ASIN of item to delete
+     */
     public static function delete($asin)
     {
         if (version_compare(GVERSION, self::MIN_GVERSION, '<')) {

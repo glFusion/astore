@@ -76,6 +76,11 @@ class Category
     }
 
 
+    /**
+     * Get all categories into an array.
+     *
+     * @return  array   Array of Category objects
+     */
     public static function getAll()
     {
         global $_TABLES;
@@ -420,6 +425,7 @@ class Category
      * @param   string  $fieldvalue Value to be displayed
      * @param   array   $A          Associative array of all values available
      * @param   array   $icon_arr   Array of icons available for display
+     * @param   array   $extra      Array of values passed in from getAdminList()
      * @return  string              Complete HTML to display the field
      */
     public static function getListField($fieldname, $fieldvalue, $A, $icon_arr, $extra)

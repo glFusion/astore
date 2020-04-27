@@ -3,47 +3,52 @@
  * Class to retrieve and format Amazon Store items.
  *
  * @author      Lee Garner <lee@leegarner.com>
- * @copyright   Copyright (c) 2017 Lee Garner <lee@leegarner.com>
+ * @copyright   Copyright (c) 2017-2020 Lee Garner <lee@leegarner.com>
  * @package     astore
- * @version     0.1.0
+ * @version     v0.2.0
+ * @version     v0.1.0
  * @license     http://opensource.org/licenses/gpl-2.0.php
  *              GNU Public License v2 or later
  * @filesource
  */
 namespace Astore;
 
+
 /**
  * Class for Amazon Item Search
  * @package astore
  */
-class Search extends Item
+class Search extends API
 {
     /** Search results object.
      * @var object */
-    private $obj;
+    private $Obj;
+
 
     /**
-     * Retrieve a single item.
+     * Perform a search using the Amazon API.
      *
      * @param   string  $query  Query string
+     * @param   integer $page   Page number to retrieve.
      * @return  object          Data object
      */
-    public function doSearch($query)
+    public function doSearch($query, $page = 1)
     {
         $retval = array();
 
         $md5_query = md5($query);
-        $this->obj = self::_getCache($md5_query);
+        //$this->obj = self::_getCache($md5_query);
         if (!empty($this->obj)) {
             self::_debug("Found '$query' in cache");
         } else {
             self::_debug("Getting $query from Amazon");
             $params = array(
-                'Operation' => 'ItemSearch',
-                'Keywords' => urlencode($query),
+                'Operation' => 'SearchItems',
+                'Keywords' => $query,
                 'SearchIndex' => 'All',
             );
             $this->obj = self::_makeRequest($params);
+            var_dump($this->obj);die;
         }
 
         if (isset($this->obj->Items->Request->Errors->Error->Code)) {

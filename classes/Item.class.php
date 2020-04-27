@@ -76,6 +76,11 @@ class Item
     }
 
 
+    /**
+     * Read a single item record from the database using the current ASIN key.
+     *
+     * @return  object  $this
+     */
     private function Read()
     {
         global $_TABLES;
@@ -108,6 +113,12 @@ class Item
     }
 
 
+    /**
+     * Set the ASIN key for this item.
+     *
+     * @param   string  $asin   ASIN value
+     * @return   object $this
+     */
     public function setASIN($asin)
     {
         $this->asin = $asin;
@@ -115,6 +126,12 @@ class Item
     }
 
 
+    /**
+     * Set the data retrieved from Amazon. 
+     *
+     * @param   object  $data   JSON-decoded object
+     * @return  object $this
+     */
     public function setData($data)
     {
         $this->data = $data;
@@ -122,6 +139,12 @@ class Item
     }
 
 
+    /**
+     * Set the item title.
+     *
+     * @param   string  $title  Item title
+     * @return  object  $this
+     */
     public function setTitle($title)
     {
         $this->title = $title;
@@ -593,6 +616,11 @@ class Item
     }
 
 
+    /**
+     * Create the item detail page for display within the site.
+     *
+     * @return  string      HTML for detail page
+     */
     public function detailPage()
     {
         $T = new \Template(ASTORE_PI_PATH . '/templates');
@@ -838,6 +866,11 @@ class Item
     }
 
 
+    /**
+     * Create the item edit form.
+     *
+     * @return  string      HTML for item edit form
+     */
     public function Edit()
     {
         global $_TABLES;
@@ -865,8 +898,7 @@ class Item
     /**
      * Add an item to the catalog if not already present.
      *
-     * @param   string  $asin   Item number
-     * @param   string  $title  Item title to store in catalog
+     * @param   array   $A      Array of item fields
      * @return  boolean         True on success, False on DB error
      */
     public function Save($A=NULL)
@@ -1208,6 +1240,12 @@ class Item
     }
 
 
+    /**
+     * Count items contained in a specified category.
+     *
+     * @param   integer $cat_id     Category record ID
+     * @return  integer     Number of items under this category
+     */
     public static function countByCategory($cat_id)
     {
         global $_TABLES;
@@ -1220,6 +1258,13 @@ class Item
     }
 
 
+    /**
+     * Return the value of the `is_valid` flag.
+     * Used to check if a valid item was retreived from the database
+     * and/or Amazon.
+     *
+     * @return  integer     1 if item is valid, 0 if not
+     */
     public function isValid()
     {
         return $this->is_valid ? 1 : 0;
