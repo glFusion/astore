@@ -167,7 +167,7 @@ function plugin_getadminoption_astore()
 function plugin_upgrade_astore()
 {
     require_once __DIR__ . '/upgrade.inc.php';
-    return astore_do_upgrade();
+    return astore_do_upgrade(false);
 }
 
 
@@ -290,7 +290,7 @@ function plugin_autouninstall_astore ()
         // give all vars with their name
         'vars'=> array('astore_ts')
     );
-    Astore\Cache::clearCache();
+    Astore\Cache::clear();
     return $out;
 }
 

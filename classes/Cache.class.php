@@ -151,7 +151,7 @@ class Cache
      *
      * @return  boolean     True on success, False on error
      */
-    public static function clearCache()
+    public static function clear()
     {
         if (version_compare(GVERSION, self::MIN_GVERSION, '<')) {
             global $_TABLES;
