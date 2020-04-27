@@ -130,10 +130,17 @@ class Catalog
      */
     public function renderSearch($query, $page=1)
     {
+        global $_CONF_ASTORE;
+
         $Item = new Item;
         $API = new API;
         $this->query = $query;
         $this->Items = $API->searchItems($query, $page);
+        if (!empty($this->Items) && $_CONF_ASTORE['auto_add_catalog']) {
+            foreach ($this->Items as $asin=>$Item) {
+                Item::AddToCatalog($asin, $Item->Title());
+            }
+        }
         return $this->Render($page);
     }
 
