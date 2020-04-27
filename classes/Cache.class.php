@@ -45,7 +45,7 @@ class Cache
             $data = DB_getItem($_TABLES['astore_cache'], 'data',
                 "asin = '$asin' AND exp > UNIX_TIMESTAMP()");
             if (!empty($data)) {
-                return json_decode($data);
+                return @unserialize($data);
             } else {
                 return NULL;
             }
@@ -74,7 +74,7 @@ class Cache
             global $_TABLES;
 
             $asin = DB_escapeString($asin);
-            $data = DB_escapeString(json_encode($data));
+            $data = DB_escapeString(serialize($data));
             $type = 0;
             $sql = "INSERT INTO {$_TABLES['astore_cache']} SET
                     asin = '$asin',
