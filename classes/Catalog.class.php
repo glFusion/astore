@@ -154,6 +154,9 @@ class Catalog
      */
     public function renderItems($page=1)
     {
+        if ($this->Pages() < $page) {
+            $page = 1;
+        }
         $this->Items = Item::getAll($page, $this->cat_ids);
         return $this->Render($page);
     }
@@ -252,16 +255,12 @@ class Catalog
 
         if (!$hasQuery) {
             // Display pagination, only if not searching Amazon
-            $count = self::Count();
+            $count = $this->Count();
             $pagenav_args = '';
             if (!empty($this->cat_ids)) {
                 $pagenav_args = '?' . http_build_query(array('cats'=>$this->cat_ids));
             }
-            if (
-                isset($_CONF_ASTORE['perpage']) &&
-                $_CONF_ASTORE['perpage'] > 0 &&
-                $count > $_CONF_ASTORE['perpage']
-            ) {
+            if ($this->Pages() > 1) {
                 $T->set_var(
                     'pagination',
                     COM_printPageNavigation(
@@ -270,6 +269,8 @@ class Catalog
                         ceil($count / $_CONF_ASTORE['perpage'])
                     )
                 );
+            } else {
+                $page = 1;
             }
         }
         $T->parse('output', 'store');
@@ -328,26 +329,27 @@ class Catalog
      * Get the number of items in the catalog.
      * Used for pagination.
      *
-     * @param   boolean $enabled    True to count only enabled items
      * @return  integer     Count of items in the catalog table
      */
-    public static function Count($enabled = true)
+    public function Count()
     {
         global $_TABLES;
-        static $counts = array();
-        if ($enabled) {
-            $fld = 'enabled';
-            $value = 1;
-            $key = 1;
-        } else {
-            $fld = '';
-            $value = '';
-            $key = 0;
+        static $count = NULL;      // keep throughout the current page load
+
+        if ($count === NULL) {
+            $count = 0;
+            $sql = "SELECT count(*) AS cnt
+                FROM {$_TABLES['astore_catalog']}";
+            if (!empty($this->cat_ids)) {
+                $sql .= ' WHERE cat_id IN (' . implode(',', $this->cat_ids) . ')';
+            }
+            $res = DB_query($sql);
+            if ($res) {
+                $A = DB_fetchArray($res, false);
+                $count = (int)$A['cnt'];
+            }
         }
-        if (!isset($counts[$key])) {
-            $counts[$key] = (int)DB_count($_TABLES['astore_catalog'], $fld, $value);
-        }
-        return $counts[$key];
+        return $count;
     }
 
 
@@ -358,9 +360,9 @@ class Catalog
      */
     public function Pages()
     {
-        global $_CONF_ASEARCH;
+        global $_CONF_ASTORE;
 
-        $count = self::Count();
+        $count = $this->Count();
 
         if (!isset($_CONF_ASTORE['perpage']) ||
             $_CONF_ASTORE['perpage'] < 1) {
@@ -368,7 +370,6 @@ class Catalog
         }
         return ceil($count / $_CONF_ASTORE['perpage']);
     }
-
 
 
     /**
