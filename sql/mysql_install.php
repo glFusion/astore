@@ -55,6 +55,7 @@ $ASTORE_UPGRADE = array(
         "ALTER TABLE {$_TABLES['astore_catalog']} DROP PRIMARY KEY",
         "ALTER TABLE {$_TABLES['astore_catalog']} ADD `id` int(11) unsigned NOT NULL AUTO_INCREMENT PRIMARY KEY FIRST",
         "ALTER TABLE {$_TABLES['astore_catalog']} ADD `cat_id` int(11) unsigned NOT NULL DEFAULT '1' AFTER `asin`",
+        "ALTER TABLE {$_TABLES['astore_catalog']} ADD `title` text AFTER `cat_id`",
         "ALTER TABLE {$_TABLES['astore_catalog']} ADD UNIQUE KEY `idx_asin` (`asin)",
         "ALTER TABLE {$_TABLES['astore_catalog']} ADD `url` text AFTER `title`",
         "ALTER TABLE {$_TABLES['astore_catalog']} ADD `enabled` tinyint(1) unsigned NOT NULL DEFAULT '1'",
