@@ -148,8 +148,9 @@ function astore_do_upgrade_sql($version, $dvlp=false)
         DB_query($sql, '1');
         if (DB_error()) {
             COM_errorLog("SQL Error during Astore Plugin update",1);
-            if (!$dvlp) return false;
-            break;
+            if (!$dvlp) {
+                return false;
+            }
         }
     }
     return true;
