@@ -262,14 +262,13 @@ class API
                 'content' => $payload
             )
         );
-
         $stream = stream_context_create($params);
         $endpoint = 'https://' . self::$endpoint . $this->path;
         $fp = @fopen($endpoint, 'rb', false, $stream);
 
         if (!$fp) {
             //throw new \Exception ( "Exception Occured" );
-            COM_errorLog("Error making request to $endpoing");
+            COM_errorLog("Error making request to $endpoint");
         }
         $response = @stream_get_contents($fp);
         if ($response === false) {
