@@ -3,10 +3,12 @@
 {!if store_title}
     <h1>{store_title}</h1>
 {!endif}
+{!if can_search}
     <form class="uk-form uk-form-horizontal" method="post" action="{site_url}/astore/index.php?mode=search">
         <input type="text" size="40" name="query" placeholder="{$LANG_ASTORE['search_query']}" />
         <button class="uk-button uk-button-primary" name="search">{$LANG_ASTORE['search']}</button>
     </form>
+{!endif}
 </div>
 
 <div class="uk-grid">

@@ -187,6 +187,7 @@ class Catalog
             'query'         => $this->query,
             'store_title'   => $_CONF_ASTORE['store_title'],
             'page'          => $page,
+            'can_search'    => $this->canSearch(),
         ) );
 
         $T->set_block('catlist', 'CatChecks', 'CC');
@@ -447,6 +448,19 @@ class Catalog
             $this->cat_ids[] = (int)$cats;
         }
         return $this;
+    }
+
+
+    /**
+     * Check if the current user is allowed to search the catalog.
+     *
+     * @return  boolean     True if search is allowed, False if not
+     */
+    private function canSearch()
+    {
+        global $_GROUPS, $_CONF_ASTORE;
+
+        return in_array($_CONF_ASTORE['grp_search'], $_GROUPS);
     }
 
 

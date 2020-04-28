@@ -83,6 +83,7 @@ $LANG_confignames['astore'] = array(
     'notag_admins' => 'Block Associate ID if Admin',
     'notag_header' => 'Block Associate ID for Header',
     'cb_enable' => 'Enable Centerblock?',
+    'grp_search' => 'Group that can search',
 );
 
 $LANG_configsubgroups['astore'] = array(

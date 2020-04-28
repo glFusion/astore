@@ -51,7 +51,7 @@ $astoreConfigData = array(
         'group' => 'astore',
     ),
     array(
-        'name' => 'aws_store_title',
+        'name' => 'store_title',
         'default_value' => '',
         'type' => 'text',
         'subgroup' => 0,
@@ -215,6 +215,17 @@ $astoreConfigData = array(
         'fieldset' => 0,
         'selection_array' => 2,
         'sort' => 150,
+        'set' => true,
+        'group' => 'astore',
+    ),
+    array(
+        'name' => 'grp_search',
+        'default_value' => 1,       // only Root can search by default
+        'type' => 'select',
+        'subgroup' => 0,
+        'fieldset' => 0,
+        'selection_array' => 0,     // helper function
+        'sort' => 160,
         'set' => true,
         'group' => 'astore',
     ),

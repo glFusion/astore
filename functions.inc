@@ -391,6 +391,28 @@ function plugin_configmanager_aws_secret_key_astore_validate($value)
 
 
 /**
+ * Get a selection of groups for current and arrears members.
+ *
+ * @see     plugin_configmanager_select_member_all_group_membership()
+ * @see     plugin_configmanager_select_member_group_membership()
+ * @return  array   Array of groups
+ */
+function plugin_configmanager_select_grp_search_astore()
+{
+    global $_TABLES;
+
+    $A = array();
+    $query = "SELECT grp_id, grp_name FROM {$_TABLES['groups']}";
+    $result = DB_query($query);
+    while ($row = DB_fetchArray($result)) {
+        $row['grp_name'] = htmlspecialchars($row['grp_name']);
+        $A[$row['grp_name']] = $row['grp_id'];
+    }
+    return $A;
+}
+
+
+/**
  * Perform scheduled functions, such as removing old cache entries.
  */
 function plugin_runScheduledTask_astore()

@@ -2,6 +2,7 @@
 
 ## Version 0.2.0
 Release TBD
+- Restrict access to search function by group
 - Add categories
 - Update to Product API v5
 - Increase default cache time to 3 hours
