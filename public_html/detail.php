@@ -16,14 +16,12 @@ require_once '../lib-common.php';
 
 COM_setArgNames(array('asin'));
 $asin = COM_getArgument('asin');
-$content = '';
 
 if (empty($asin)) {
     COM_404();
 }
 
 $Item = Astore\Item::getInstance($asin);
-//var_dump($Item);die;
 if (!$Item->isValid()) {
     COM_404();
 }
