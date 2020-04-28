@@ -66,7 +66,6 @@ class Item
             if (!empty($data)) {
                 $this->data = $data;
             } elseif ($this->is_valid) {
-                //$this->data = self::Retrieve($asin);
                 $this->data = self::Retrieve($asin);
                 if (!empty($this->data)) {
                     $this->title = $this->Title();
@@ -799,74 +798,6 @@ class Item
 
 
     /**
-     * Request item information from Amazon.
-     * The request type may be one of 'ASIN', 'ISBN', 'SKU', 'UPC', 'EAN'.
-     *
-     * @param   array   $asins  Requested ASIN numbers
-     * @param   string  $type   Type of item number (ASIN or ISBN)
-     * @return  array   Array of Item objects
-     */
-    protected static function X_getAmazon($asins, $type='ASIN')
-    {
-        global $_CONF_ASTORE;
-
-        $retval = array();
-        if (empty($asins)) return $retval;
-
-        if (is_array($asins)) {
-            if (count($asins) > ASTORE_MAX_QUERY) {
-                // Amazon only allows 10 ASINs in a query
-                array_splice($asins, 0, ASTORE_MAX_QUERY);
-            }
-            //$asins = implode(',', $asins);
-        }
-        if (empty($asins)) {
-            return false;
-        }
-
-        self::_debug("Getting $asins from Amazon");
-        $type = strtoupper($type);
-        switch ($type) {
-        case 'ASIN':
-        case 'ISBN':
-        case 'SKU':
-        case 'UPC':
-        case 'EAN':
-            break;
-        default:
-            COM_errorLog("invalid item ID type '$type' for items " . print_r($asins,true));
-            return $retval;
-        }
-        $params = array(
-            'Operation' => 'ItemLookup',
-            'ItemIds' => $asins,
-            'ItemIdType' => $type,
-        );
-        if ($type != 'ASIN') {
-            $params['SearchIndex'] = 'All';
-        }
-/*
-        $obj = self::_makeRequest($params);
-        var_dump($obj);die;
-        if (!is_object($obj)) return $retval;
-        if (isset($obj->Items->Request->Errors->Error->Code)) {
-            self::_debug($asins . ': ' . $obj->Items->Request->Errors->Error->Message, true);
-        } elseif (is_array($obj->Items->Item)) {
-            $Item = $obj->Items->Item;
-            foreach ($Item as $i) {
-                Cache::set($i->ASIN, $i);
-                $retval[$i->ASIN] = $i;
-            }
-        } elseif (is_object($obj->Items->Item)) {
-            $i = $obj->Items->Item;
-            Cache::set($i->ASIN, $i);
-            $retval[$i->ASIN] = $i;
-        }*/
-        return $retval;
-    }
-
-
-    /**
      * Create the item edit form.
      *
      * @return  string      HTML for item edit form
@@ -1094,70 +1025,6 @@ class Item
 
         DB_delete($_TABLES['astore_catalog'], 'asin', $asin);
         Cache::delete($asin);
-    }
-
-
-    /**
-     * Get the number of items in the catalog.
-     * Used for pagination.
-     *
-     * @param   boolean $enabled    True to count only enabled items
-     * @return  integer     Count of items in the catalog table
-     */
-    public static function Count($enabled = true)
-    {
-        global $_TABLES;
-        static $counts = array();
-        if ($enabled) {
-            $fld = 'enabled';
-            $value = 1;
-            $key = 1;
-        } else {
-            $fld = '';
-            $value = '';
-            $key = 0;
-        }
-        if (!isset($counts[$key])) {
-            $counts[$key] = (int)DB_count($_TABLES['astore_catalog'], $fld, $value);
-        }
-        return $counts[$key];
-    }
-
-
-    /**
-     * Get the number of pages.
-     *
-     * @return  integer     Number of pages
-     */
-    public function Pages()
-    {
-        global $_CONF_ASEARCH;
-
-        $count = self::Count();
-
-        if (!isset($_CONF_ASTORE['perpage']) ||
-            $_CONF_ASTORE['perpage'] < 1) {
-            $_CONF_ASTORE['perpage'] = 10;
-        }
-        return ceil($count / $_CONF_ASTORE['perpage']);
-    }
-
-
-    /**
-     * Get an item by ISBN.
-     *
-     * @param   string  $isbn   ISBN number
-     * @return  array   $data   Array of data if found.
-     */
-    public static function getByISBN($isbn)
-    {
-        $data = Cache::get($isbn);
-        if ($data === NULL) {
-            COM_errorLog("$isbn not found in cache");
-            $data = self::_getAmazon($isbn, 'ISBN');
-            Cache::set($isbn, $data);
-        }
-        return $data;
     }
 
 
