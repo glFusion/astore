@@ -23,7 +23,7 @@ if (!SEC_inGroup('Root')) {
     COM_404();
     exit;
 }
-require_once ASTORECOMP_PATH . '/upgrade.inc.php';   // needed for set_version()
+require_once ASTORE_PI_PATH . '/upgrade.inc.php';   // needed for set_version()
 if (function_exists('CACHE_clear')) {
     CACHE_clear();
 }
