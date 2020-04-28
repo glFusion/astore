@@ -33,19 +33,15 @@ even if you have not added the item to your catalog.
     * `https//example.com/astore/index.php` leads to your catalog page.
 
   * Link to a Product Detail Page
-    * `https://example.com/astore/index.php?detail=XXXXX` shows a product
+    * `https://example.com/astore/detail.php?asin=XXXXX` shows a product
         information page with a link to the product page on Amazon.
+        If you have URL Rewrite enabled in your configuration you can use
+        friendly URLs like `detail.php/XXXXX`.
 
   * Link to a Specific Product
     * `https://example.com/astore/index.php?asin=XXXXX` leads to your catalog page,
         with product XXXX featured at the top of the page.
         If so configured, this product is automatically added to the catalog.
-
-  * Link to a Search Page
-    * `https://example.com/astore/index.php?search=word1+word2+...`
-        searches Amazon and displays a page of products.
-        Search results are cached by query string but not added to the catalog.
-        Only the first page of results is displayed, with a link to Amazon to view more results.
 
 ## Configuration
 ### AWS Access Key, Secret Key, Associate ID
@@ -54,7 +50,7 @@ Enter your Amazon credentials here. Visit the Affiliate home page (above) to cre
 ### AWS Country
 Select the domain associated with your country.
 
-### AWS Cache Minuts
+### AWS Cache Minutes
 Enter the number of minutes to cache product information from Amazon.
 Amazon recommends caching but indicates that it should be minimal in order for
 the information to be up to date.
@@ -100,3 +96,10 @@ associate ID will not be included.
 ### Block Associate ID if Admin
 Also, you can exclude logged-in administrators from having the associate ID
 appear in product links if this is set to "Yes"
+
+### Enable Centerblock
+Enable the centerblock to have the Amazon store become your site's homepage.
+
+### Group that can search
+Since the search form submits request to Amazon, you may wish to restrict
+access to that function to avoid exceeding the terms of service.
