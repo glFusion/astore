@@ -969,7 +969,6 @@ class Item
             array_splice($bad, 0, ASTORE_MAX_QUERY);
             array_splice($asins, ASTORE_MAX_QUERY);
         }
-        //$asins = implode(',', $asins);
 
         // Retrieve from Amazon any items not in cache
         if (!empty($asins)) {

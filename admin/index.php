@@ -59,7 +59,7 @@ case 'exportcsv':
         $content .= '<textarea style="width:100%" class="tooltip" title="' .
             $LANG_ASTORE['instr_export'] . '">' . $items . '</textarea>';
     }
-    COM_refresh(ASTORE_ADMIN_URL . '/index.php');
+    $content .= Astore\Item::adminList($import_fld);
     break;
 
 case 'importcsv':
@@ -70,7 +70,7 @@ case 'importcsv':
             $content .= COM_showMessageText($LANG_ASTORE['err_adm_import_size']);
         }
     }
-    COM_refresh(ASTORE_ADMIN_URL . '/index.php');
+    $content .= Astore\Item::adminList($import_fld);
     break;
 
 case 'saveitem':
