@@ -95,17 +95,6 @@ $astoreConfigData = array(
         'group' => 'astore',
     ),
     array(
-        'name' => 'aws_country',
-        'default_value' => 'com',
-        'type' => 'select',
-        'subgroup' => 0,
-        'fieldset' => 0,
-        'selection_array' => 1,
-        'sort' => 50,
-        'set' => true,
-        'group' => 'astore',
-    ),
-    array(
         'name' => 'aws_cache_min',
         'default_value' => '180',
         'type' => 'text',

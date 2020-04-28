@@ -71,7 +71,6 @@ $LANG_confignames['astore'] = array(
     'aws_access_key' => 'AWS Access Key',
     'aws_secret_key' => 'AWS Secret key',
     'aws_assoc_id' => 'Associate Tag',
-    'aws_country' => 'AWS Country (Domain)',
     'aws_cache_min' => 'Minutes to cache product info',
     'debug_aws' => 'Debug AWS requests?',
     'perpage' => 'Items to show per page',
