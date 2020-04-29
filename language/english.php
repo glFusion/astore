@@ -54,6 +54,7 @@ $LANG_ASTORE = array(
 'last' => 'Last',
 'delete' => 'Delete',
 'hlp_unchk_all' => 'Uncheck all',
+'current_as_of' => 'Data current as of:',
 );
 
 $LANG_ASTORE_AUTOTAG = array(

@@ -42,6 +42,10 @@ class Item
      * @var integer */
     private $cat_id = 1;
 
+    /** Item Title. Saved in the catalog to show in admin lists.
+     * @var string */
+    private $title = '';
+
     /** Flag to indicate that a valid item was retrieved.
      * @var boolean */
     private $is_valid = 0;
@@ -421,6 +425,7 @@ class Item
      */
     public function Title()
     {
+        return $this->title;
         if (isset($this->data->ItemInfo->Title->DisplayValue)) {
             return $this->data->ItemInfo->Title->DisplayValue;
         } else {
@@ -587,6 +592,7 @@ class Item
             'offers_url' => $this->OffersURL(),
             'is_prime'  => $this->isPrime(),
             'is_admin'  => plugin_ismoderator_astore(),
+            'asof_date' => $this->getDate()->format('m/y h:i A T', true),
         ) );
         $features = $this->Features();
         if (!empty($features)) {
@@ -814,6 +820,7 @@ class Item
             $api = new API;
             $data = $api->getItems($asins);
             foreach ($data as $asin=>$info) {
+                $info->_timestamp = time();
                 $allitems[$asin] = new self();
                 $allitems[$asin]->data = $info;
                 Cache::set($asin, $info);
@@ -1020,6 +1027,29 @@ class Item
     public function isValid()
     {
         return $this->is_valid ? 1 : 0;
+    }
+
+
+    /**
+     * Get the raw timestamp when data was retrieved.
+     *
+     * @return  integer     Timestamp value
+     */
+    public function getTimestamp()
+    {
+        return (int)$this->data->_timestamp;
+    }
+
+
+    /**
+     * Get the cached or retrieved date/time as an object.
+     *
+     * @return  object      Date object
+     */
+    public function getDate()
+    {
+        global $_CONF;
+        return new \Date($this->data->_timestamp, $_CONF['timezone']);
     }
 
 

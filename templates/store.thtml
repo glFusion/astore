@@ -112,13 +112,13 @@
                     </span>
                 </a>
             </span>
+            <div class="astore_disclaimer">{asof_date}</div>
         </li>
 <!-- END products -->
     </ul>
 </div>
 <div class="ast-pagination">
     {pagination}
-</div>
 </div>
 <script>
 $('.updform_chk').on('click', function() {

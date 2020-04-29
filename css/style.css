@@ -19,7 +19,6 @@
     clear: both;
 }
 
-
 .ast-featured-img {
     width: 30%;
 }
@@ -263,4 +262,9 @@ div.ast-product-box .ast-unavail {
 
 .uk-grid>*.astore {
     padding-left: 10px;
+}
+
+.astore_disclaimer {
+    font-size: smaller;
+    font-style: italic;
 }

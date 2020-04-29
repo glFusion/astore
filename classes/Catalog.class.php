@@ -170,7 +170,7 @@ class Catalog
      */
     public function Render($page=1)
     {
-        global $_CONF_ASTORE;
+        global $_CONF_ASTORE, $_CONF;
 
         $isAdmin = plugin_ismoderator_astore();
         $hasQuery = $this->query != '';
@@ -249,6 +249,7 @@ class Catalog
                 'available' => $Item->isAvailable(),
                 'is_prime' => $Item->isPrime() ? true : false,
                 'is_admin' => $isAdmin,
+                'asof_date' => $Item->getDate()->format('m/y h:i A T', true),
             ) );
             $T->parse('pb', 'products', true);
         }
