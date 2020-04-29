@@ -218,6 +218,17 @@ $astoreConfigData = array(
         'set' => true,
         'group' => 'astore',
     ),
+    array(
+        'name' => 'def_catid',
+        'default_value' => 1,       // only Root can search by default
+        'type' => 'select',
+        'subgroup' => 0,
+        'fieldset' => 0,
+        'selection_array' => 0,     // helper function
+        'sort' => 160,
+        'set' => true,
+        'group' => 'astore',
+    ),
 );
 
 /**

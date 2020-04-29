@@ -126,7 +126,7 @@ class Item
 
 
     /**
-     * Set the data retrieved from Amazon. 
+     * Set the data retrieved from Amazon.
      *
      * @param   object  $data   JSON-decoded object
      * @return  object $this
@@ -191,86 +191,6 @@ class Item
 
 
     /**
-     * Actually make the request to Amazon.
-     *
-     * @param   array   $params     Paramaters to merge with the basics
-     * @return  object      SimpleXML object with the results
-     */
-    protected function _makeRequest($params)
-    {
-        global $_CONF_ASTORE;
-
-        if (!function_exists('curl_init') || !function_exists('curl_setopt')) {
-            return NULL;
-        }
-
-        // Make sure a request hasn't been made within the last second
-        if (Cache::getTimestamp() >= (time() - 1)) {
-            sleep(1);
-        }
-
-        $base_params = array(
-            'Marketplace' => 'www.amazon.com',
-            'LanguagesOfPreference' => array('en_US'),
-            'PartnerTag' => $_CONF_ASTORE['aws_assoc_id'],
-            'PartnerType' => 'Associates',
-            'Resources' => array(
-                'Images.Primary.Small',
-                'ItemInfo.Title',
-                'ItemInfo.Features',
-                'Offers.Summaries.HighestPrice',
-                'ParentASIN',
-            ),
-        );
-        $params = array_merge($base_params, $params);
-        ksort($params);
-        /*$pairs = array();
-        foreach ($params as $key=>$value) {
-            $pairs[] = rawurlencode($key) . '=' . rawurlencode($value);
-        }*/
-        $payload = json_encode($params);
-
-        $path = '/paapi5/getitems';
-        $awsv4 = new AwsV4();
-        $awsv4->setRegionName("us-east-1");
-        $awsv4->setServiceName("ProductAdvertisingAPI");
-        $awsv4->setPath ($path);
-        $awsv4->setPayload ($payload);
-        $awsv4->setRequestMethod ("POST");
-        $awsv4->addHeader ('content-encoding', 'amz-1.0');
-        $awsv4->addHeader ('content-type', 'application/json; charset=utf-8');
-        $awsv4->addHeader ('host', self::$endpoint);
-        $awsv4->addHeader ('x-amz-target', 'com.amazon.paapi5.v1.ProductAdvertisingAPIv1.GetItems');
-        $headers = $awsv4->getHeaders ();
-        
-        $headerString = "";
-        foreach ( $headers as $key => $value ) {
-            $headerString .= $key . ': ' . $value . "\r\n";
-        }
-        $params = array (
-            'http' => array (
-                'header' => $headerString,
-                'method' => 'POST',
-                'content' => $payload
-            )
-        );
-
-        $stream = stream_context_create ( $params );
-        $fp = @fopen ( 'https://' . self::$endpoint . $path, 'rb', false, $stream );
-
-        if (! $fp) {
-            throw new \Exception ( "Exception Occured" );
-        }
-        $response = @stream_get_contents ( $fp );
-        if ($response === false) {
-            throw new \Exception ( "Exception Occured" );
-        }
-        $response = json_decode($response,true);
-        return $response;
-    }
-
-
-    /**
      * Determine if the current item had an error or is empty.
      *
      * @return  boolean     True if an error exists, False if OK
@@ -296,11 +216,12 @@ class Item
      */
     public static function AddToCatalog($asin, $title)
     {
-        global $_TABLES;
+        global $_TABLES, $_CONF_ASTORE;
 
         $sql = "INSERT IGNORE INTO {$_TABLES['astore_catalog']} SET
                 asin = '" . DB_escapeString($asin) . "',
-                title = '" . DB_escapeString($title) . "'";
+                title = '" . DB_escapeString($title) . "',
+                cat_id = " . (int)$_CONF_ASTORE['def_catid'];
         DB_query($sql);
         return DB_error() ? false : true;
     }
@@ -371,6 +292,8 @@ class Item
                     $retval = false;
                 }
             }
+        } elseif ($this->ListPrice('raw') < .01) {
+            $retval = false;
         }
         return $retval;
     }
@@ -659,7 +582,6 @@ class Item
         }
         $T->parse('output', 'detail');
         $retval = $T->finish($T->get_var('output'));
-        //var_dump($retval);die;
         return $retval;
     }
 
@@ -708,59 +630,6 @@ class Item
             $T->parse('pb', 'productbox', true);
         }
         $T->parse('output', 'products');
-        return $T->finish($T->get_var('output'));
-    }
-
-
-    /**
-     * Display the product detail page for a single item.
-     *
-     * @return  string  HTML for product detail page
-     */
-    public function showDetail()
-    {
-        $T = new \Template(ASTORE_PI_PATH . '/templates');
-        $T->set_file('detail', 'detail.thtml');
-        if (!$this->isError()) {
-            $listprice = $this->ListPrice('raw');
-            $lowestprice = $this->LowestPrice('raw');
-            // If there's a lower price than list, display the "view offers" link
-            if (
-                ($lowestprice && $listprice && ($lowestprice < $listprice)) ||
-                ($lowestprice && !$listprice) ) {
-                $T->set_var(array(
-                    'show_lowest' => true,
-                ) );
-            }
-            $T->set_var(array(
-                'item_url'  => $this->DetailPageURL(),
-                'title'     => $this->Title(),
-                'img_url'   => $this->LargeImage()->URL,
-                'img_width' => $this->LargeImage()->Width,
-                'img_height' => $this->LargeImage()->Height,
-                'listprice' => $this->ListPrice(),
-                'lowestprice' => $this->LowestPrice(),
-                'long_description' => $this->EditorialReview(),
-                'available' => $this->isAvailable(),
-                'offers_url'    => $this->OffersURL(),
-                'is_prime'  => $this->isPrime(),
-            ) );
-            $features = $this->Features();
-            if (!empty($features)) {
-                $T->set_var('has_features', true);
-                $T->set_block('detail', 'Features', 'fb');
-                foreach ($features as $feature) {
-                    $T->set_var('feature', $feature);
-                    $T->parse('fb', 'Features', true);
-                }
-            }
-        } else {
-            $T->set_var(array(
-                'message'   => $LANG_ASTORE['item_not_found'],
-                'msg_class' => 'danger',
-            ) );
-        }
-        $T->parse('output', 'detail');
         return $T->finish($T->get_var('output'));
     }
 
@@ -1072,7 +941,7 @@ class Item
      *
      * @uses    self::toggle()
      */
-    private function Disable()
+    public function Disable()
     {
         self::toggle(1, 'enabled', $this->asin);
     }
@@ -1260,7 +1129,7 @@ class Item
                      'onclick' => "return confirm('Do you really want to delete this item?');",
                 ) );
             break;
-    
+
         case 'asin':
             $retval = COM_createLink($fieldvalue,
                 COM_buildUrl(ASTORE_URL . '/detail.php?asin=' . $fieldvalue)

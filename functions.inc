@@ -411,6 +411,20 @@ function plugin_configmanager_select_grp_search_astore()
     return $A;
 }
 
+function plugin_configmanager_select_def_catid_astore()
+{
+    global $_TABLES;
+
+    $A = array();
+    $sql = "SELECT cat_id, cat_name FROM {$_TABLES['astore_categories']}";
+    $result = DB_query($sql);
+    while ($row = DB_fetchArray($result)) {
+        $row['cat_name'] = htmlspecialchars($row['cat_name']);
+        $A[$row['cat_name']] = $row['cat_id'];
+    }
+    return $A;
+}
+
 
 /**
  * Perform scheduled functions, such as removing old cache entries.
