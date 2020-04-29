@@ -228,6 +228,10 @@ class Catalog
         $Items = $this->Items;
         $T->set_block('store', 'products', 'pb');
         foreach ($Items as $Item) {
+            if (!$Item->isAvailable()) {
+                $Item->Disable();
+                continue;
+            }
             $T->set_var(array(
                 'item_id' => $Item->ASIN(),
                 'item_url'  => $Item->DetailPageURL(),
