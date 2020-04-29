@@ -411,6 +411,12 @@ function plugin_configmanager_select_grp_search_astore()
     return $A;
 }
 
+
+/**
+ * Create the config selection for the default category ID
+ *
+ * @return  array   Array of cat_name=>cat_id
+ */
 function plugin_configmanager_select_def_catid_astore()
 {
     global $_TABLES;
@@ -423,6 +429,24 @@ function plugin_configmanager_select_def_catid_astore()
         $A[$row['cat_name']] = $row['cat_id'];
     }
     return $A;
+}
+
+
+/**
+ * Validate that the cache time setting is between 10 minutes and 4 hours.
+ *
+ * @param   string  $val    Admin-entered value
+ * @return  integer     Validated cache time
+ */
+function plugin_configmanager_aws_cache_min_astore_validate($val)
+{
+    $val = (int)$val;
+    if ($val < 10) {
+        $val = 60;
+    } elseif ($val > 229) {
+        $val = 120;
+    }
+    return $val;
 }
 
 
