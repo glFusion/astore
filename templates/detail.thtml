@@ -6,7 +6,7 @@
 {!if is_admin}
     <div>
         <div class="floatright">
-        <a class="uk-button uk-button-danger uk-button-small" href="{site_admin_url}/plugins/astore/index.php">{$LANG_ASTORE['admin']}</a>
+        <a class="uk-button uk-button-danger uk-button-small" rel="nofollow" href="{site_admin_url}/plugins/astore/index.php">{$LANG_ASTORE['admin']}</a>
         </div>
     </div>
 {!endif}
@@ -17,14 +17,14 @@
     <h2>{title}</h2>
   </div>
   <div style="float:left;width:240px">
-    <a target="_blank" href="{item_url}">
+    <a target="_blank" rel="nofollow" href="{item_url}">
       <img src="{img_url}" style="max-width: {img_width}; max-height: {img_height};" />
     </a>
   </div>
   <div class="ast-detail-price">{listprice}</div>
   <div class="ast-a-detail-button">
     <span class="ast-a-button ast-a-button-primary">
-      <a target="_blank" href="{item_url}" style="text-decoration:none" rel="nofollow">
+      <a target="_blank" rel="nofollow" href="{item_url}" style="text-decoration:none" rel="nofollow">
         <span class="ast-a-button-inner">
           <img src="{site_url}/astore/images/amazon-64x64.png" class="ast-a-icon ast-a-icon-shop-now" />
           <input class="ast-a-button-input" type="submit" value="Add to cart" />
@@ -44,7 +44,7 @@
     Available from {lowestprice}
   </div>
 {!elseif offers_url}
-    <a target="_blank" href="{offers_url}">{$LANG_ASTORE['more_offers']}</a>
+    <a target="_blank" rel="nofollow" href="{offers_url}">{$LANG_ASTORE['more_offers']}</a>
 {!endif}
   </div>
   <div class="ast-detail-descrip">{long_description}</div>
