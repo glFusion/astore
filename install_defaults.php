@@ -220,11 +220,22 @@ $astoreConfigData = array(
     ),
     array(
         'name' => 'def_catid',
-        'default_value' => 1,       // only Root can search by default
+        'default_value' => 1,
         'type' => 'select',
         'subgroup' => 0,
         'fieldset' => 0,
         'selection_array' => 0,     // helper function
+        'sort' => 160,
+        'set' => true,
+        'group' => 'astore',
+    ),
+    array(
+        'name' => 'link_to',
+        'default_value' => 'amazon',
+        'type' => 'select',
+        'subgroup' => 0,
+        'fieldset' => 0,
+        'selection_array' => 4,
         'sort' => 160,
         'set' => true,
         'group' => 'astore',

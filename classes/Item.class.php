@@ -430,16 +430,33 @@ class Item
 
 
     /**
-     * Get the URL to the detail page on Amazon.
+     * Get the Amazon page URL for the item.
      *
-     * @return  string      Detail page URL
+     * @return  string      Item URL at Amazon
      */
-    public function DetailPageUrl()
+    public function getAmazonURL()
     {
         if (isset($this->data->DetailPageURL)) {
             return self::stripAWStag($this->data->DetailPageURL);
         } else {
             return '';
+        }
+    }
+
+
+    /**
+     * Get the URL to the detail page. May be Amazon or Internal.
+     *
+     * @return  string      Detail page URL
+     */
+    public function DetailPageUrl()
+    {
+        global $_CONF_ASTORE;
+
+        if ($_CONF_ASTORE['link_to'] == 'detail') {
+            return ASTORE_URL . '/detail.php?asin=' . $this->asin;
+        } else {
+            return $this->getAmazonURL();
         }
     }
 
@@ -558,7 +575,7 @@ class Item
             ) );
         }
         $T->set_var(array(
-            'item_url'  => $this->DetailPageURL(),
+            'item_url'  => $this->getAmazonURL(),
             'title'     => $this->Title(),
             'img_url'   => $this->LargeImage()->URL,
             'img_width' => $this->LargeImage()->Width,

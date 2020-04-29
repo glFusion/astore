@@ -84,6 +84,7 @@ $LANG_confignames['astore'] = array(
     'cb_enable' => 'Enable Centerblock?',
     'grp_search' => 'Group that can search',
     'def_catid' => 'Default Category',
+    'link_to' => 'Item links direct to ...',
 );
 
 $LANG_configsubgroups['astore'] = array(
@@ -101,6 +102,10 @@ $LANG_configselects['astore'] = array(
             'co.jp' => 'co.jp', 'it' => 'it', 'cn' => 'cn', 'es' => 'es', 'de' => 'de'),
     2 => array('Yes' => 1, 'No' => 0),
     3 => array('ASIN' => 'none', 'Date ASC' => 'fifo', 'Date DESC' => 'lifo'),
+    4 => array(
+        'Direct to Amazon' => 'amazon',
+        'Internal Detail Page' => 'detail',
+    ),
 );
 
 ?>
