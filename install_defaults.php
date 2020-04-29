@@ -27,6 +27,7 @@ if (!defined('GVERSION')) {
  *
  * @global array
  */
+global $astoreConfigData;
 $astoreConfigData = array(
     array(
         'name' => 'sg_main',

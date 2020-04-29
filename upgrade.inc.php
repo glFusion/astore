@@ -62,26 +62,30 @@ function astore_do_upgrade($dvlp=false)
                 FROM {$_TABLES['astore_catalog']} cat
                 LEFT JOIN {$_TABLES['astore_cache']} cache
                     ON cache.asin = cat.asin";
+COM_errorLog($sql1);
             $res1 = DB_query($sql1);
             if ($res1) {
                 while ($A = DB_fetchArray($res1, false)) {
-                    $item = new Astore\Item($A['asin'], @json_decode($A['data']));
-                    if (!empty($item->Title())) {
-                        $sql2 = "UPDATE {$_TABLES['astore_catalog']}
-                            SET title = '" . DB_escapeString($item->Title()) . "'
-                            WHERE asin = '" . DB_escapeString($A['asin']) . "'";
-                        DB_query($sql2, 1);
+                    $data = @json_decode($A['data']);
+                    if (!empty($data->ItemAttributes->Title)) {
+                        $title = $data->ItemAttributes->Title;
+                        $item = new Astore\Item($A['asin'], $data);
+                        if (empty($item->Title())) {
+                            $sql2 = "UPDATE {$_TABLES['astore_catalog']}
+                                SET title = '" . DB_escapeString($title) . "'
+                                WHERE asin = '" . DB_escapeString($A['asin']) . "'";
+                            DB_query($sql2, 1);
+                        }
                     }
                 }
             }
         }
         if (!astore_do_update_version($current_ver)) return false;
     }
-
     // Update the plugin configuration
     USES_lib_install();
-    global $astoreConfigData;
     require_once __DIR__ . '/install_defaults.php';
+    global $astoreConfigData;
     _update_config('astore', $astoreConfigData);
 
     // Clear the cache
