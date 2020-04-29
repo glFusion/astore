@@ -33,7 +33,9 @@ $_SQL['astore_categories'] = "CREATE TABLE {$_TABLES['astore_categories']} (
   `orderby` int(3) NOT NULL DEFAULT '9999',
   PRIMARY KEY (`cat_id`),
   KEY `idx_orderby` (`orderby`)
-) ENGINE=MyISAM";
+) ENGINE=MyISAM;
+INSERT IGNORE INTO {$_TABLES['astore_categories']}
+    VALUES (1, 'General', 10)";
 
 $_SQL['astore_cache'] = "CREATE TABLE {$_TABLES['astore_cache']} (
   `asin` varchar(128) NOT NULL,
@@ -67,6 +69,8 @@ $ASTORE_UPGRADE = array(
           KEY `idx_orderby` (`orderby`)
         ) ENGINE=MyISAM",
         "ALTER TABLE {$_TABLES['astore_cache']} ADD `ts` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP AFTER `exp`",
+        "INSERT IGNORE INTO {$_TABLES['astore_categories']}
+            VALUES (1, 'General', 10)",
     ),
 );
 
