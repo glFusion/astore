@@ -2,6 +2,7 @@
 
 ## Version 0.2.0
 Release TBD
+- Tell search engines not to index pages
 - Restrict access to search function by group
 - Add categories
 - Update to Product API v5

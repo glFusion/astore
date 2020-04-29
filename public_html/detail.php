@@ -14,6 +14,10 @@
 
 require_once '../lib-common.php';
 
+// Tell search engines not to index, may use excessive requests
+$outputHandle = outputHandler::getInstance();
+$outputHandle->addMeta('name', 'ROBOTS', 'noindex,nofollow');
+
 COM_setArgNames(array('asin'));
 $asin = COM_getArgument('asin');
 
