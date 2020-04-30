@@ -11,56 +11,60 @@
     </div>
 {!endif}
 </div>
-{!if item_url}
-<div class="ast-product-detail">
-  <div class="ast-detail-title">
+
+<div class="ast-detail-title">
     <h2>{title}</h2>
-  </div>
-  <div style="float:left;width:240px">
-    <a target="_blank" rel="nofollow" href="{item_url}">
-      <img src="{img_url}" style="max-width: {img_width}; max-height: {img_height};" />
-    </a>
-  </div>
-  <div class="ast-detail-price">{listprice}</div>
-  <div class="ast-a-detail-button">
-    <span class="ast-a-button ast-a-button-primary">
-      <a target="_blank" rel="nofollow" href="{item_url}" style="text-decoration:none" rel="nofollow">
-        <span class="ast-a-button-inner">
-          <img src="{site_url}/astore/images/amazon-64x64.png" class="ast-a-icon ast-a-icon-shop-now" />
-          <input class="ast-a-button-input" type="submit" value="Add to cart" />
-          <span class="ast-a-button-text">Shop Now</span>
+</div>
+{!if item_url}
+<div class="uk-grid ast-product-detail">
+    <div class="uk-width-2-4">
+        <a target="_blank" rel="nofollow" href="{item_url}">
+            <img src="{img_url}"/>
+        </a>
+    </div>
+    <div class="uk-width-1-4">
+        <div class="ast-detail-price">{listprice}</div>
+    </div>
+    <div class="uk-width-1-4 ast-a-detail-button">
+        <span class="ast-a-button ast-a-button-primary">
+            <a target="_blank" rel="nofollow" href="{item_url}" style="text-decoration:none" rel="nofollow">
+                <span class="ast-a-button-inner">
+                    <img src="{site_url}/astore/images/amazon-64x64.png" class="ast-a-icon ast-a-icon-shop-now" />
+                    <input class="ast-a-button-input" type="submit" value="Add to cart" />
+                    <span class="ast-a-button-text">Shop Now</span>
+                </span>
+            </a>
         </span>
-      </a>
-    </span>
 {!if available}
 {!else}
-    <div class="ast-unavail">{$LANG_ASTORE['unavailable']}</div>
+        <div class="ast-unavail">{$LANG_ASTORE['unavailable']}</div>
 {!endif}
 {!if is_prime}
-  <img src="{site_url}/astore/images/prime.v101.svg" />
+        <img src="{site_url}/astore/images/prime.v101.svg" />
 {!endif}
 {!if show_lowest}
-  <div class="ast-detail-offers">
-    Available from {lowestprice}
-  </div>
+        <div class="ast-detail-offers">
+            Available from {lowestprice}
+        </div>
 {!elseif offers_url}
-    <a target="_blank" rel="nofollow" href="{offers_url}">{$LANG_ASTORE['more_offers']}</a>
+        <a target="_blank" rel="nofollow" href="{offers_url}">{$LANG_ASTORE['more_offers']}</a>
 {!endif}
-  </div>
-  <div class="ast-detail-descrip">{long_description}</div>
+    </div>
+</div>
+
+<div class="ast-detail-descrip">{long_description}</div>
 
 {!if has_features}
-  <div class="ast-detail-features">
+<div class="ast-detail-features">
     <h3>{$LANG_ASTORE['features']}</h3>
     <ul>
 <!-- BEGIN Features -->
       <li>{feature}</li>
 <!-- END Features -->
     </ul>
-  </div>
+</div>
 {!endif}
 
-</div>
 {!endif}
 {!if asof_date}
 <div class="astore_disclaimer">
