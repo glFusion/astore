@@ -47,13 +47,16 @@ even if you have not added the item to your catalog.
 ### AWS Access Key, Secret Key, Associate ID
 Enter your Amazon credentials here. Visit the Affiliate home page (above) to create your credentials
 
-### AWS Country
-Select the domain associated with your country.
+### AWS Region
+Select the country with which your associates tag is related.
+This will determine which host and region are contacted by the API.
 
 ### AWS Cache Minutes
 Enter the number of minutes to cache product information from Amazon.
 Amazon recommends caching but indicates that it should be minimal in order for
 the information to be up to date.
+
+Enter zero to disable caching completely; otherwise the value must be between 10 and 240 minutes.
 
 ### Debug AWS?
 Select &quot;Yes&quot; to log debug messages related to AWS transactions.

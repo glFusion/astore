@@ -55,6 +55,7 @@ $LANG_ASTORE = array(
 'delete' => 'Delete',
 'hlp_unchk_all' => 'Uncheck all',
 'current_as_of' => 'Data current as of:',
+'as_of' => 'As of',
 );
 
 $LANG_ASTORE_AUTOTAG = array(
@@ -72,6 +73,7 @@ $LANG_confignames['astore'] = array(
     'aws_access_key' => 'AWS Access Key',
     'aws_secret_key' => 'AWS Secret key',
     'aws_assoc_id' => 'Associate Tag',
+    'aws_region' => 'Amazon Region',
     'aws_cache_min' => 'Minutes to cache product info',
     'debug_aws' => 'Debug AWS requests?',
     'perpage' => 'Items to show per page',
@@ -99,8 +101,24 @@ $LANG_fs['astore'] = array(
 // Note: entries 0, 1, and 12 are the same as in $LANG_configselects['Core']
 $LANG_configselects['astore'] = array(
     0 => array('True' => 1, 'False' => 0),
-    1 => array('com' => 'com', 'co.uk' => 'co.uk', 'ca' => 'ca', 'fr' => 'fr',
-            'co.jp' => 'co.jp', 'it' => 'it', 'cn' => 'cn', 'es' => 'es', 'de' => 'de'),
+    1 => array(
+        'Australia' => 'au',
+        'Brazil' => 'br',
+        'Canada' => 'ca',
+        'France' => 'fr',
+        'Germany' => 'de',
+        'India' => 'in',
+        'Italy' => 'it',
+        'Japan' => 'jp',
+        'Mexico' => 'mx',
+        'Netherlands' => 'nl',
+        'Singapore' => 'sg',
+        'Spain' => 'es',
+        'Turkey' => 'tr',
+        'United Arab Emirates' => 'ae',
+        'United Kingdom' => 'uk',
+        'United States' => 'us',
+    ),
     2 => array('Yes' => 1, 'No' => 0),
     3 => array('ASIN' => 'none', 'Date ASC' => 'fifo', 'Date DESC' => 'lifo'),
     4 => array(

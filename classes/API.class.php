@@ -19,10 +19,6 @@ namespace Astore;
  */
 class API
 {
-    /** Amazon web services URL.
-     * @var string */
-    private static $endpoint = 'webservices.amazon.com';
-
     /** Data holder for search results.
      * @var object */
     private $Data = NULL;
@@ -42,6 +38,75 @@ class API
     /** Header target, e.g. `GetItems`.
      * @var string */
     private $hdr_target = 'GetItems';
+
+    /** Zone information for regions.
+     * @var array */
+    private static $zoneinfo = array(
+        'au' => array(
+            'host' => 'webservices.amazon.com.au',
+            'region' => 'us-west-2',
+        ),
+        'br' => array(
+            'host' => 'webservices.amazon.com.br',
+            'region' => 'us-east-1',
+        ),
+        'ca' => array(
+            'host' => 'webservices.amazon.ca',
+            'region' => 'us-east-1',
+        ),
+        'fr' => array(
+            'host' => 'webservices.amazon.fr',
+            'region' => 'eu-west-1',
+        ),
+        'de' => array(
+            'host' => 'webservices.amazon.de',
+            'region' => 'eu-west-1',
+        ),
+        'in' => array(
+            'host' => 'webservices.amazon.in',
+            'region' => 'eu-west-1',
+        ),
+        'it' => array(
+            'host' => 'webservices.amazon.it',
+            'region' => 'eu-west-1',
+        ),
+        'jp' => array(
+            'host' => 'webservices.amazon.co.jp',
+            'region' => 'us-west-2',
+        ),
+        'mx' => array(
+            'host' => 'webservices.amazon.com.mx',
+            'region' => 'us-east-1',
+        ),
+        'nl' => array(
+            'host' => 'webservices.amazon.nl',
+            'region' => 'eu-west-1',
+        ),
+        'sg' => array(
+            'host' => 'webservices.amazon.sg',
+            'region' => 'us-west-2',
+        ),
+        'es' => array(
+            'host' => 'webservices.amazon.es',
+            'region' => 'eu-west-1',
+        ),
+        'tr' => array(
+            'host' => 'webservices.amazon.com.tr',
+            'region' => 'eu-west-1',
+        ),
+        'ae' => array(
+            'host' => 'webservices.amazon.ae',
+            'region' => 'eu-west-1',
+        ),
+        'uk' => array(
+            'host' => 'webservices.amazon.co.uk',
+            'region' => 'eu-west-1',
+        ),
+        'us' => array(
+            'host' => 'webservices.amazon.com',
+            'region' => 'us-east-1',
+        ),
+    );
 
 
     /**
@@ -66,6 +131,20 @@ class API
                 $this->data = self::Retrieve($asin);
             }
         }
+    }
+
+
+    private function _getRegion()
+    {
+        global $_CONF_ASTORE;
+        return self::$zoneinfo[$_CONF_ASTORE['aws_region']]['region'];
+    }
+
+
+    private function _getHost()
+    {
+        global $_CONF_ASTORE;
+        return self::$zoneinfo[$_CONF_ASTORE['aws_region']]['host'];
     }
 
 
@@ -193,7 +272,7 @@ class API
         }
 
         $base_params = array(
-            'Marketplace' => 'www.amazon.com',
+            //'Marketplace' => 'www.amazon.com',
             'LanguagesOfPreference' => array('en_US'),
             'PartnerTag' => $_CONF_ASTORE['aws_assoc_id'],
             'PartnerType' => 'Associates',
@@ -224,16 +303,16 @@ class API
             $pairs[] = rawurlencode($key) . '=' . rawurlencode($value);
         }*/
         $payload = json_encode($params);
-
+        $endpoint = $this->_getHost();
         $awsv4 = new AwsV4($this->access_key, $this->secret_key);
-        $awsv4->setRegionName("us-east-1");
+        $awsv4->setRegionName($this->_getRegion());
         $awsv4->setServiceName("ProductAdvertisingAPI");
         $awsv4->setPath ($this->path);
         $awsv4->setPayload ($payload);
         $awsv4->setRequestMethod ("POST");
         $awsv4->addHeader ('content-encoding', 'amz-1.0');
         $awsv4->addHeader ('content-type', 'application/json; charset=utf-8');
-        $awsv4->addHeader ('host', self::$endpoint);
+        $awsv4->addHeader ('host', $endpoint);
         $awsv4->addHeader ('x-amz-target', 'com.amazon.paapi5.v1.ProductAdvertisingAPIv1.' . $this->hdr_target);
         $headers = $awsv4->getHeaders ();
         $hdr_arr = array();
@@ -245,41 +324,21 @@ class API
         curl_setopt_array($ch, array(
             CURLOPT_RETURNTRANSFER => 1,
             CURLOPT_POST => 1,
-            CURLOPT_URL => self::$endpoint . $this->path,
+            CURLOPT_URL => $endpoint . $this->path,
             CURLOPT_USERAGENT => 'glFusion Astore',
             CURLOPT_SSL_VERIFYPEER => false,
-            //CURLOPT_CONNECTTIMEOUT_MS => $this->curl_timeout, //timeout in milliseconds
-            //CURLOPT_USERPWD => $this->account . ':' . $this->api_key,
             CURLOPT_HTTPHEADER => $hdr_arr,
             CURLOPT_POSTFIELDS => $payload,
         ) );
         $response = curl_exec($ch);
         $status = curl_getinfo($ch);
-        /*$headerString = "";
-        foreach ( $headers as $key => $value ) {
-            $headerString .= $key . ': ' . $value . "\r\n";
-        }
-        $params = array (
-            'http' => array (
-                'header' => $headerString,
-                'method' => 'POST',
-                'content' => $payload
-            )
-        );
-        $stream = stream_context_create($params);
-        $endpoint = 'https://' . self::$endpoint . $this->path;
-        $fp = @fopen($endpoint, 'rb', false, $stream);
-
-        if (!$fp) {
-            //throw new \Exception ( "Exception Occured" );
-            COM_errorLog("Error making request to $endpoint");
-        }
-        $response = @stream_get_contents($fp);*/
         if ($response === false) {
             COM_errorLog("Received false from $endpoint");
+            COM_errorLog("request status" . print_r($status,true));
             //throw new \Exception ( "Exception Occured" );
+        } else {
+            $response = json_decode($response);
         }
-        $response = json_decode($response);
         return $response;
     }
 
