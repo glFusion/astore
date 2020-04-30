@@ -3,8 +3,8 @@
  * Common admistrative AJAX functions.
  *
  * @author      Lee Garner <lee@leegarner.com>
- * @copyright   Copyright (c) 2011-2018 Lee Garner <lee@leegarner.com>
- * @package     photocomp
+ * @copyright   Copyright (c) 2020 Lee Garner <lee@leegarner.com>
+ * @package     astore
  * @version     v0.2.0
  * @since       v0.2.0
  * @license     http://opensource.org/licenses/gpl-2.0.php
@@ -18,7 +18,7 @@ require_once '../../../lib-common.php';
 
 // This is for administrators only.  It's called by Javascript,
 // so don't try to display a message
-if (!SEC_hasRights('photocomp.admin')) {
+if (!SEC_hasRights('astore.admin')) {
     COM_accessLog("User {$_USER['username']} tried to illegally access the Astore admin ajax functions.");
     exit;
 }
