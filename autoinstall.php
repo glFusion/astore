@@ -22,56 +22,62 @@ require_once __DIR__ . '/sql/'. $_DB_dbms. '_install.php';
 
 // Plugin installation options
 $INSTALL_plugin['astore'] = array(
-    'installer' => array('type' => 'installer', 
-            'version' => '1', 
-            'mode' => 'install',
+    'installer' => array(
+        'type'      => 'installer', 
+        'version'   => '1', 
+        'mode'      => 'install',
     ),
-
-    'plugin' => array('type' => 'plugin', 
-            'name'      => $_CONF_ASTORE['pi_name'],
-            'ver'       => $_CONF_ASTORE['pi_version'], 
-            'gl_ver'    => $_CONF_ASTORE['gl_version'],
-            'url'       => $_CONF_ASTORE['pi_url'], 
-            'display'   => $_CONF_ASTORE['pi_display_name'],
+    'plugin' => array(
+        'type'      => 'plugin', 
+        'name'      => $_CONF_ASTORE['pi_name'],
+        'ver'       => $_CONF_ASTORE['pi_version'], 
+        'gl_ver'    => $_CONF_ASTORE['gl_version'],
+        'url'       => $_CONF_ASTORE['pi_url'], 
+        'display'   => $_CONF_ASTORE['pi_display_name'],
     ),
-
-    array(  'type' => 'table', 
-            'table'     => $_TABLES['astore_cache'], 
-            'sql'       => $_SQL['astore_cache'],
+    array(
+        'type'  => 'table', 
+        'table' => $_TABLES['astore_cache'], 
+        'sql'   => $_SQL['astore_cache'],
     ),
-
-    array(  'type' => 'table', 
-            'table'     => $_TABLES['astore_catalog'], 
-            'sql'       => $_SQL['astore_catalog'],
+    array(
+        'type'  => 'table', 
+        'table' => $_TABLES['astore_catalog'], 
+        'sql'   => $_SQL['astore_catalog'],
     ),
-
-    array(  'type' => 'group', 
-            'group' => $_CONF_ASTORE['pi_name'] . ' Admin', 
-            'desc' => 'Users in this group can administer the Astore plugin',
-            'variable' => 'admin_group_id', 
-            'admin' => true,
-            'addroot' => true,
+    array(
+        'type'  => 'table', 
+        'table' => $_TABLES['astore_categories'], 
+        'sql'   => $_SQL['astore_categories'],
     ),
-
-    array(  'type' => 'feature', 
-            'feature' => $_CONF_ASTORE['pi_name'] . '.admin', 
-            'desc' => 'Astore Administrator',
-            'variable' => 'admin_feature_id',
+    array(
+        'type'  => 'group', 
+        'group' => $_CONF_ASTORE['pi_name'] . ' Admin', 
+        'desc'  => 'Users in this group can administer the Astore plugin',
+        'variable' => 'admin_group_id', 
+        'admin' => true,
+        'addroot' => true,
     ),
-
-    array(  'type' => 'mapping', 
-            'group' => 'admin_group_id', 
-            'feature' => 'admin_feature_id',
-            'log' => 'Adding Admin feature to the admin group',
+    array(
+        'type' => 'feature', 
+        'feature' => $_CONF_ASTORE['pi_name'] . '.admin', 
+        'desc' => 'Astore Administrator',
+        'variable' => 'admin_feature_id',
     ),
-
-    array(  'type' => 'block', 
-            'name' => 'astore_random', 
-            'title' => 'Random Product',
-            'phpblockfn' => 'phpblock_astore_random',
-            'block_type' => 'phpblock',
-            'is_enabled' => 0,
-            'group_id' => 'admin_group_id',
+    array(
+        'type' => 'mapping', 
+        'group' => 'admin_group_id', 
+        'feature' => 'admin_feature_id',
+        'log' => 'Adding Admin feature to the admin group',
+    ),
+    array(
+        'type' => 'block', 
+        'name' => 'astore_random', 
+        'title' => 'Random Product',
+        'phpblockfn' => 'phpblock_astore_random',
+        'block_type' => 'phpblock',
+        'is_enabled' => 0,
+        'group_id' => 'admin_group_id',
     ),
 );
 

@@ -270,8 +270,9 @@ function plugin_autouninstall_astore ()
     $out = array (
         // give the name of the tables, without $_TABLES
         'tables' => array(
-                'astore_catalog',
-                'astore_cache',
+            'astore_catalog',
+            'astore_cache',
+            'astore_categories',
         ),
 
         // give the full name of the group, as in the db
