@@ -251,7 +251,7 @@ class Catalog
                 'is_admin' => $isAdmin,
             ) );
             if ($_CONF_ASTORE['aws_cache_min'] > 0) {
-                $T->set_var('asof_date', $this->getDate()->format('h:i A T', true));
+                $T->set_var('asof_date', $Item->getDate()->format('h:i A T', true));
             }
             $T->parse('pb', 'products', true);
         }
