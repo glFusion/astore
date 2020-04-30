@@ -446,8 +446,6 @@ class Category
 
         case 'delete':
             if ($A['cat_id'] > 1) {
-                $conf_txt = $LANG_ASTORE['confirm_delitem'] . ' ' .
-                    $LANG_ASTORE['confirm_delcat'];
                 $retval .= COM_createLink('',
                     $_CONF_ASTORE['admin_url'] .
                         "/index.php?deletecat=cat&amp;cat_id={$A['cat_id']}",
@@ -455,7 +453,7 @@ class Category
                         'title' => $LANG_ASTORE['del_item'],
                         'class' => 'uk-icon uk-icon-remove uk-text-danger',
                         'data-uk-tooltip' => '',
-                        'onclick' => "return confirm('{$conf_txt}');",
+                        'onclick' => "return confirm('{{$LANG_ASTORE['confirm_del']}}');",
                     )
                 );
             }
