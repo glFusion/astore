@@ -53,7 +53,7 @@
                 <div class="ast-unavail">{$LANG_ASTORE['unavailable']}</div>
 {!endif}
 {!if offers_url}
-                <a target="{_blank}" rel="nofollow" href="{offers_url}">{$LANG_ASTORE['more_offers']}</a>
+                <a target="_blank" rel="nofollow" href="{offers_url}">{$LANG_ASTORE['more_offers']}</a>
 {!endif}
             </div>
             <div class="uk-width-1-1 uk-width-medium-1-5">
@@ -96,7 +96,7 @@
                 </a>
 {!endif}
 {!if offers_url}
-                <a target="{_blank}" rel="nofollow" href="{offers_url}">{$LANG_ASTORE['more_offers']}</a>
+                <a target="_blank" rel="nofollow" href="{offers_url}">{$LANG_ASTORE['more_offers']}</a>
 {!endif}
 {!if available}
 {!else}
