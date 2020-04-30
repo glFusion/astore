@@ -809,6 +809,7 @@ class Item
                 $asins[] = $A['asin'];
             }
         }
+
         foreach (self::$required_asins as $asin) {
             if (!isset($allitems[$asin])) {
                 // Push requested ASINs to the beginning
@@ -819,7 +820,10 @@ class Item
         if (!empty($asins)) {
             $api = new API;
             $data = $api->getItems($asins);
+            $i = 0;
             foreach ($data as $asin=>$info) {
+                unset($asins[$i]);
+                $i++;
                 $info->_timestamp = time();
                 $allitems[$asin] = new self();
                 $allitems[$asin]->data = $info;
@@ -833,6 +837,10 @@ class Item
                     }
                     self::AddToCatalog($asin, $title);
                 }
+            }
+            // Now, disable any ASIN's that were not found.
+            foreach ($asins as $key=>$asin) {
+                self::toggle(1, 'enabled', $asin);
             }
         }
         return $allitems;
