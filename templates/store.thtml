@@ -112,7 +112,7 @@
                     </span>
                 </a>
             </span>
-            <div class="astore_disclaimer">{asof_date}</div>
+            <div class="astore_disclaimer">{$LANG_ASTORE['as_of']} {asof_date}</div>
         </li>
 <!-- END products -->
     </ul>

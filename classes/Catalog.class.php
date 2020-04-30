@@ -249,8 +249,10 @@ class Catalog
                 'available' => $Item->isAvailable(),
                 'is_prime' => $Item->isPrime() ? true : false,
                 'is_admin' => $isAdmin,
-                'asof_date' => $Item->getDate()->format('m/y h:i A T', true),
             ) );
+            if ($_CONF_ASTORE['aws_cache_min'] > 0) {
+                $T->set_var('asof_date', $this->getDate()->format('h:i A T', true));
+            }
             $T->parse('pb', 'products', true);
         }
 

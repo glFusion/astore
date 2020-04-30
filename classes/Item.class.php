@@ -563,6 +563,8 @@ class Item
      */
     public function detailPage()
     {
+        global $_CONF_ASTORE;
+
         $T = new \Template(ASTORE_PI_PATH . '/templates');
         $T->set_file('detail', 'detail.thtml');
         $listprice = $this->ListPrice('raw');
@@ -588,8 +590,10 @@ class Item
             'offers_url' => $this->OffersURL(),
             'is_prime'  => $this->isPrime(),
             'is_admin'  => plugin_ismoderator_astore(),
-            'asof_date' => $this->getDate()->format('m/y h:i A T', true),
         ) );
+        if ($_CONF_ASTORE['aws_cache_min'] > 0) {
+            $T->set_var('asof_date', $this->getDate()->format('d M h:i A T', true));
+        }
         $features = $this->Features();
         if (!empty($features)) {
             $T->set_var('has_features', true);
