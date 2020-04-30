@@ -441,9 +441,11 @@ function plugin_configmanager_select_def_catid_astore()
 function plugin_configmanager_aws_cache_min_astore_validate($val)
 {
     $val = (int)$val;
-    if ($val < 10) {
+    if ($val == 0) {
+        // zero is ok, indicates caching is disabled
+    } elseif ($val < 10) {
         $val = 60;
-    } elseif ($val > 229) {
+    } elseif ($val > 239) {
         $val = 120;
     }
     return $val;

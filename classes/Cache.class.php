@@ -68,6 +68,9 @@ class Cache
         global $_CONF_ASTORE;
 
         $cache_secs = (int)$_CONF_ASTORE['aws_cache_min'] * 60;
+        if ($cache_secs == 0) {     // caching disabled.
+            return true;
+        }
         $cache_secs = rand($cache_secs * .75, $cache_secs * 1.25);
         if (version_compare(GVERSION, self::MIN_GVERSION, '<')) {
             global $_TABLES;
