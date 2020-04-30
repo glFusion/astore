@@ -455,7 +455,7 @@ class Item
         global $_CONF_ASTORE;
 
         if ($_CONF_ASTORE['link_to'] == 'detail') {
-            return ASTORE_URL . '/detail.php?asin=' . $this->asin;
+            return COM_buildURL(ASTORE_URL . '/detail.php?asin=' . $this->asin);
         } else {
             return $this->getAmazonURL();
         }
@@ -629,7 +629,6 @@ class Item
                 $item->Disable();
                 continue;
             }
-
             $T->set_var(array(
                 'item_url'  => $item->DetailPageURL(),
                 'lowestprice'   => $item->LowestPrice(),
