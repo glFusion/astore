@@ -1,7 +1,7 @@
 # Changelog - Astore plugin for glFusion
 
 ## Version 0.2.0
-Release TBD
+Release 2020-04-30
 - Tell search engines not to index pages
 - Restrict access to search function by group
 - Add categories
