@@ -313,7 +313,10 @@ class API
         $awsv4->addHeader ('content-encoding', 'amz-1.0');
         $awsv4->addHeader ('content-type', 'application/json; charset=utf-8');
         $awsv4->addHeader ('host', $endpoint);
-        $awsv4->addHeader ('x-amz-target', 'com.amazon.paapi5.v1.ProductAdvertisingAPIv1.' . $this->hdr_target);
+        $awsv4->addHeader(
+            'x-amz-target',
+            'com.amazon.paapi5.v1.ProductAdvertisingAPIv1.' . $this->hdr_target
+        );
         $headers = $awsv4->getHeaders ();
         $hdr_arr = array();
         foreach ($headers as $key => $value) {
