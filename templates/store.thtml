@@ -69,53 +69,55 @@
             </div>
 
             <div class="ast-featured-description">{long_description}</div>
-    </div>
+        </div>
 {!endif}
 
-<div style="clear:both;">
-    <ul class="uk-grid uk-grid-width-1-2 uk-grid-width-small-1-3 uk-grid-width-medium-1-4 uk-grid-width-large-1-5" data-uk-grid-margin data-uk-grid-match>
+        <div style="clear:both;">
+            <ul class="uk-grid uk-grid-width-1-2 uk-grid-width-small-1-3 uk-grid-width-medium-1-4 uk-grid-width-large-1-5" data-uk-grid-margin data-uk-grid-match>
 <!-- BEGIN products -->
-        <li>
-            <div>
-                <a target="{url_target}" rel="nofollow" href="{item_url}">
-                    <img src="{img_url}" style="max-width: {img_width}; max-height: {img_height};" />
-                </a>
-            </div>
-            <div class="ast-product-title">
-                {title}
-            </div>
-            <div class="ast-product-price">
+                <li>
+                    <div>
+                        <a target="{url_target}" rel="nofollow" href="{item_url}">
+                            <img src="{img_url}" style="max-width: {img_width}; max-height: {img_height};" />
+                        </a>
+                    </div>
+                    <div class="ast-product-title">
+                        {title}
+                    </div>
+                    <div class="ast-product-price">
 {!if formattedprice}
-            <div>
-                {formattedprice}
-            </div>
+                    <div>
+                        {formattedprice}
+                    </div>
 {!endif}
 {!if is_admin}
-                <a rel="nofollow" href="{site_admin_url}/plugins/astore/index.php?edititem={item_id}">
-                    <i class="uk-icon uk-icon-edit"></i>
-                </a>
+                        <a rel="nofollow" href="{site_admin_url}/plugins/astore/index.php?edititem={item_id}">
+                            <i class="uk-icon uk-icon-edit"></i>
+                        </a>
 {!endif}
 {!if offers_url}
-                <a target="_blank" rel="nofollow" href="{offers_url}">{$LANG_ASTORE['more_offers']}</a>
+                        <a target="_blank" rel="nofollow" href="{offers_url}">{$LANG_ASTORE['more_offers']}</a>
 {!endif}
 {!if available}
 {!else}
-                <div class="ast-unavail">{$LANG_ASTORE['unavailable']}</div>
+                        <div class="ast-unavail">{$LANG_ASTORE['unavailable']}</div>
 {!endif}
-            </div>
-            <span class="ast-a-button ast-a-button-primary" >
-                <a target="{url_target}" rel="nofollow" href="{item_url}" style="text-decoration:none" rel="nofollow">
-                    <span class="ast-a-button-inner">
-                        <img src="{site_url}/astore/images/amazon-64x64.png" class="ast-a-icon ast-a-icon-shop-now" />
-                        <input class="ast-a-button-input" type="submit" value="Add to cart" />
-                        <span class="ast-a-button-text">{$LANG_ASTORE['view_details']}</span>
+                    </div>
+                    <span class="ast-a-button ast-a-button-primary" >
+                        <a target="{url_target}" rel="nofollow" href="{item_url}" style="text-decoration:none" rel="nofollow">
+                            <span class="ast-a-button-inner">
+                                <img src="{site_url}/astore/images/amazon-64x64.png" class="ast-a-icon ast-a-icon-shop-now" />
+                                <input class="ast-a-button-input" type="submit" value="Add to cart" />
+                                <span class="ast-a-button-text">{$LANG_ASTORE['view_details']}</span>
+                            </span>
+                        </a>
                     </span>
-                </a>
-            </span>
-            <div class="astore_disclaimer">{$LANG_ASTORE['as_of']} {asof_date}</div>
-        </li>
+                    <div class="astore_disclaimer">{$LANG_ASTORE['as_of']} {asof_date}</div>
+                </li>
 <!-- END products -->
-    </ul>
+            </ul>
+        </div>
+    </div>
 </div>
 <div class="ast-pagination">
     {pagination}
