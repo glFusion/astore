@@ -18,10 +18,6 @@ namespace Astore;
  */
 class Item
 {
-    /** Amazon web services URL.
-     * @var string */
-    protected static $endpoint = 'webservices.amazon.com';
-
     /** Data holder for search results.
      * @var object */
     private $data;
@@ -63,13 +59,15 @@ class Item
      */
     public function __construct($asin='', $data='')
     {
+        global $_CONF_ASTORE;
+
         $this->asin = $asin;
         if (!empty($this->asin)) {
             $this->Read();
             // If data is provided, just use it. Otherwise load from catalog.
             if (!empty($data)) {
                 $this->data = $data;
-            } elseif ($this->is_valid) {
+            } elseif ($this->is_valid && $_CONF_ASTORE['use_api']) {
                 $this->data = self::Retrieve($asin);
                 if (!empty($this->data)) {
                     $this->title = $this->Title();
@@ -462,6 +460,12 @@ class Item
     }
 
 
+    public function getURL()
+    {
+        return $this->url;
+    }
+
+
     /**
      * Get the target window for the detail page.
      * Internal pages targe the same window, Amazon targets a new window.
@@ -629,8 +633,9 @@ class Item
      * @param   array   $items  Array of item objects
      * @return  string      HTML for the product page
      */
-    public static function showProducts($items)
+    public static function XXshowProducts($items)
     {
+        echo __FUNCTION__ . ' not implemented';die;
         global $_CONF_ASTORE;
 
         if (!is_array($items)) {
@@ -717,7 +722,7 @@ class Item
         $T->set_var(array(
             'asin' => $this->asin,
             'title' => $this->Title(),
-            'use_api' => true,
+            'use_api' => $_CONF_ASTORE['use_api'],
             'ena_chk' => $this->isEnabled() ? 'checked="checked"' : '',
             'url' => $this->url,
             'cat_options' => COM_optionList(
@@ -752,10 +757,12 @@ class Item
             asin = '" . DB_escapeString($this->asin) . "',
             title = '" . DB_escapeString($this->title) . "',
             cat_id = $this->cat_id,
+            url = '" . DB_escapeString($this->url) . "',
             enabled = '{$this->isEnabled()}'
             ON DUPLICATE KEY UPDATE
             title = '" . DB_escapeString($this->title) . "',
             cat_id = $this->cat_id,
+            url = '" . DB_escapeString($this->url) . "',
             enabled = '{$this->isEnabled()}'";
         //echo $sql;die;
         DB_query($sql);
@@ -811,19 +818,23 @@ class Item
         $sql = "SELECT asin FROM {$_TABLES['astore_catalog']}
             $where $orderby $limit";
 
-        //echo $sql;die;
         $res = DB_query($sql);
         $asins = array();
         while ($A = DB_fetchArray($res, false)) {
             $data = Cache::get($A['asin']);
             if ($data) {
                 $allitems[$A['asin']] = new self($A['asin'], $data);
+                if ($allitems[$A['asin']]->Title() == '') {
+                    $allitems[$A['asin']]->setTitle(
+                        $data->ItemInfo->Title->DisplayValue
+                    );
+                    $allitems[$A['asin']]->Save();
+                }
             } else {
                 // Item not in cache, add to list to get from Amazon
                 $asins[] = $A['asin'];
             }
         }
-
         foreach (self::$required_asins as $asin) {
             if (!isset($allitems[$asin])) {
                 // Push requested ASINs to the beginning
@@ -966,7 +977,11 @@ class Item
             ) ||
             $_CONF_ASTORE['notag_admins'] && plugin_ismoderator_astore()
         ) {
-            return preg_replace('/\?.*/', '', $url);
+            return preg_replace(
+                '/(tag|tracking_id)=' . $_CONF_ASTORE['aws_assoc_id'] . '&?/',
+                '',
+                $url
+            );
         } else {
             return $url;
         }
@@ -981,6 +996,36 @@ class Item
     public function isEnabled()
     {
         return $this->enabled ? 1 : 0;
+    }
+
+
+    /**
+     * Enable or disable multiple items at once.
+     *
+     * @param   integer $status     New enabled status, either 1 or 0
+     * @param   array|string    $asins  One or more ASIN numbers
+     * @return  boolean     True on success, False on error
+     */
+    public static function bulkEnableDisable($status, $asins)
+    {
+        global $_TABLES;
+
+        if (empty($asins)) {
+            return true;
+        }
+        if (is_array($asins)) {
+            $asins = array_map('DB_escapeString', $asins);
+            $asins = "'" . implode("','", $asins) . "'";
+        } else {
+            $asins = "'" . DB_escapeString($asins) . "'";
+        }
+        $status = $status ? 1 : 0;
+        $sql = "UPDATE {$_TABLES['astore_catalog']}
+            SET enabled = $status
+            WHERE asin IN ($asins)";
+        //echo $sql;die;
+        DB_query($sql);
+        return true;
     }
 
 
@@ -1139,10 +1184,17 @@ class Item
             'has_extras' => false,
             'form_url' => ASTORE_ADMIN_URL . '/index.php',
         );
-
+        $ena_action = '<button class="uk-button uk-button-mini uk-button-success" name="enachecked">' .
+            '<i class="uk-icon uk-icon-check"></i> ' . $LANG_ADMIN['enable']. '</button>';
+        $disa_action = '<button class="uk-button uk-button-mini" name="disachecked">' .
+            '<i class="uk-icon uk-icon-remove"></i> ' . $LANG_ADMIN['disable'] . '</button>';
+        $del_action = '<button class="uk-button uk-button-mini uk-button-danger" name="delchecked" ' .
+            'onclick="return confirm(\'' . $LANG_ASTORE['confirm_del'] . '\');">' .
+            '<i class="uk-icon uk-icon-remove"></i> ' . $LANG_ADMIN['delete'] . '</button>';
         $options = array(
             'chkdelete' => 'true',
             'chkfield' => 'asin',
+            'chkactions' => $ena_action . '&nbsp;&nbsp;' . $disa_action . '&nbsp;&nbsp;' . $del_action,
         );
         $defsort_arr = array(
             'field' => 'asin',
@@ -1181,7 +1233,7 @@ class Item
      */
     public static function getAdminField($fieldname, $fieldvalue, $A, $icon_arr)
     {
-        global $_CONF, $LANG_ACCESS, $_CONF_ASTORE;
+        global $_CONF, $LANG_ACCESS, $_CONF_ASTORE, $LANG_ASTORE;
 
         $retval = '';
 
@@ -1197,14 +1249,19 @@ class Item
                 '<i class="uk-icon uk-icon-remove uk-text-danger"></i>',
                 ASTORE_ADMIN_URL . "/index.php?delitem={$A['asin']}",
                 array(
-                     'onclick' => "return confirm('Do you really want to delete this item?');",
+                     'onclick' => "return confirm('{$LANG_ASTORE['confirm_del']}?');",
                 ) );
             break;
 
         case 'asin':
-            $retval = COM_createLink($fieldvalue,
-                COM_buildUrl(ASTORE_URL . '/detail.php?asin=' . $fieldvalue)
-            );
+            if ($_CONF_ASTORE['use_api']) {
+                $retval = COM_createLink(
+                    $fieldvalue,
+                    COM_buildUrl(ASTORE_URL . '/detail.php?asin=' . $fieldvalue)
+                );
+            } else {
+                $retval = $fieldvalue;
+            }
             break;
 
         case 'title':

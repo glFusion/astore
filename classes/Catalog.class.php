@@ -181,7 +181,7 @@ class Catalog
 
         $T = new \Template(ASTORE_PI_PATH . '/templates');
         $T->set_file(array(
-            'store' => 'store.thtml',
+            'store' => $_CONF_ASTORE['use_api'] ? 'store.thtml' : 'store_noapi.thtml',
         ) );
         $T->set_var(array(
             'query'         => $this->query,
@@ -206,53 +206,61 @@ class Catalog
         }
 
         if ($Item) {
-            $T->set_var(array(
-                'featured' => true,
-                'f_item_id' => $Item->ASIN(),
-                'f_item_url'  => $Item->DetailPageURL(),
-                'f_lowestprice' => $Item->LowestPrice(),
-                'f_listprice' => $Item->ListPrice(),
-                'f_title'     => $Item->Title(),
-                'f_img_url'   => $Item->MediumImage()->URL,
-                'f_img_width' => $Item->MediumImage()->Width,
-                'f_img_height' => $Item->MediumImage()->Height,
-                'f_formattedprice' => $Item->ListPrice(),
-                'f_long_description' => '',     // not available in APIv5
-                'f_offers_url' => $Item->OffersURL(),
-                'f_available' => $Item->isAvailable(),
-                'f_is_prime' => $Item->isPrime() ? true : false,
-                'f_is_admin' => $isAdmin,
-            ) );
+            if ($_CONF_ASTORE['use_api']) {
+                $T->set_var(array(
+                    'featured' => true,
+                    'f_item_id' => $Item->ASIN(),
+                    'f_item_url'  => $Item->DetailPageURL(),
+                    'f_lowestprice' => $Item->LowestPrice(),
+                    'f_listprice' => $Item->ListPrice(),
+                    'f_title'     => $Item->Title(),
+                    'f_img_url'   => $Item->MediumImage()->URL,
+                    'f_img_width' => $Item->MediumImage()->Width,
+                    'f_img_height' => $Item->MediumImage()->Height,
+                    'f_formattedprice' => $Item->ListPrice(),
+                    'f_long_description' => '',     // not available in APIv5
+                    'f_offers_url' => $Item->OffersURL(),
+                    'f_available' => $Item->isAvailable(),
+                    'f_is_prime' => $Item->isPrime() ? true : false,
+                    'f_is_admin' => $isAdmin,
+                ) );
+            } else {
+                    $T->set_var('item_data', $Item->getURL());
+            }
         }
         //$Items = Item::getAll($page, $this->cat_ids);
         $Items = $this->Items;
         $T->set_block('store', 'products', 'pb');
         foreach ($Items as $Item) {
-            if (!$Item->isAvailable()) {
-                $Item->Disable();
-                continue;
-            }
-            $T->set_var(array(
-                'item_id' => $Item->ASIN(),
-                'item_url'  => $Item->DetailPageURL(),
-                'url_target' => $Item->DetailPageTarget(),
-                'lowestprice'   => $Item->LowestPrice(),
-                'listprice' => $Item->ListPrice(),
-                'title'     => COM_truncate($Item->Title(),
+            if ($_CONF_ASTORE['use_api']) {
+                if (!$Item->isAvailable()) {
+                    $Item->Disable();
+                    continue;
+                }
+                $T->set_var(array(
+                    'item_id' => $Item->ASIN(),
+                    'item_url'  => $Item->DetailPageURL(),
+                    'url_target' => $Item->DetailPageTarget(),
+                    'lowestprice'   => $Item->LowestPrice(),
+                    'listprice' => $Item->ListPrice(),
+                    'title'     => COM_truncate($Item->Title(),
                         $_CONF_ASTORE['max_blk_desc'], '...'),
-                'img_url'   => $Item->MediumImage()->URL,
-                'img_width' => $Item->MediumImage()->Width,
-                'img_height' => $Item->MediumImage()->Height,
-                'formattedprice' => $Item->ListPrice(),
-                'displayprice' => $Item->DisplayPrice(),
-                'long_description' => '',
-                'offers_url' => $Item->OffersURL(),
-                'available' => $Item->isAvailable(),
-                'is_prime' => $Item->isPrime() ? true : false,
-                'is_admin' => $isAdmin,
-            ) );
-            if ($_CONF_ASTORE['aws_cache_min'] > 0) {
-                $T->set_var('asof_date', $Item->getDate()->format('h:i A T', true));
+                    'img_url'   => $Item->MediumImage()->URL,
+                    'img_width' => $Item->MediumImage()->Width,
+                    'img_height' => $Item->MediumImage()->Height,
+                    'formattedprice' => $Item->ListPrice(),
+                    'displayprice' => $Item->DisplayPrice(),
+                    'long_description' => '',
+                    'offers_url' => $Item->OffersURL(),
+                    'available' => $Item->isAvailable(),
+                    'is_prime' => $Item->isPrime() ? true : false,
+                    'is_admin' => $isAdmin,
+                ) );
+                if ($_CONF_ASTORE['aws_cache_min'] > 0) {
+                    $T->set_var('asof_date', $Item->getDate()->format('h:i A T', true));
+                }
+            } else {
+                $T->set_var('item_data', $Item->getURL());
             }
             $T->parse('pb', 'products', true);
         }
@@ -387,8 +395,9 @@ class Catalog
      * @param   string  $url    Product URL
      * @return  string          URL without associate tags
      */
-    private static function stripAWStag($url)
+    private static function XXstripAWStag($url)
     {
+        echo __FUNCTION__ . ' not implemented';die;
         global $_CONF_ASTORE;
 
         if (($_CONF_ASTORE['notag_header'] != '' &&
@@ -479,7 +488,7 @@ class Catalog
      * @param   string  $import_fld     ID of item to import
      * @return  string  HTML for item list
      */
-    function adminList($import_fld = '')
+    function XadminList($import_fld = '')
     {
         global $LANG_ADMIN, $LANG_ASTORE, $LANG01,
             $_TABLES, $_CONF, $_CONF_ASTORE;

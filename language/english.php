@@ -57,6 +57,7 @@ $LANG_ASTORE = array(
 'hlp_unchk_all' => 'Uncheck all',
 'current_as_of' => 'Data current as of:',
 'as_of' => 'As of',
+'confirm_del' => 'Are you sure you want to delete the selected item(s)?',
 );
 
 $LANG_ASTORE_AUTOTAG = array(
@@ -71,6 +72,7 @@ $LANG_configsections['astore'] = array(
 );
 
 $LANG_confignames['astore'] = array(
+    'use_api' => 'Use Product API?',
     'aws_access_key' => 'AWS Access Key',
     'aws_secret_key' => 'AWS Secret key',
     'aws_assoc_id' => 'Associate Tag',

@@ -44,8 +44,17 @@ even if you have not added the item to your catalog.
         If so configured, this product is automatically added to the catalog.
 
 ## Configuration
+### Use Product API?
+This plugin is designed to user the Amazon Product API v5 to retreive product
+information. If you prefer, you can manually enter the URLs to products from
+Amazon for each item. In this case you do not need to obtain access and secret
+keys, but some of the plugin's functionality will be limited.
+
 ### AWS Access Key, Secret Key, Associate ID
-Enter your Amazon credentials here. Visit the Affiliate home page (above) to create your credentials
+Enter your Amazon credentials here. Visit the Affiliate home page (above) to create your credentialsa.
+
+Access and Secret keys are only required if the Product API is used. The
+Associate ID is always required.
 
 ### AWS Region
 Select the country with which your associates tag is related.
@@ -55,6 +64,8 @@ This will determine which host and region are contacted by the API.
 Enter the number of minutes to cache product information from Amazon.
 Amazon recommends caching but indicates that it should be minimal in order for
 the information to be up to date.
+
+Only used if the Product API is enabled.
 
 Enter zero to disable caching completely; otherwise the value must be between 10 and 240 minutes.
 
@@ -98,7 +109,9 @@ associate ID will not be included.
 
 ### Block Associate ID if Admin
 Also, you can exclude logged-in administrators from having the associate ID
-appear in product links if this is set to "Yes"
+appear in product links if this is set to "Yes".
+
+This only works if the Product API is used.
 
 ### Enable Centerblock
 Enable the centerblock to have the Amazon store become your site's homepage.
