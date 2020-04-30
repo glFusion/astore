@@ -26,8 +26,10 @@ USES_lib_admin();
 $action = '';
 $actionval = '';
 $expected = array(
-    'saveitem', 'delitem', 'importcsv', 'exportcsv', 'clearcache',
+    'saveitem', 'importcsv', 'exportcsv', 'clearcache',
     'savecat', 'delcat', 'movecat',
+    'enachecked', 'disachecked', 'delchecked',
+    'delitem',      // must follow the above checkbox-acton values
     'import',
     'edititem', 'editcat', 'categories', 'mode', 'view',
 );
@@ -78,6 +80,21 @@ case 'saveitem':
     COM_refresh(ASTORE_ADMIN_URL . '/index.php');
     break;
 
+case 'enachecked':
+    if (is_array($_POST['delitem'])) {
+        Astore\Item::bulkEnableDisable(1, $_POST['delitem']);
+    }
+    COM_refresh(ASTORE_ADMIN_URL . '/index.php');
+    break;
+
+case 'disachecked':
+    if (is_array($_POST['delitem'])) {
+        Astore\Item::bulkEnableDisable(0, $_POST['delitem']);
+    }
+    COM_refresh(ASTORE_ADMIN_URL . '/index.php');
+    break;
+
+case 'delchecked':
 case 'delitem':
     // May also come via GET for a single item
     if (isset($_POST['delitem'])) {
@@ -91,7 +108,7 @@ case 'delitem':
     break;
 
 case 'clearcache':
-    Astore\Cache::clearCache();
+    Astore\Cache::clear();
     COM_refresh(ASTORE_ADMIN_URL . '/index.php');
     break;
 
