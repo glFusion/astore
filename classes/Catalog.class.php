@@ -235,6 +235,7 @@ class Catalog
             $T->set_var(array(
                 'item_id' => $Item->ASIN(),
                 'item_url'  => $Item->DetailPageURL(),
+                'url_target' => $Item->DetailPageTarget(),
                 'lowestprice'   => $Item->LowestPrice(),
                 'listprice' => $Item->ListPrice(),
                 'title'     => COM_truncate($Item->Title(),

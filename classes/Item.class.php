@@ -463,6 +463,20 @@ class Item
 
 
     /**
+     * Get the target window for the detail page.
+     * Internal pages targe the same window, Amazon targets a new window.
+     *
+     * @return  string      Page targe, either _self or _blank
+     */
+    public function DetailPageTarget()
+    {
+        global $_CONF_ASTORE;
+
+        return $_CONF_ASTORE['link_to'] == 'detail' ? '_self' : '_blank';
+    }
+
+
+    /**
      * Get the URL to the small image for this item.
      *
      * @return  string  Image URL
@@ -635,6 +649,7 @@ class Item
             }
             $T->set_var(array(
                 'item_url'  => $item->DetailPageURL(),
+                'url_target' => $item->DetailPageTarget(),
                 'lowestprice'   => $item->LowestPrice(),
                 //'listprice' => $item->ListPrice(),
                 'title'     => COM_truncate($item->Title(),

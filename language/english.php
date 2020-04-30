@@ -18,6 +18,7 @@
 $LANG_ASTORE = array(
 'admin_title' => 'Amazon Store Administration',
 'shop_now'  => 'Shop Now',
+'view_details' => 'View Details',
 'title'     => 'Description',
 'items'     => 'Items',
 'category'  => 'Category',
