@@ -42,8 +42,11 @@ class Cache
             global $_TABLES;
 
             $asin = DB_escapeString($asin);
-            $data = DB_getItem($_TABLES['astore_cache'], 'data',
-                "asin = '$asin' AND exp > UNIX_TIMESTAMP()");
+            $data = DB_getItem(
+                $_TABLES['astore_cache'],
+                'data',
+                "asin = '$asin' AND exp > UNIX_TIMESTAMP()"
+            );
             if (!empty($data)) {
                 return @unserialize($data);
             } else {
