@@ -186,11 +186,7 @@ class Item
      */
     public function ASIN()
     {
-        if (isset($this->data->ASIN)) {
-            return $this->data->ASIN;
-        } else {
-            return '';
-        }
+        return $this->asin;
     }
 
 
@@ -826,15 +822,17 @@ class Item
                 $i++;
                 $info->_timestamp = time();
                 $allitems[$asin] = new self();
+                $allitems[$asin]->asin = $asin;
+                if (isset($info->ItemAttributes->Title)) {
+                    $title = $info->ItemAttributes->Title;
+                } else {
+                    $title = '';
+                }
+                $allitems[$asin]->title = $title;
                 $allitems[$asin]->data = $info;
                 Cache::set($asin, $info);
                 if ($_CONF_ASTORE['auto_add_catalog']) {
-                    // Automatically add featured items to catalog
-                    if (isset($info->ItemAttributes->Title)) {
-                        $title = $info->ItemAttributes->Title;
-                    } else {
-                        $title = '';
-                    }
+                    // Automatically add to the catalog
                     self::AddToCatalog($asin, $title);
                 }
             }
