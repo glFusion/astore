@@ -343,7 +343,7 @@ class Catalog
                 FROM {$_TABLES['astore_catalog']}
                 WHERE enabled = 1";
             if (!empty($this->cat_ids)) {
-                $sql .= ' WHERE cat_id IN (' . implode(',', $this->cat_ids) . ')';
+                $sql .= ' AND cat_id IN (' . implode(',', $this->cat_ids) . ')';
             }
             $res = DB_query($sql);
             if ($res) {
