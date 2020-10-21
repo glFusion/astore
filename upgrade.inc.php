@@ -82,6 +82,13 @@ COM_errorLog($sql1);
         }
         if (!astore_do_update_version($current_ver)) return false;
     }
+
+    if (!COM_checkVersion($current_ver, '0.2.1')) {
+        $current_ver = '0.2.1';
+        if (!astore_do_upgrade_sql($current_ver, $dvlp)) return false;
+        if (!astore_do_update_version($current_ver)) return false;
+    }
+
     // Update the plugin configuration
     USES_lib_install();
     require_once __DIR__ . '/install_defaults.php';
