@@ -1,5 +1,9 @@
 # Changelog - Astore plugin for glFusion
 
+## Version 0.2.1
+Release TBD
+- Add additional autotags with automatic disclaimers
+
 ## Version 0.2.0
 Release 2020-04-30
 - Tell search engines not to index pages
@@ -22,7 +26,7 @@ Release 2020-04-30
 ## Version 0.1.1
 Release 2017-10-16
 - Show lowest price on detail page, not list
-- Add missing images and more_results template
+- Add missing `images` and `more_results` templates.
 - Do not truncate title in detail view
 - Fix when More Offer link is shown
 - Fix typo

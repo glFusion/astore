@@ -44,17 +44,35 @@ if (file_exists(ASTORE_PI_PATH . '/config.php')) {
 define ('ASTORE_ADMIN_URL',
         $_CONF['site_admin_url'] . '/plugins/'.$_CONF_ASTORE['pi_name']);
 define ('ASTORE_URL',
-        $_CONF['site_url'] . '/'.$_CONF_ASTORE['pi_name']);
+    $_CONF['site_url'] . '/'.$_CONF_ASTORE['pi_name']);
 define ('ASTORE_CLASSPATH', ASTORE_PI_PATH . '/classes');
 
 spl_autoload_register(function ($class)
 {
-    if (strpos($class, 'Astore\\') === 0) {
-        $class = str_replace('Astore\\', '', $class);
-        $path = __DIR__ . '/classes/' . $class . '.class.php';
-        if (file_exists($path)) {
-            include $path;
-        }
+    // project-specific namespace prefix
+    $prefix = 'Astore\\';
+
+    // does the class use the namespace prefix?
+    $len = strlen($prefix);
+    if (strncmp($prefix, $class, $len) !== 0) {
+        // no, move to the next registered autoloader
+        return;
+    }
+
+    // base directory for the namespace prefix
+    $base_dir = __DIR__ . '/classes/';
+
+    // get the relative class name
+    $relative_class = substr($class, $len);
+
+    // replace the namespace prefix with the base directory, replace namespace
+    // separators with directory separators in the relative class name, append
+    // with .php
+    $file = $base_dir . str_replace('\\', '/', $relative_class) . '.class.php';
+
+    // if the file exists, require it
+    if (file_exists($file)) {
+        require $file;
     }
 });
 
@@ -481,15 +499,18 @@ function plugin_autotags_astore($op, $content = '', $autotag = '')
 
     switch ($op) {
     case 'tagname':
-        return array('astore', 'astore_link');
+        return array('astore', 'astore_link', 'astore_azlink');
         break;
     case 'desc':
         switch ($content) {
-        case 'astore' :
-        case 'astore_link' :
-            $tag = 'desc_' . $content;
-            return isset($LANG_ASTORE_AUTOTAG[$tag]) ? $LANG_ASTORE_AUTOTAG[$tag] : '';
+        case 'astore':
+            return MO::_('Include an item tile from the store.');
             break;
+        case 'astore_link':
+            return MO::_('Create a link to an item in the store.');
+            break;
+        case 'astore_azlink':
+            return MO::_('Create a link directly to Amazon.');
         default :
             return '';
             break;
@@ -510,6 +531,16 @@ function plugin_autotags_astore($op, $content = '', $autotag = '')
                 $HTML = COM_createLink($desc, $Item->DetailPageURL(),
                     array('target' => '_blank'));
             }
+            break;
+        case 'astore_azlink':
+            $t1 = explode(' ', $autotag['parm2']);
+            $opts = array();
+            foreach ($t1 as $tmp) {
+                $t2 = explode(':', $tmp);
+                $opts[$t2[0]] = isset($t2[1]) ? $t2[1] : '';
+            }
+            $AT = new Astore\Autotags\azlink;
+            $HTML = $AT->parse($autotag['parm1'], $opts, $autotag['tagstr']);
             break;
         }
         $content = str_replace($autotag['tagstr'], $HTML, $content);
