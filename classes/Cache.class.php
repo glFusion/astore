@@ -28,7 +28,7 @@ class Cache
 
     /** Minimum glFusion version that supports caching.
      * @const string */
-    const MIN_GVERSION = '2.0.0';
+    const MIN_GVERSION = '2.1.0';
 
     /**
      * Get item information from the cache, if present.
@@ -41,17 +41,21 @@ class Cache
         if (version_compare(GVERSION, self::MIN_GVERSION, '<')) {
             global $_TABLES;
 
+            $data = NULL;
             $asin = DB_escapeString($asin);
-            $data = DB_getItem(
-                $_TABLES['astore_cache'],
-                'data',
-                "asin = '$asin' AND exp > UNIX_TIMESTAMP()"
-            );
-            if (!empty($data)) {
-                return @unserialize($data);
-            } else {
-                return NULL;
+            $sql = "SELECT * FROM {$_TABLES['astore_cache']}
+                WHERE asin = '$asin' AND exp > UNIX_TIMESTAMP()";
+            $res = DB_query($sql);
+            if ($res) {
+                $A = DB_fetchArray($res, false);
+                if ($A) {
+                    $data = @unserialize($A['data']);
+                    if ($data) {
+                        $data->_timestamp = $A['ts'];
+                    }
+                }
             }
+            return $data;
         } else {
             return \glFusion\Cache\Cache::getInstance()
                 ->get(self::_makeKey($asin));
@@ -63,18 +67,23 @@ class Cache
      * Sets an item's data into the cach.
      *
      * @param   string  $asin   Item number
-     * @param   string  $data   JSON data object
+     * @param   object  $data   stdClass object
      * @return  boolean     True on success, False on error
      */
     public static function set($asin, $data)
     {
-        global $_CONF_ASTORE;
+        global $_CONF_ASTORE, $_CONF;
 
         $cache_secs = (int)$_CONF_ASTORE['aws_cache_min'] * 60;
         if ($cache_secs == 0) {     // caching disabled.
             return true;
         }
         $cache_secs = rand($cache_secs * .75, $cache_secs * 1.25);
+
+        // Make sure the current timestamp gets cached
+        if (!isset($data->_timestamp)) {
+            $data->_timestamp = $_CONF['_now']->toMySQL(true);
+        }
         if (version_compare(GVERSION, self::MIN_GVERSION, '<')) {
             global $_TABLES;
 

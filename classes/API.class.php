@@ -121,7 +121,6 @@ class API
 
         $this->access_key = $_CONF_ASTORE['aws_access_key'];
         $this->secret_key = self::_secretKey();
-
         $this->asin = $asin;
         if (!empty($this->asin)) {
             // If data is provided, just use it. Otherwise load from catalog.
@@ -185,7 +184,7 @@ class API
             return false;
         }
 
-        self::_debug("Getting $asins from Amazon");
+        //self::_debug("Getting $asins from Amazon");
         $type = strtoupper($type);
         switch ($type) {
         case 'ASIN':
@@ -226,7 +225,7 @@ class API
     public function searchItems($query)
     {
         $md5_query = md5($query);
-        //$response = Cache::get($md5_query);
+        $response = Cache::get($md5_query);
         if (!empty($response)) {
             self::_debug("Found '$query' in cache");
         } else {
@@ -246,6 +245,11 @@ class API
         $retval = array();
         if (isset($response->SearchResult->Items)) {
             foreach ($response->SearchResult->Items as $obj) {
+                // We have the data, so make sure it's cached
+                if (!isset($obj->_timestamp)) {
+                    $obj->_timestamp = $response->_timestamp;
+                }
+                Cache::set($obj->ASIN, $obj);
                 $retval[$obj->ASIN] = new Item($obj->ASIN, $obj);
             }
         }
