@@ -44,7 +44,6 @@ class Category
     {
         global $_CONF_ASTORE;
 
-        $catid = (int)$catid;
         if (is_array($data)) {
             $this->setVars($data, true);
         } else {
@@ -388,7 +387,7 @@ class Category
         );
         $text_arr = array(
             'has_extras' => true,
-            'form_url' => $_CONF_ASTORE['admin_url'] . '/index.php?categories',
+            'form_url' => ASTORE_ADMIN_URL . '/index.php?categories',
         );
         $query_arr = array(
             'table' => 'astore_categories',
@@ -447,7 +446,7 @@ class Category
         case 'delete':
             if ($A['cat_id'] > 1) {
                 $retval .= COM_createLink('',
-                    $_CONF_ASTORE['admin_url'] .
+                    ASTORE_ADMIN_URL .
                         "/index.php?deletecat=cat&amp;cat_id={$A['cat_id']}",
                     array(
                         'title' => $LANG_ASTORE['del_item'],
