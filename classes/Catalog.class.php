@@ -132,7 +132,6 @@ class Catalog
     {
         global $_CONF_ASTORE;
 
-        $Item = new Item;
         $API = new API;
         $this->query = $query;
         $this->Items = $API->searchItems($query, $page);
@@ -478,7 +477,8 @@ class Catalog
     {
         global $_GROUPS, $_CONF_ASTORE;
 
-        return in_array($_CONF_ASTORE['grp_search'], $_GROUPS);
+        return $_CONF_ASTORE['use_api'] &&
+            in_array($_CONF_ASTORE['grp_search'], $_GROUPS);
     }
 
 
