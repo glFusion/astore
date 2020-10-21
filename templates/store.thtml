@@ -5,7 +5,7 @@
 {!endif}
 {!if can_search}
     <form class="uk-form uk-form-horizontal" method="post" action="{site_url}/astore/index.php?mode=search">
-        <input type="text" size="40" name="query" placeholder="{$LANG_ASTORE['search_query']}" />
+        <input type="text" size="40" name="query" placeholder="{$LANG_ASTORE['search_query']}" value="{query}" />
         <button class="uk-button uk-button-primary" name="search">{$LANG_ASTORE['search']}</button>
     </form>
 {!endif}

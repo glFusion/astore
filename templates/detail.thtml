@@ -12,6 +12,11 @@
 {!endif}
 </div>
 
+{!if editorial}
+<div class="ast-editorial">
+    {editorial}
+</div>
+{!endif}
 <div class="ast-detail-title">
     <h2>{title}</h2>
 </div>

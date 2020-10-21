@@ -19,6 +19,7 @@ $_SQL['astore_catalog'] = "CREATE TABLE {$_TABLES['astore_catalog']} (
   `cat_id` int(11) unsigned NOT NULL DEFAULT '1',
   `title` text,
   `url` text,
+  `editorial` text,
   `ts` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `enabled` tinyint(1) unsigned NOT NULL DEFAULT '1',
   PRIMARY KEY (`id`),
@@ -71,6 +72,9 @@ $ASTORE_UPGRADE = array(
         "ALTER TABLE {$_TABLES['astore_cache']} ADD `ts` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP AFTER `exp`",
         "INSERT IGNORE INTO {$_TABLES['astore_categories']}
             VALUES (1, 'General', 10)",
+    ),
+    '0.2.1' => array(
+        "ALTER TABLE {$_TABLES['astore_catalog']} ADD `editorial` text AFTER `url`",
     ),
 );
 

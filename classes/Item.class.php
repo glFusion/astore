@@ -5,7 +5,7 @@
  * @author      Lee Garner <lee@leegarner.com>
  * @copyright   Copyright (c) 2017-2020 Lee Garner <lee@leegarner.com>
  * @package     astore
- * @version     v0.2.0
+ * @version     v0.2.1
  * @license     http://opensource.org/licenses/gpl-2.0.php
  *              GNU Public License v2 or later
  * @filesource
@@ -46,6 +46,15 @@ class Item
      * @var boolean */
     private $is_valid = 0;
 
+    /** Link to Amazon detail page.
+     * Only used if the API is disabled and URLs are entered manually.
+     * @var string */
+    private $url = '';
+
+    /** Editorial content, review, etc.
+     * @var string */
+    private $editorial = '';
+
     /** ASINs that are required for display.
      * @var array */
     protected static $required_asins = array();
@@ -63,14 +72,17 @@ class Item
 
         $this->asin = $asin;
         if (!empty($this->asin)) {
-            $this->Read();
-            // If data is provided, just use it. Otherwise load from catalog.
-            if (!empty($data)) {
+            if (is_object($data)) {
+                // Got data already, probably from cache
                 $this->data = $data;
-            } elseif ($this->is_valid && $_CONF_ASTORE['use_api']) {
-                $this->data = self::Retrieve($asin);
-                if (!empty($this->data)) {
-                    $this->title = $this->Title();
+            } else {
+                $this->Read();
+                // If data is provided, just use it. Otherwise load from catalog.
+                if ($this->is_valid && $_CONF_ASTORE['use_api']) {
+                    $this->data = self::Retrieve($asin);
+                    if (!empty($this->data)) {
+                        $this->title = $this->Title();
+                    }
                 }
             }
         }
@@ -91,8 +103,14 @@ class Item
         $res = DB_query($sql);
         if ($res) {
             $A = DB_fetchArray($res, false);
-            $this->setVars($A);
-            $this->is_valid = 1;
+            if ($A) {
+                $this->setVars($A);
+                $this->is_valid = 1;
+            }
+            $this->data = self::Retrieve($this->asin);
+            if ($this->data !== NULL) {
+                $this->is_valid = 1;
+            }
         }
         return $this;
     }
@@ -108,9 +126,13 @@ class Item
     {
         $this->asin = trim($A['asin']);
         $this->title = trim($A['title']);
-        $this->url = trim($A['url']);
+        if (isset($A['url'])) {
+            // Only used if API is disabled
+            $this->url = trim($A['url']);
+        }
         $this->cat_id = (int)$A['cat_id'];
         $this->enabled = isset($A['enabled']) && $A['enabled'] ? 1 : 0;
+        $this->editorial = isset($A['editorial']) ? $A['editorial'] : '';
     }
 
 
@@ -608,6 +630,7 @@ class Item
             'offers_url' => $this->OffersURL(),
             'is_prime'  => $this->isPrime(),
             'is_admin'  => plugin_ismoderator_astore(),
+            'editorial' => $this->editorial,
         ) );
         if ($_CONF_ASTORE['aws_cache_min'] > 0) {
             $T->set_var('asof_date', $this->getDate()->format('d M h:i A T', true));
@@ -715,7 +738,7 @@ class Item
      */
     public function Edit()
     {
-        global $_TABLES;
+        global $_TABLES, $_CONF_ASTORE;
 
         $T = new \Template(ASTORE_PI_PATH . '/templates');
         $T->set_file('form', 'edit.thtml');
@@ -731,6 +754,7 @@ class Item
                 $this->cat_id,
                 1
             ),
+            'editorial' => $this->editorial,
         ) );
         $T->parse('output', 'form');
         return $T->finish($T->get_var('output'));
@@ -753,18 +777,21 @@ class Item
         if (empty($this->asin)) {
             return false;
         }
+
         $sql = "INSERT INTO {$_TABLES['astore_catalog']} SET
             asin = '" . DB_escapeString($this->asin) . "',
             title = '" . DB_escapeString($this->title) . "',
             cat_id = $this->cat_id,
             url = '" . DB_escapeString($this->url) . "',
+            editorial = '" . DB_escapeString($this->editorial) . "',
             enabled = '{$this->isEnabled()}'
             ON DUPLICATE KEY UPDATE
             title = '" . DB_escapeString($this->title) . "',
             cat_id = $this->cat_id,
             url = '" . DB_escapeString($this->url) . "',
+            editorial = '" . DB_escapeString($this->editorial) . "',
             enabled = '{$this->isEnabled()}'";
-        //echo $sql;die;
+        //var_dump($sql);die;
         DB_query($sql);
         return DB_error() ? false : true;
     }
@@ -1118,7 +1145,11 @@ class Item
     public function getDate()
     {
         global $_CONF;
-        return new \Date($this->data->_timestamp, $_CONF['timezone']);
+        if (!isset($this->data->_timestamp)) {
+            return clone $_CONF['_now'];
+        } else {
+            return new \Date($this->data->_timestamp, $_CONF['timezone']);
+        }
     }
 
 
@@ -1128,7 +1159,7 @@ class Item
      * @param   string  $import_fld     ID of item to import
      * @return  string  HTML for item list
      */
-    function adminList($import_fld = '')
+    public static function adminList($import_fld = '')
     {
         global $LANG_ADMIN, $LANG_ASTORE, $LANG01,
             $_TABLES, $_CONF, $_CONF_ASTORE;

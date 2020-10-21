@@ -29,6 +29,13 @@
         </div>
     </div>
 
+    <div class="uk-form-row">
+        <label class="uk-form-label">{$LANG_ASTORE['editorial']}</label>
+        <div class="uk-form-controls">
+            <textarea name="editorial" rows="10" style="width:100%">{editorial}</textarea>
+        </div>
+    </div>
+
 {!if use_api}
 {!else}
     <div class="uk-form-row">

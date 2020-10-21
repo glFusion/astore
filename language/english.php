@@ -58,6 +58,9 @@ $LANG_ASTORE = array(
 'current_as_of' => 'Data current as of:',
 'as_of' => 'As of',
 'confirm_del' => 'Are you sure you want to delete the selected item(s)?',
+'edit' => 'Edit',
+'del_item' => 'Delete Item',
+'editorial' => 'Editorial Review',
 );
 
 $LANG_ASTORE_AUTOTAG = array(
