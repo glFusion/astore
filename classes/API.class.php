@@ -1,6 +1,6 @@
 <?php
 /**
- * Implement the Amazon API
+ * Implement the Amazon API.
  *
  * @author      Lee Garner <lee@leegarner.com>
  * @copyright   Copyright (c) 2020 Lee Garner <lee@leegarner.com>
@@ -133,6 +133,11 @@ class API
     }
 
 
+    /**
+     * Get the Amazon region designation.
+     *
+     * @return  string      Amazon region name
+     */
     private function _getRegion()
     {
         global $_CONF_ASTORE;
@@ -140,6 +145,11 @@ class API
     }
 
 
+    /**
+     * Get the Amazon endpoint host to query.
+     *
+     * @return  string      Host name
+     */
     private function _getHost()
     {
         global $_CONF_ASTORE;
@@ -502,5 +512,3 @@ class API
     }
 
 }
-
-?>
