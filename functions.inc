@@ -75,6 +75,7 @@ spl_autoload_register(function ($class)
         require $file;
     }
 });
+use Astore\MO;
 
 
 /**
@@ -499,18 +500,16 @@ function plugin_autotags_astore($op, $content = '', $autotag = '')
 
     switch ($op) {
     case 'tagname':
-        return array('astore', 'astore_link', 'astore_azlink');
+        return array('astore', 'astore_link');
         break;
     case 'desc':
         switch ($content) {
         case 'astore':
-            return MO::_('Include an item tile from the store.');
+            return MO::_('Include an item link from the store or amazon.');
             break;
         case 'astore_link':
             return MO::_('Create a link to an item in the store.');
             break;
-        case 'astore_azlink':
-            return MO::_('Create a link directly to Amazon.');
         default :
             return '';
             break;
@@ -518,12 +517,17 @@ function plugin_autotags_astore($op, $content = '', $autotag = '')
         break;
     case 'parse':
         $HTML = '';
+        $skip = 0;
         switch ($autotag['tag']) {
         case 'astore':
-            // Get a specific product
-            $Item = new Astore\Item($autotag['parm1']);
-            $HTML = Astore\Item::showProducts($Item);
+            $cls = '\\Astore\\Autotags\\' . $autotag['parm1'];
+            if (!class_exists($cls)) {
+                return '';
+            }
+            $AT = new $cls;
+            $HTML = $AT->withAutotag($autotag)->parse();
             break;
+
         case 'astore_link':
             $Item = new Astore\Item($autotag['parm1']);
             if ($Item->Data()) {        // Make sure some valid data was returned
@@ -531,16 +535,6 @@ function plugin_autotags_astore($op, $content = '', $autotag = '')
                 $HTML = COM_createLink($desc, $Item->DetailPageURL(),
                     array('target' => '_blank'));
             }
-            break;
-        case 'astore_azlink':
-            $t1 = explode(' ', $autotag['parm2']);
-            $opts = array();
-            foreach ($t1 as $tmp) {
-                $t2 = explode(':', $tmp);
-                $opts[$t2[0]] = isset($t2[1]) ? $t2[1] : '';
-            }
-            $AT = new Astore\Autotags\azlink;
-            $HTML = $AT->parse($autotag['parm1'], $opts, $autotag['tagstr']);
             break;
         }
         $content = str_replace($autotag['tagstr'], $HTML, $content);
