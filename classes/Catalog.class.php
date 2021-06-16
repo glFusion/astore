@@ -176,6 +176,8 @@ class Catalog
 
         if ($page == 1) {
             $Item = $this->getFeatured();
+        } else {
+            $Item = NULL;
         }
 
         $T = new \Template(ASTORE_PI_PATH . '/templates');
@@ -259,7 +261,11 @@ class Catalog
                     $T->set_var('asof_date', $Item->getDate()->format('h:i A T', true));
                 }
             } else {
-                $T->set_var('item_data', $Item->getURL());
+                $url = $Item->getURL();
+                if (empty($url)) {
+                    continue;
+                }
+                $T->set_var('item_data', $url);
             }
             $T->parse('pb', 'products', true);
         }
