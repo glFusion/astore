@@ -5,7 +5,7 @@
  * and upgrade not referenced any more once the plugin is installed.
  *
  * @author      Lee Garner <lee@leegarner.com>
- * @copyright   Copyright (c) 2017-2020 Lee Garner <lee@leegarner.com>
+ * @copyright   Copyright (c) 2017-2021 Lee Garner <lee@leegarner.com>
  * @package     astore
  * @version     v0.2.0
  * @license     http://opensource.org/licenses/gpl-2.0.php
@@ -263,6 +263,17 @@ $astoreConfigData = array(
         'set' => true,
         'group' => 'astore',
     ),
+    array(
+        'name' => 'disclaimer',
+        'default_value' => 'Paid Affiliate Link',
+        'type' => 'text',
+        'subgroup' => 0,
+        'fieldset' => 0,
+        'selection_array' => 0,
+        'sort' => 200,
+        'set' => true,
+        'group' => 'astore',
+    ),
 );
 
 /**
@@ -284,5 +295,3 @@ function plugin_initconfig_astore($admin_group)
     }
     return true;
 }
-
-?>
