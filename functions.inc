@@ -500,15 +500,12 @@ function plugin_autotags_astore($op, $content = '', $autotag = '')
 
     switch ($op) {
     case 'tagname':
-        return array('astore', 'astore_link');
+        return array('astore');
         break;
     case 'desc':
         switch ($content) {
         case 'astore':
-            return MO::_('Include an item link from the store or amazon.');
-            break;
-        case 'astore_link':
-            return MO::_('Create a link to an item in the store.');
+            return $LANG_ASTORE_AUTOTAG['desc_astore_link'];
             break;
         default :
             return '';
@@ -526,15 +523,6 @@ function plugin_autotags_astore($op, $content = '', $autotag = '')
             }
             $AT = new $cls;
             $HTML = $AT->withAutotag($autotag)->parse();
-            break;
-
-        case 'astore_link':
-            $Item = new Astore\Item($autotag['parm1']);
-            if ($Item->Data()) {        // Make sure some valid data was returned
-                $desc = empty($autotag['parm2']) ? $Item->Title() : $autotag['parm2'];
-                $HTML = COM_createLink($desc, $Item->DetailPageURL(),
-                    array('target' => '_blank'));
-            }
             break;
         }
         $content = str_replace($autotag['tagstr'], $HTML, $content);

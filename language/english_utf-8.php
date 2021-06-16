@@ -64,8 +64,8 @@ $LANG_ASTORE = array(
 );
 
 $LANG_ASTORE_AUTOTAG = array(
-    'desc_astore' => 'Include an item tile from the store',
-    'desc_astore_link' => 'Create a link to an item in the store',
+    'desc_astore' => 'Create a link to an item in the store or at Amazon.',
+    'desc_astore_link' => 'Create a link to an item in the store or at Amazon.',
 );
 
 // Localization of the Admin Configuration UI
