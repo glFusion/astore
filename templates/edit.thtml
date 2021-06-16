@@ -1,64 +1,64 @@
 {# begin {templatelocation} #}
 <form class="uk-form uk-form-horizontal" method="post" action="{site_admin_url}/plugins/astore/index.php">
-    <input type="hidden" name="id" value="{id}" />
-    <div class="uk-form-row">
-        <label class="uk-form-label">ASIN</label>
-        <div class="uk-form-controls">
-            <input type="text" size="20" name="asin" value="{asin}"} />
-        </div>
-    </div>
+	<input type="hidden" name="id" value="{id}" />
+	<div class="uk-form-row">
+		<label class="uk-form-label">ASIN</label>
+		<div class="uk-form-controls">
+			<input type="text" size="20" name="asin" value="{asin}"} />
+		</div>
+	</div>
 
-    <div class="uk-form-row">
-        <label class="uk-form-label">{$LANG_ASTORE['category']}</label>
-        <div class="uk-form-controls">
-            <select name="cat_id">
-                {cat_options}
-            </select>
-        </div>
-    </div>
+	<div class="uk-form-row">
+		<label class="uk-form-label">{$LANG_ASTORE['category']}</label>
+		<div class="uk-form-controls">
+			<select name="cat_id">
+				{cat_options}
+			</select>
+		</div>
+	</div>
 
-    <div class="uk-form-row">
-        <label class="uk-form-label">{$LANG_ASTORE['title']}</label>
-        <div class="uk-form-controls">
+	<div class="uk-form-row">
+		<label class="uk-form-label">{$LANG_ASTORE['title']}</label>
+		<div class="uk-form-controls">
 {!if use_api}
-            <input type="hidden" name="title" value="{title}"} />
-            {title}
+			<input type="hidden" name="title" value="{title}"} />
+			{title}
 {!else}
-            <input type="text" size="40" name="title" value="{title}"} />
+			<input type="text" size="40" name="title" value="{title}"} />
 {!endif}
-        </div>
-    </div>
+		</div>
+	</div>
 
-    <div class="uk-form-row">
-        <label class="uk-form-label">{$LANG_ASTORE['editorial']}</label>
-        <div class="uk-form-controls">
-            <textarea name="editorial" rows="10" style="width:100%">{editorial}</textarea>
-        </div>
-    </div>
+	<div class="uk-form-row">
+		<label class="uk-form-label">{$LANG_ASTORE['editorial']}</label>
+		<div class="uk-form-controls">
+			<textarea name="editorial" rows="10" style="width:100%">{editorial}</textarea>
+		</div>
+	</div>
 
 {!if use_api}
 {!else}
-    <div class="uk-form-row">
-        <label class="uk-form-label">{$LANG_ASTORE['url']}</label>
-        <div class="uk-form-controls">
-            <textarea name="url" rows="10" style="width:100%">{url}</textarea>
-        </div>
-    </div>
+	<div class="uk-form-row">
+		<label class="uk-form-label">URL</label>
+		<div class="uk-form-controls">
+			<textarea name="url" rows="10" style="width:100%">{url}</textarea>
+		</div>
+	</div>
 {!endif}
 
-    <div class="uk-form-row">
-        <label class="uk-form-label">{$LANG_ASTORE['enabled']}</label>
-        <div class="uk-form-controls">
-            <input type="checkbox" name="enabled" value="1" {ena_chk} />
-        </div>
-    </div>
+	<div class="uk-form-row">
+		<label class="uk-form-label">{$LANG_ASTORE['enabled']}</label>
+		<div class="uk-form-controls">
+			<input type="checkbox" name="enabled" value="1" {ena_chk} />
+		</div>
+	</div>
 
-    <div class="uk-form-row">
-        <div class="uk-form-controls">
-            <button class="uk-button uk-button-primary" name="saveitem">{$LANG32[23]}</button>
-            <button class="uk-button" name="cancel">{$LANG32[24]}</button>
-            <button class="uk-button uk-button-danger" name="deleteitem">{$LANG32[25]}</button>
-        </div>
-    </div>
+	<div class="uk-form-row">
+		<div class="uk-form-controls">
+			<button class="uk-button uk-button-primary" name="saveitem">{$LANG32[23]}</button>
+			<button class="uk-button" name="cancel">{$LANG32[24]}</button>
+			<button class="uk-button uk-button-danger" name="deleteitem">{$LANG32[25]}</button>
+		</div>
+	</div>
 </form>
 {# end {templatelocation} #}

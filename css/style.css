@@ -272,3 +272,13 @@ div.ast-product-box .ast-unavail {
     font-size: smaller;
     font-style: italic;
 }
+
+.ast-catalog-item {
+	position:relative;
+	height: 100%;
+}
+
+.ast-catalog-item-footer {
+	bottom: 0;
+/*	position: absolute;*/
+}
