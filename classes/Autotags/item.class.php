@@ -1,6 +1,6 @@
 <?php
 /**
- * Create a text link to Amazon from an autotag.
+ * Create a link to a store item from an autotag.
  *
  * @copyright   Copyright (c) 2021 Lee Garner
  * @package     astore
@@ -11,6 +11,7 @@
  * @filesource
  */
 namespace Astore\Autotags;
+use Astore\Item as asItem;
 
 if (!defined ('GVERSION')) {
     die ('This file can not be used on its own!');
@@ -18,17 +19,14 @@ if (!defined ('GVERSION')) {
 
 
 /**
- * Amazon link autotag.
+ * Link to an Astore item.
  * @package astore
  */
-class text extends \Astore\Autotag
+class item extends \Astore\Autotag
 {
     /**
      * Parse the autotag and render the output.
      *
-     * @param   string  $p1         First option after the tag name
-     * @param   array   $opts       Array of options
-     * @param   string  $fulltag    Full autotag string
      * @return  string      Replacement HTML, if applicable.
      */
     public function parse()
@@ -40,15 +38,14 @@ class text extends \Astore\Autotag
         }
         $asin = $this->opts['asin'];
 
-        $retval = COM_createLink(
-            $this->caption,
-            sprintf($this->link_url, $asin, $this->getTagForLink('tag=%s&'), $LANG_LOCALE),
-            array(
-                'target' => '_blank',
-                'title' => $this->title,
-                'class' => 'tooltip',
-            )
-        );
+        $Item = new asItem($asin);
+        if ($Item->Data()) {        // Make sure some valid data was returned
+            $retval = COM_createLink(
+                $this->caption,
+                $Item->DetailPageURL(),
+                array('target' => '_blank')
+            );
+        }
         return $this->before . $retval . $this->after;
     }
 

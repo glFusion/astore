@@ -1,11 +1,11 @@
 <?php
 /**
- * Create text or image links from autotags.
+ * Create an iframe image link to Amazon from an autotag.
  *
  * @copyright   Copyright (c) 2021 Lee Garner
  * @package     astore
- * @version     v1.1.0
- * @since       v0.7.0
+ * @version     v0.2.1
+ * @since       v0.2.1
  * @license     http://opensource.org/licenses/gpl-2.0.php
  *              GNU Public License v2 or later
  * @filesource
@@ -18,7 +18,7 @@ if (!defined ('GVERSION')) {
 
 
 /**
- * Amazon link autotag
+ * Amazon iframe autotag.
  * @package astore
  */
 class iframe extends \Astore\Autotag
@@ -37,9 +37,6 @@ class iframe extends \Astore\Autotag
         }
 
         $asin = $this->opts['asin'];
-        if (!empty($this->opts['caption'])) {
-            $this->caption = $this->opts['caption'];
-        }
 
         // The tracking_id is required in the iframe in order for the
         // product to be rendered.
