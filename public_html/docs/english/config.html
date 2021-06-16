@@ -1,127 +1,132 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" class="uk-height-1-1">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="apple-touch-icon-precomposed" href="../../layout/cms/images/apple-touch-icon.png">
-  <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/uikit/2.26.3/css/uikit.almost-flat.min.css">
-  <meta name="robots" content="noindex,nofollow" />
-  <title>glFusion Astore Plugin Configuration</title>
-  <style>
-    html{background:#f9f9f9}.tm-dropdown,.tm-navbar{background:#325482!important}.uk-form label{font-weight:700}.tm-navbar{border-radius:0!important;padding:1px 0 6px!important;border:none!important}.tm-navbar-brand{color:#eee!important}.tm-navbar-brand a{text-shadow:none;color:#fff}.tm-navbar-brand a:hover{color:#ababab;text-decoration:none}.tm-navbar-brand-oc a{text-shadow:none;color:#fff}.tm-navbar-brand-oc a:hover{color:#ababab;text-decoration:none}.tm-navbar-nav>li>a{border:none;border-radius:3px!important;font-size:15px!important;height:40px!important;margin:0!important}.tm-dropdown{color:#000;border-radius:0!important;border:0!important}.tm-nav-navbar>li>a{color:#fff!important}.tm-navbar::after,.tm-navbar::before{margin-top:7px!important}.tm-navbar-nav>li.uk-open>a,.tm-navbar-nav>li:hover>a,.tm-navbar-nav>li>a:focus{color:#fff;outline:0;background:#35B3EE!important}.tm-navbar-nav>li>a{color:#fff!important;text-shadow:none!important}.tm-navbar-toggle{color:#ccc!important;text-shadow:none!important}.tm-navbar-toggle:focus,.tm-navbar-toggle:hover{color:#fff!important}.tm-footer{background:#252525;border-top:1px solid #232425;margin-bottom:0;bottom:0;padding:10px;color:#fff}.tm-wrapper{min-height:100%;margin:0 auto -51px!important}.tm-push,footer{height:51px}.uk-navbar-content > a {color:#fff !important;}
-  </style>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="apple-touch-icon-precomposed" href="../../layout/cms/images/apple-touch-icon.png">
+	<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/uikit/2.26.3/css/uikit.almost-flat.min.css">
+	<meta name="robots" content="noindex,nofollow" />
+	<title>glFusion Astore Plugin Configuration</title>
+	<style>
+		html{background:#f9f9f9}.tm-dropdown,.tm-navbar{background:#325482!important}.uk-form label{font-weight:700}.tm-navbar{border-radius:0!important;padding:1px 0 6px!important;border:none!important}.tm-navbar-brand{color:#eee!important}.tm-navbar-brand a{text-shadow:none;color:#fff}.tm-navbar-brand a:hover{color:#ababab;text-decoration:none}.tm-navbar-brand-oc a{text-shadow:none;color:#fff}.tm-navbar-brand-oc a:hover{color:#ababab;text-decoration:none}.tm-navbar-nav>li>a{border:none;border-radius:3px!important;font-size:15px!important;height:40px!important;margin:0!important}.tm-dropdown{color:#000;border-radius:0!important;border:0!important}.tm-nav-navbar>li>a{color:#fff!important}.tm-navbar::after,.tm-navbar::before{margin-top:7px!important}.tm-navbar-nav>li.uk-open>a,.tm-navbar-nav>li:hover>a,.tm-navbar-nav>li>a:focus{color:#fff;outline:0;background:#35B3EE!important}.tm-navbar-nav>li>a{color:#fff!important;text-shadow:none!important}.tm-navbar-toggle{color:#ccc!important;text-shadow:none!important}.tm-navbar-toggle:focus,.tm-navbar-toggle:hover{color:#fff!important}.tm-footer{background:#252525;border-top:1px solid #232425;margin-bottom:0;bottom:0;padding:10px;color:#fff}.tm-wrapper{min-height:100%;margin:0 auto -51px!important}.tm-push,footer{height:51px}.uk-navbar-content > a {color:#fff !important;}
+	</style>
 </head>
 
 <body class="uk-height-1-1">
-  <div class="tm-wrapper">
-    <nav class="uk-navbar uk-navbar-attached tm-navbar uk-margin-bottom">
-      <div class="uk-navbar-brand tm-navbar-brand">
-        glFusion Astore Plugin Configuration
-      </div>
-      <div class="uk-navbar-flip uk-hidden-small">
-        <div class="uk-navbar-content tm-navbar-content" style="text-shadow:none;">
-          <a href="https://www.glfusion.org/wiki/">glFusion Wiki</a>
-        </div>
-      </div>
-    </nav>
+	<div class="tm-wrapper">
+		<nav class="uk-navbar uk-navbar-attached tm-navbar uk-margin-bottom">
+			<div class="uk-navbar-brand tm-navbar-brand">
+				glFusion Astore Plugin Configuration
+			</div>
+			<div class="uk-navbar-flip uk-hidden-small">
+				<div class="uk-navbar-content tm-navbar-content" style="text-shadow:none;">
+					<a href="https://www.glfusion.org/wiki/">glFusion Wiki</a>
+				</div>
+			</div>
+		</nav>
 
-    <div class="uk-container uk-container-center uk-margin-bottom">
-      <h1>glFusion Astore Plugin Configuration</h1>
-      <p>The Astore Plugin allows you to display Amazon products on your site</p>
+		<div class="uk-container uk-container-center uk-margin-bottom">
+			<h1>glFusion Astore Plugin Configuration</h1>
+			<p>The Astore Plugin allows you to display Amazon products on your site</p>
 
-      <h2>Main Astore Options</h2>
+			<h2>Main Astore Options</h2>
 
-      <dl id="desc_aws_access_key">
-        <dt>AWS Access Key</dt>
-        <dd>Enter your Amazon Associate Access Key here.</dd>
-      </dl>
+			<dl id="desc_aws_access_key">
+				<dt>AWS Access Key</dt>
+				<dd>Enter your Amazon Associate Access Key here.</dd>
+			</dl>
 
-      <dl id="desc_aws_secret_key">
-        <dt>AWS Secret Key</dt>
-        <dd>Enter your Amazon Associate Secret Key here.</dd>
-      </dl>
+			<dl id="desc_aws_secret_key">
+				<dt>AWS Secret Key</dt>
+				<dd>Enter your Amazon Associate Secret Key here.</dd>
+			</dl>
 
-      <dl id="desc_aws_assoc_id">
-        <dt>AWS Associate Tag</dt>
-        <dd>Enter your Amazon Associate Tag here.
-      </dl>
+			<dl id="desc_aws_assoc_id">
+				<dt>AWS Associate Tag</dt>
+				<dd>Enter your Amazon Associate Tag here.
+			</dl>
 
-      <dl id="desc_aws_region">
-        <dt>AWS Region</dt>
-        <dd>Select the country code for the region associated with the country of your AWS associate tag.</dd>
-      </dl>
+			<dl id="desc_aws_region">
+				<dt>AWS Region</dt>
+				<dd>Select the country code for the region associated with the country of your AWS associate tag.</dd>
+			</dl>
 
-      <dl id="desc_aws_cache_min">
-        <dt>Cache Lifetime in Minutes</dt>
-        <dd>Enter the length of time, in minutes, to cache data received from Amazon. To avoid exceeding request limits this value is adjusted up or down by 25% for each item. Zero indicates that caching is disabled, otherwise the value must be between 10 and 240.</dd>
-      </dl>
+			<dl id="desc_aws_cache_min">
+				<dt>Cache Lifetime in Minutes</dt>
+				<dd>Enter the length of time, in minutes, to cache data received from Amazon. To avoid exceeding request limits this value is adjusted up or down by 25% for each item. Zero indicates that caching is disabled, otherwise the value must be between 10 and 240.</dd>
+			</dl>
 
-      <dl id="desc_aws_debug">
-        <dt>AWS Debugging</dt>
-        <dd>Select &quot;Yes&quot; to log debugging messages related to Amazon queries.</dd>
-      </dl>
+			<dl id="desc_aws_debug">
+				<dt>AWS Debugging</dt>
+				<dd>Select &quot;Yes&quot; to log debugging messages related to Amazon queries.</dd>
+			</dl>
 
-      <dl id="desc_perpage">
-        <dt>Items to Show Per Page</dt>
-        <dd>Enter the number of items to show per page on the main store page.</dd>
-      </dl>
+			<dl id="desc_perpage">
+				<dt>Items to Show Per Page</dt>
+				<dd>Enter the number of items to show per page on the main store page.</dd>
+			</dl>
 
-      <dl id="desc_store_title">
-        <dt>Store Title</dt>
-        <dd>Enter the title for your store to appear on the main page.</dd>
-      </dl>
+			<dl id="desc_store_title">
+				<dt>Store Title</dt>
+				<dd>Enter the title for your store to appear on the main page.</dd>
+			</dl>
 
-      <dl id="desc_use_api">
-          <dt>Use Product API?</dt>
-          <dd>Select whether to use the Amazon Product API. If you enable the API you must fill in your keys below. If not, you will need to manually add the product link URLs for each product.</dd>
-      </dl>
+			<dl id="desc_use_api">
+					<dt>Use Product API?</dt>
+					<dd>Select whether to use the Amazon Product API. If you enable the API you must fill in your keys below. If not, you will need to manually add the product link URLs for each product.</dd>
+			</dl>
 
-      <dl id="desc_auto_add_catalog">
-        <dt>Add Featured Items to Catalog?</dt>
-        <dd>Select whether to automatically add featured items (those requested by item number) to the product catalog.</dd>
-      </dl>
+			<dl id="desc_auto_add_catalog">
+				<dt>Add Featured Items to Catalog?</dt>
+				<dd>Select whether to automatically add featured items (those requested by item number) to the product catalog.</dd>
+			</dl>
 
-      <dl id="desc_max_feat_desc">
-        <dt>Maximum Featured Item Description Length</dt>
-        <dd>Enter the number of characters to be shown in the description for featured items.</dd>
-      </dl>
+			<dl id="desc_max_feat_desc">
+				<dt>Maximum Featured Item Description Length</dt>
+				<dd>Enter the number of characters to be shown in the description for featured items.</dd>
+			</dl>
 
-      <dl id="desc_max_blk_desc">
-        <dt>Maximum Block Item Description Length</dt>
-        <dd>Enter the number of characters to be shown in the description for items displayed in blocks on the main page..</dd>
-      </dl>
+			<dl id="desc_max_blk_desc">
+				<dt>Maximum Block Item Description Length</dt>
+				<dd>Enter the number of characters to be shown in the description for items displayed in blocks on the main page..</dd>
+			</dl>
 
-      <dl id="desc_notag_header">
-        <dt>Block Associate ID for Header</dt>
-        <dd>Product links will not contain associate tag information if a HTTP header is set that matches this string. The value of the headeer is not used. This is to prevent artificially inflating click counts at Amazon Associate Central.</dd>
-      </dl>
+			<dl id="desc_notag_header">
+				<dt>Block Associate ID for Header</dt>
+				<dd>Product links will not contain associate tag information if a HTTP header is set that matches this string. The value of the headeer is not used. This is to prevent artificially inflating click counts at Amazon Associate Central.</dd>
+			</dl>
 
-      <dl id="desc_notag_admins">
-        <dt>Block Associate ID for Admins</dt>
-        <dd>Product links will not contain associate tag information if this is &quot;Yes&quot; and the current site user is an administrator. This is to prevent artificially inflating click counts at Amazon Associate Central.</dd>
-      </dl>
+			<dl id="desc_notag_admins">
+				<dt>Block Associate ID for Admins</dt>
+				<dd>Product links will not contain associate tag information if this is &quot;Yes&quot; and the current site user is an administrator. This is to prevent artificially inflating click counts at Amazon Associate Central.</dd>
+			</dl>
 
-      <dl id="desc_cb_enable">
-          <dt>Enable Centerblock?</dt>
-          <dd>If the centerblock is enabled, the store will appear as the site's homepage.</dd>
-      </dl>
+			<dl id="desc_cb_enable">
+					<dt>Enable Centerblock?</dt>
+					<dd>If the centerblock is enabled, the store will appear as the site's homepage.</dd>
+			</dl>
 
-      <dl id="desc_grp_search">
-          <dt>Group allowed to search</dt>
-          <dd>Select the group which is allowed to search the catalog for items. Note that this will cause requests to be made to Amazon so you may wish to restrict this access to stay within the terms of service.</dd>
-      </dl>
+			<dl id="desc_grp_search">
+					<dt>Group allowed to search</dt>
+					<dd>Select the group which is allowed to search the catalog for items. Note that this will cause requests to be made to Amazon so you may wish to restrict this access to stay within the terms of service.</dd>
+			</dl>
 
-      <dl id="desc_def_catid">
-          <dt>Default Cateogory</dt>
-          <dd>Select the category to which newly-found items will be added. You can change the category for individual items by editing the item record.</dd>
-      </dl>
+			<dl id="desc_def_catid">
+					<dt>Default Cateogory</dt>
+					<dd>Select the category to which newly-found items will be added. You can change the category for individual items by editing the item record.</dd>
+			</dl>
 
-      <dl id="desc_link_to">
-          <dt>Items in catalog link to...</dt>
-          <dd>Select whether items shown in the catalog should link to the internal detail page or directly to Amazon.</dd>
-      </dl>
+			<dl id="desc_link_to">
+					<dt>Items in catalog link to...</dt>
+					<dd>Select whether items shown in the catalog should link to the internal detail page or directly to Amazon.</dd>
+			</dl>
 
-    </div>
-  </div>
+			<dl id="desc_disclaimer">
+				<dt>Disclaimer Text</dt>
+				<dd>Enter the text to be shown as link titles indicating that this is an affiliate link.</dd>
+			</dl>
+
+		</div>
+	</div>
 </body>
 </html>

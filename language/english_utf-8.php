@@ -94,6 +94,7 @@ $LANG_confignames['astore'] = array(
     'grp_search' => 'Group that can search',
     'def_catid' => 'Default Category',
     'link_to' => 'Item links direct to ...',
+    'disclaimer' => 'Disclaimer text',
 );
 
 $LANG_configsubgroups['astore'] = array(
@@ -132,5 +133,3 @@ $LANG_configselects['astore'] = array(
         'Internal Detail Page' => 'detail',
     ),
 );
-
-?>
