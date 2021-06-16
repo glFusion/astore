@@ -815,7 +815,6 @@ class Item
     {
         global $_TABLES, $_CONF_ASTORE;
 
-        $allitems = array();
         if ($page > 0) {
             $max = (int)$_CONF_ASTORE['perpage'];
             $start = ((int)$page - 1) * $max;
@@ -847,61 +846,68 @@ class Item
         if ($enabled) {
             $where .= ' AND enabled = 1';
         }
-        if ($orderby != '') $orderby = "ORDER BY $orderby";
-        $sql = "SELECT asin FROM {$_TABLES['astore_catalog']}
+        if ($orderby != '') {
+            $orderby = "ORDER BY $orderby";
+        }
+        $sql = "SELECT * FROM {$_TABLES['astore_catalog']}
             $where $orderby $limit";
         $res = DB_query($sql);
         $asins = array();
-        while ($A = DB_fetchArray($res, false)) {
-            $data = Cache::get($A['asin']);
-            if ($data) {
-                $asins[] = $A['asin'];
-                /*$allitems[$A['asin']] = new self($A['asin'], $data);
-                if ($allitems[$A['asin']]->Title() == '') {
-                    $allitems[$A['asin']]->setTitle(
-                        $data->ItemInfo->Title->DisplayValue
-                    );
-                    $allitems[$A['asin']]->Save();
-                }*/
-            } else {
-                // Item not in cache, add to list to get from Amazon
-                $asins[] = $A['asin'];
-            }
-        }
-        foreach (self::$required_asins as $asin) {
-            if (!isset($allitems[$asin])) {
-                // Push requested ASINs to the beginning
-                array_unshift($asins, $asin);
-            }
-        }
-
-        // Retrieve from Amazon any items not in cache
-        if (!empty($asins)) {
-            $api = new API;
-            $data = $api->getItems($asins);
-            $i = 0;
-            foreach ($data as $asin=>$info) {
-                unset($asins[$i]);
-                $i++;
-                $info->_timestamp = time();
-                $allitems[$asin] = new self();
-                $allitems[$asin]->asin = $asin;
-                if (isset($info->ItemAttributes->Title)) {
-                    $title = $info->ItemAttributes->Title;
+        if ($_CONF_ASTORE['use_api']) {
+            while ($A = DB_fetchArray($res, false)) {
+                $data = Cache::get($A['asin']);
+                if ($data) {
+                    $allitems[$A['asin']] = new self($A['asin'], $data);
+                    if ($allitems[$A['asin']]->Title() == '') {
+                        $allitems[$A['asin']]->setTitle(
+                            $data->ItemInfo->Title->DisplayValue
+                        );
+                        $allitems[$A['asin']]->Save();
+                    }
                 } else {
-                    $title = '';
+                    // Item not in cache, add to list to get from Amazon
+                    $asins[] = $A['asin'];
                 }
-                $allitems[$asin]->title = $title;
-                $allitems[$asin]->data = $info;
-                Cache::set($asin, $info);
-                if ($_CONF_ASTORE['auto_add_catalog']) {
-                    // Automatically add to the catalog
-                    self::AddToCatalog($asin, $title);
+                foreach (self::$required_asins as $asin) {
+                    if (!isset($allitems[$asin])) {
+                        // Push requested ASINs to the beginning
+                        array_unshift($asins, $asin);
+                    }
                 }
             }
-            // Now, disable any ASIN's that were not found.
-            foreach ($asins as $key=>$asin) {
-                self::toggle(1, 'enabled', $asin);
+            // Retrieve from Amazon any items not in cache
+            if (!empty($asins)) {
+                $api = new API;
+                $data = $api->getItems($asins);
+                $i = 0;
+                foreach ($data as $asin=>$info) {
+                    unset($asins[$i]);
+                    $i++;
+                    $info->_timestamp = time();
+                    $allitems[$asin] = new self();
+                    $allitems[$asin]->setASIN($asin);
+                    if (isset($info->ItemAttributes->Title)) {
+                        $title = $info->ItemAttributes->Title;
+                    } else {
+                        $title = '';
+                    }
+                    $allitems[$asin]->setTitle($title);
+                    $allitems[$asin]->setData($info);
+                    Cache::set($asin, $info);
+                    if ($_CONF_ASTORE['auto_add_catalog']) {
+                        // Automatically add to the catalog
+                        self::AddToCatalog($asin, $title);
+                    }
+                }
+                // Now, disable any ASIN's that were not found.
+                foreach ($asins as $key=>$asin) {
+                    self::toggle(1, 'enabled', $asin);
+                }
+            }
+        } else {
+            while ($A = DB_fetchArray($res, false)) {
+                // Not using the API, just load data from the DB
+                $allitems[$A['asin']] = new self($A['asin'], $A);
             }
         }
         return $allitems;
