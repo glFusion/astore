@@ -395,6 +395,10 @@ class Item
      */
     public function LowestPrice($fmt = 'formatted')
     {
+        if (!isset($this->data->Offers)) {
+            return '';
+        }
+
         switch ($fmt) {
         case 'formatted':
             $p = $this->data->Offers->Summaries[0]->LowestPrice->DisplayAmount;
@@ -784,14 +788,16 @@ class Item
             cat_id = $this->cat_id,
             url = '" . DB_escapeString($this->url) . "',
             editorial = '" . DB_escapeString($this->editorial) . "',
-            enabled = '{$this->isEnabled()}'
+            enabled = '{$this->isEnabled()}',
+            ts = UNIX_TIMESTAMP()
             ON DUPLICATE KEY UPDATE
             title = '" . DB_escapeString($this->title) . "',
             cat_id = $this->cat_id,
             url = '" . DB_escapeString($this->url) . "',
             editorial = '" . DB_escapeString($this->editorial) . "',
-            enabled = '{$this->isEnabled()}'";
-        //var_dump($sql);die;
+            enabled = '{$this->isEnabled()}',
+            ts = UNIX_TIMESTAMP()";
+        //echo $sql;die;
         DB_query($sql);
         return DB_error() ? false : true;
     }
@@ -834,7 +840,7 @@ class Item
             $orderby = '';
             break;
         }
-        $where = 'WHERE 1=1';
+        $where = " WHERE 1=1 ";
         if (!empty($cat_ids)) {
             $where .= ' AND cat_id in (' . implode(',', $cat_ids) . ')';
         }
@@ -844,19 +850,19 @@ class Item
         if ($orderby != '') $orderby = "ORDER BY $orderby";
         $sql = "SELECT asin FROM {$_TABLES['astore_catalog']}
             $where $orderby $limit";
-
         $res = DB_query($sql);
         $asins = array();
         while ($A = DB_fetchArray($res, false)) {
             $data = Cache::get($A['asin']);
             if ($data) {
-                $allitems[$A['asin']] = new self($A['asin'], $data);
+                $asins[] = $A['asin'];
+                /*$allitems[$A['asin']] = new self($A['asin'], $data);
                 if ($allitems[$A['asin']]->Title() == '') {
                     $allitems[$A['asin']]->setTitle(
                         $data->ItemInfo->Title->DisplayValue
                     );
                     $allitems[$A['asin']]->Save();
-                }
+                }*/
             } else {
                 // Item not in cache, add to list to get from Amazon
                 $asins[] = $A['asin'];
@@ -868,6 +874,7 @@ class Item
                 array_unshift($asins, $asin);
             }
         }
+
         // Retrieve from Amazon any items not in cache
         if (!empty($asins)) {
             $api = new API;
@@ -1317,5 +1324,3 @@ class Item
     }
 
 }
-
-?>
