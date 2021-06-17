@@ -3,9 +3,9 @@
  * Class to handle Cache operations.
  *
  * @author      Lee Garner <lee@leegarner.com>
- * @copyright   Copyright (c) 2018-2020 Lee Garner <lee@leegarner.com>
+ * @copyright   Copyright (c) 2018-2021 Lee Garner <lee@leegarner.com>
  * @package     astore
- * @version     v0.2.0
+ * @version     v0.2.1
  * @since       v0.1.0
  * @license     http://opensource.org/licenses/gpl-2.0.php
  *              GNU Public License v2 or later
@@ -26,9 +26,9 @@ class Cache
      * @const string */
     const TAG = 'astore';
 
-    /** Minimum glFusion version that supports caching.
+    /** Minimum glFusion version that natively supports caching.
      * @const string */
-    const MIN_GVERSION = '2.1.0';
+    const MIN_GVERSION = '2.0.0';
 
     /**
      * Get item information from the cache, if present.
@@ -49,7 +49,11 @@ class Cache
             if ($res) {
                 $A = DB_fetchArray($res, false);
                 if ($A) {
-                    $data = @unserialize($A['data']);
+                    try {
+                        $data = unserialize($A['data']);
+                    } catch (\exception $e) {
+                        COM_errorLog("ASTORE: error unserializing " . $A['data']);
+                    }
                     if ($data) {
                         $data->_timestamp = $A['ts'];
                     }
