@@ -50,6 +50,8 @@ information. If you prefer, you can manually enter the URLs to products from
 Amazon for each item. In this case you do not need to obtain access and secret
 keys, but some of the plugin's functionality will be limited.
 
+If you select "No" here, you will need to add the Amazon "Text+Image" link to each product.
+
 ### AWS Access Key, Secret Key, Associate ID
 Enter your Amazon credentials here. Visit the Affiliate home page (above) to create your credentialsa.
 

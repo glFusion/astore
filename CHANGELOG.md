@@ -1,7 +1,7 @@
 # Changelog - Astore plugin for glFusion
 
 ## Version 0.2.1
-Release TBD
+Release 2021-06-17
 - Add additional autotags with automatic disclaimers
 
 ## Version 0.2.0
