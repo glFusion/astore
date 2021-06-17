@@ -70,8 +70,13 @@ class Item
     {
         global $_CONF_ASTORE;
 
-        $this->asin = $asin;
-        if (!empty($this->asin)) {
+        if (!empty($asin)) {
+            if (is_array($asin)) {
+                $this->setVars($asin);
+            } else {
+                $this->asin = $asin;
+            }
+
             if (is_object($data)) {
                 // Got data already, probably from cache
                 $this->data = $data;
@@ -855,14 +860,15 @@ class Item
         $asins = array();
         if ($_CONF_ASTORE['use_api']) {
             while ($A = DB_fetchArray($res, false)) {
+                $allitems[$A['asin']] = new self($A);
                 $data = Cache::get($A['asin']);
                 if ($data) {
-                    $allitems[$A['asin']] = new self($A['asin'], $data);
-                    if ($allitems[$A['asin']]->Title() == '') {
+                    $allitems[$A['asin']]->setData($data);
+                    /*if ($allitems[$A['asin']]->Title() == '') {
                         $allitems[$A['asin']]->setTitle(
                             $data->ItemInfo->Title->DisplayValue
                         );
-                        $allitems[$A['asin']]->Save();
+                        $allitems[$A['asin']]->Save();*/
                     }
                 } else {
                     // Item not in cache, add to list to get from Amazon
