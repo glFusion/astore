@@ -18,7 +18,7 @@ if (!defined ('GVERSION')) {
 
 
 /**
- * Amazon link autotag.
+ * Amazon search autotag.
  * @package astore
  */
 class search extends \Astore\Autotag

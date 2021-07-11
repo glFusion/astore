@@ -1,11 +1,11 @@
 <?php
 /**
- * Create text or image links from autotags.
+ * Base clase to set up options for creating links from autotags.
  *
- * @copyright   Copyright (c) 2009-2020 Lee Garner
+ * @copyright   Copyright (c) 2021 Lee Garner
  * @package     astore
- * @version     v1.1.0
- * @since       v0.7.0
+ * @version     v0.2.2
+ * @since       v0.2.1
  * @license     http://opensource.org/licenses/gpl-2.0.php
  *              GNU Public License v2 or later
  * @filesource
@@ -65,7 +65,7 @@ class Autotag
 
 
     /**
-     * Set up private variables
+     * Set up private variables.
      */
     public function __construct()
     {
@@ -124,6 +124,8 @@ class Autotag
      */
     public function withAutotag($autotag)
     {
+        global $_CONF_ASTORE;
+
         $this->autotag = $autotag;
 
         $skip = 0;
@@ -141,10 +143,18 @@ class Autotag
             }
             $this->caption = trim (implode (' ', $params));
         }
+        if (!empty($_CONF_ASTORE['disclaimer'])) {
+            $this->title = $_CONF_ASTORE['disclaimer'];
+        }
         return $this;
     }
 
 
+    /**
+     * Get the style options into a single `style` string.
+     *
+     * @return  string      style string
+     */
     protected function getStyle()
     {
         $style = '';
