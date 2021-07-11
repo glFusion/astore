@@ -76,6 +76,9 @@
     {$LANG_ASTORE['current_as_of']} {asof_date}
 </div>
 {!endif}
+{!if disclaimer}
+<div class="uk-alert astore-disclaimer">{disclaimer}</div>
+{!endif}
 {!if message}
 <div class="uk-alert uk-alert-{msg_class}">{message}</div>
 {!endif}

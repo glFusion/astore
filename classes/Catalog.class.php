@@ -3,9 +3,9 @@
  * Create an amazon store catalog.
  *
  * @author      Lee Garner <lee@leegarner.com>
- * @copyright   Copyright (c) 2020 Lee Garner <lee@leegarner.com>
+ * @copyright   Copyright (c) 2020-2021 Lee Garner <lee@leegarner.com>
  * @package     astore
- * @version     v0.2.0
+ * @version     v0.2.2
  * @since       v0.2.0
  * @license     http://opensource.org/licenses/gpl-2.0.php
  *              GNU Public License v2 or later
@@ -187,6 +187,7 @@ class Catalog
         $T->set_var(array(
             'query'         => $this->query,
             'store_title'   => $_CONF_ASTORE['store_title'],
+            'disclaimer'    => $_CONF_ASTORE['full_disclaimer'],
             'page'          => $page,
             'can_search'    => $this->canSearch(),
         ) );

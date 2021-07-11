@@ -285,6 +285,17 @@ $astoreConfigData = array(
         'set' => true,
         'group' => 'astore',
     ),
+    array(
+        'name' => 'full_disclaimer',
+        'default_value' => 'This site may earn commissions for sales made from these links',
+        'type' => 'text',
+        'subgroup' => 0,
+        'fieldset' => 0,
+        'selection_array' => 0,
+        'sort' => 220,
+        'set' => true,
+        'group' => 'astore',
+    ),
 );
 
 /**

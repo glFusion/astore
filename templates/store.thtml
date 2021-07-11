@@ -124,6 +124,10 @@
 <div class="ast-pagination">
 	{pagination}
 </div>
+{!if disclaimer}
+<div class="uk-alert astore_disclaimer">{disclaimer}</div>
+{!endif}
+
 <script>
 $('.updform_chk').on('click', function() {
 	$( "#adlistopts" ).submit();

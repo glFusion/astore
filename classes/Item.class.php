@@ -3,9 +3,9 @@
  * Common elements for Amazon Items.
  *
  * @author      Lee Garner <lee@leegarner.com>
- * @copyright   Copyright (c) 2017-2020 Lee Garner <lee@leegarner.com>
+ * @copyright   Copyright (c) 2017-2021 Lee Garner <lee@leegarner.com>
  * @package     astore
- * @version     v0.2.1
+ * @version     v0.2.2
  * @license     http://opensource.org/licenses/gpl-2.0.php
  *              GNU Public License v2 or later
  * @filesource
@@ -73,6 +73,7 @@ class Item
         if (!empty($asin)) {
             if (is_array($asin)) {
                 $this->setVars($asin);
+                $asin = $this->asin;
             } else {
                 $this->asin = $asin;
             }
@@ -627,6 +628,7 @@ class Item
             ) );
         }
         $T->set_var(array(
+            'disclaimer' => $_CONF_ASTORE['full_disclaimer'],
             'item_url'  => $this->getAmazonURL(),
             'title'     => $this->Title(),
             'img_url'   => $this->LargeImage()->URL,
@@ -864,12 +866,6 @@ class Item
                 $data = Cache::get($A['asin']);
                 if ($data) {
                     $allitems[$A['asin']]->setData($data);
-                    /*if ($allitems[$A['asin']]->Title() == '') {
-                        $allitems[$A['asin']]->setTitle(
-                            $data->ItemInfo->Title->DisplayValue
-                        );
-                        $allitems[$A['asin']]->Save();*/
-                    }
                 } else {
                     // Item not in cache, add to list to get from Amazon
                     $asins[] = $A['asin'];
@@ -1316,7 +1312,7 @@ class Item
 
         case 'title':
             if (empty($fieldvalue)) {
-                $retval = '<i class="uk-icon uk-icon-exclamation-triangle ast-icon-danger"></i>&nbsp;<span class="ast-icon-danger">Invalid Item</span>';
+                $retval = '<span class="uk-text-danger"><i class="uk-icon uk-icon-exclamation-triangle"></i>&nbsp;Invalid Item</span>';
             } else {
                 $retval = $fieldvalue;
             }
