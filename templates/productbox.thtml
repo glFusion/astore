@@ -24,7 +24,7 @@
   </p>
   <div class="ast-a-button">
     <span class="ast-a-button ast-a-button-primary">
-      <a target="_blank" href="{item_url}" style="text-decoration:none" rel="nofollow">
+      <a target="_blank" href="{item_url}" style="text-decoration:none" rel="nofollow sponsored noopener">
         <span class="ast-a-button-inner">
           <img src="{site_url}/astore/images/amazon-64x64.png" class="ast-a-icon ast-a-icon-shop-now" />
           <input class="ast-a-button-input" type="submit" value="Add to cart" />

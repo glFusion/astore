@@ -35,7 +35,7 @@
 {!if featured}
 		<div class="uk-grid">
 			<div class="uk-width-1-1 uk-width-medium-1-5">
-				<a target="{url_target}" rel="nofollow" href="{f_item_url}">
+				<a target="{url_target}" rel="nofollow sponsored noopener" href="{f_item_url}">
 					<img src="{f_img_url}" style="max-width:{f_img_width};max-height:{f_img_height};" />
 				</a>
 			</div>
@@ -44,7 +44,7 @@
 				<br />
 				<span class="ast-featured-price">{f_formattedprice}</span>
 {!if f_is_admin}
-				<a rel="nofollow" href="{site_admin_url}/plugins/astore/index.php?edititem={f_item_id}">
+				<a href="{site_admin_url}/plugins/astore/index.php?edititem={f_item_id}">
 					<i class="uk-icon uk-icon-edit"></i>
 				</a>
 {!endif}
@@ -53,12 +53,12 @@
 				<div class="ast-unavail">{$LANG_ASTORE['unavailable']}</div>
 {!endif}
 {!if offers_url}
-				<a target="_blank" rel="nofollow" href="{offers_url}">{$LANG_ASTORE['more_offers']}</a>
+				<a target="_blank" rel="nofollow sponsored noopener" href="{offers_url}">{$LANG_ASTORE['more_offers']}</a>
 {!endif}
 			</div>
 			<div class="uk-width-1-1 uk-width-medium-1-5">
 				<span class="ast-a-button ast-a-button-primary ast-floatright">
-					<a target="{url_target}" rel="nofollow" href="{item_url}" style="text-decoration:none">
+					<a target="{url_target}" rel="nofollow sponsored noopener" href="{item_url}" style="text-decoration:none">
 						<span class="ast-a-button-inner">
 							<img src="{site_url}/astore/images/amazon-64x64.png" class="ast-a-icon ast-a-icon-shop-now" />
 							<input class="ast-a-button-input" type="submit" value="details" />
@@ -78,7 +78,7 @@
 <!-- BEGIN products -->
 				<li class="ast-catalog-item">
 					<div>
-						<a target="{url_target}" rel="nofollow" href="{item_url}">
+						<a target="{url_target}" rel="nofollow sponsored noopener" href="{item_url}">
 							<img src="{img_url}" style="max-width: {img_width}; max-height: {img_height};" />
 						</a>
 					</div>
@@ -92,12 +92,12 @@
 						</div>
 {!endif}
 {!if is_admin}
-						<a rel="nofollow" href="{site_admin_url}/plugins/astore/index.php?edititem={item_id}">
+						<a rel="nofollow sponsored noopener" href="{site_admin_url}/plugins/astore/index.php?edititem={item_id}">
 							<i class="uk-icon uk-icon-edit"></i>
 						</a>
 {!endif}
 {!if offers_url}
-						<a target="_blank" rel="nofollow" href="{offers_url}">{$LANG_ASTORE['more_offers']}</a>
+						<a target="_blank" rel="nofollow sponsored noopener" href="{offers_url}">{$LANG_ASTORE['more_offers']}</a>
 {!endif}
 {!if available}
 {!else}
@@ -106,7 +106,7 @@
 					</div>
 					<div class="ast-catalog-item-footer astore_disclaimer">{$LANG_ASTORE['as_of']} {asof_date}<br />
 						<span class="ast-a-button ast-a-button-primary" >
-							<a target="{url_target}" rel="nofollow" href="{item_url}" style="text-decoration:none" rel="nofollow">
+							<a target="{url_target}" rel="nofollow sponsored noopener" href="{item_url}" style="text-decoration:none">
 								<span class="ast-a-button-inner">
 									<img src="{site_url}/astore/images/amazon-64x64.png" class="ast-a-icon ast-a-icon-shop-now" />
 									<input class="ast-a-button-input" type="submit" value="Add to cart" />

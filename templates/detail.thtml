@@ -23,7 +23,7 @@
 {!if item_url}
 <div class="uk-grid ast-product-detail">
     <div class="uk-width-2-4">
-        <a target="_blank" rel="nofollow" href="{item_url}">
+        <a target="_blank" rel="nofollow sponsored noopener" href="{item_url}">
             <img src="{img_url}"/>
         </a>
     </div>
@@ -32,7 +32,7 @@
     </div>
     <div class="uk-width-1-4 ast-a-detail-button">
         <span class="ast-a-button ast-a-button-primary">
-            <a target="_blank" rel="nofollow" href="{item_url}" style="text-decoration:none" rel="nofollow">
+            <a target="_blank" rel="nofollow sponsored noopener" href="{item_url}" style="text-decoration:none">
                 <span class="ast-a-button-inner">
                     <img src="{site_url}/astore/images/amazon-64x64.png" class="ast-a-icon ast-a-icon-shop-now" />
                     <input class="ast-a-button-input" type="submit" value="Add to cart" />
@@ -52,7 +52,7 @@
             Available from {lowestprice}
         </div>
 {!elseif offers_url}
-        <a target="_blank" rel="nofollow" href="{offers_url}">{$LANG_ASTORE['more_offers']}</a>
+        <a target="_blank" rel="nofollow sponsored noopener" href="{offers_url}">{$LANG_ASTORE['more_offers']}</a>
 {!endif}
     </div>
 </div>
