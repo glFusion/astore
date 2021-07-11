@@ -96,6 +96,7 @@ $LANG_confignames['astore'] = array(
     'def_catid' => 'Default Category',
     'link_to' => 'Item links direct to ...',
     'disclaimer' => 'Disclaimer text',
+    'full_disclaimer' => 'Full Disclaimer text',
 );
 
 $LANG_configsubgroups['astore'] = array(

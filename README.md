@@ -21,9 +21,12 @@ See [https://affiliate-program.amazon.com/](https://affiliate-program.amazon.com
     * A 1-second sleep() is induced if requests would be made too rapidly.
     * Only requests up to 10 items at a time.
   * Items that are unavailable from Amazon or third-party sellers are not shown.
-  * Supports autotags
-    * astore: Display a product box for a single product in the page content.
-    * astore_link: Display a text link to a product on Amazon.
+  * Supports autotags. The syntax is generally `[astore:tag asin:ASIN caption text]`
+    * `astore:text` - Display a text link for a single ASIN.
+    * `astore:image` - Display an image link for a single ASIN.
+    * `astore:iframe` - Display a product box for a single product in the page content.
+    * `astore:search` - Display a text link to an amazon search page.
+      Use `q:query_string` instead of an ASIN, and separate the query string words by plus (+) symbols.
 
 ## Usage
 This plugin allows you to post a link to an Amazon product page on your site,
@@ -121,3 +124,12 @@ Enable the centerblock to have the Amazon store become your site's homepage.
 ### Group that can search
 Since the search form submits request to Amazon, you may wish to restrict
 access to that function to avoid exceeding the terms of service.
+
+### Disclaimer
+Enter a short disclaimer string to show as a tooltip for links to Amazon.
+Amazon requires site visitors to be informed that they may be clicking on an affiliate link.
+The default is `Paid Affiliate Link`.
+
+### Full Disclaimer
+Similar to Disclaimer, this is more descriptive text that is shown at the bottom
+of catalog and product pages if not empty.

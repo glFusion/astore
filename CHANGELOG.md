@@ -6,6 +6,7 @@ Released 2021-07-09
 - Improve item retrieval and caching.
 - Add a config item to close the store to the public.
 - Add configurable disclaimer text to show as a tooltip and page footers.
+- Add a search autotag.
 
 ## Version 0.2.1
 Release 2021-06-17
