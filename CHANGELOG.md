@@ -1,8 +1,15 @@
 # Changelog - Astore plugin for glFusion
 
+## Version 0.2.2
+Released 2021-07-09
+- Add sponsored and noopener tags to outbound links.
+- Improve item retrieval and caching.
+- Add a config item to close the store to the public.
+- Add configurable disclaimer text to show as a tooltip and page footers.
+
 ## Version 0.2.1
 Release 2021-06-17
-- Add additional autotags with automatic disclaimers
+- Add additional autotags with automatic disclaimers.
 
 ## Version 0.2.0
 Release 2020-04-30
