@@ -36,6 +36,7 @@ class iframe extends \Astore\Autotag
             return '';
         }
 
+        $retval = '';
         $asin = $this->opts['asin'];
 
         // The tracking_id is required in the iframe in order for the
@@ -58,12 +59,14 @@ class iframe extends \Astore\Autotag
             'show_border' => 'true',
             'link_opens_in_new_window' => 'true',
         );
-        $retval = '<iframe style="width:120px;height:240px;" marginwidth="0" ' .
+        $retval .= '<iframe style="width:120px;height:240px;" marginwidth="0" ' .
             'marginheight="0" scrolling="no" frameborder="0" src="//ws-na.amazon-adsystem.com/widgets/q?' . http_build_query($url_opts) . '"></iframe>';
         if (!empty($this->disc_text)) {
                 $retval .= '<br />' . $this->disc_text;
         }
-        return $this->before . $retval . $this->after;
+        $retval = $this->before . $retval . $this->after;
+        $retval = '<span ' . $this->getStyle() . '>' . $retval . '</span>';
+        return $retval;
     }
 
 }

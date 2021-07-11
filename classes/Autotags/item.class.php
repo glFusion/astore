@@ -43,7 +43,10 @@ class item extends \Astore\Autotag
             $retval = COM_createLink(
                 $this->caption,
                 $Item->DetailPageURL(),
-                array('target' => '_blank')
+                array(
+                    'target' => '_blank',
+                    'rel' => 'nofollow sponsored noopener',
+                )
             );
         }
         return $this->before . $retval . $this->after;

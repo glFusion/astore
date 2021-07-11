@@ -47,9 +47,12 @@ class text extends \Astore\Autotag
                 'target' => '_blank',
                 'title' => $this->title,
                 'class' => 'tooltip',
+                'rel' => 'nofollow sponsored noopener',
             )
         );
-        return $this->before . $retval . $this->after;
+        $retval = $this->before . $retval . $this->after;
+        $retval = '<span ' . $this->getStyle() . '>' . $retval . '</span>';
+        return $retval;
     }
 
 }

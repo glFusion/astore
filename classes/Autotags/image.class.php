@@ -81,6 +81,7 @@ class image extends \Astore\Autotag
                 'target' => '_blank',
                 'title' => $this->title,
                 'class' => 'tooltip',
+                'rel' => 'nofollow sponsored noopener',
             )
         );
         // Add the web bug image
@@ -94,7 +95,9 @@ class image extends \Astore\Autotag
                 'style' => 'border:none !important; margin:0px !important;',
             )
         );
-        return $this->before . $retval . $this->after;
+        $retval = $this->before . $retval . $this->after;
+        $retval = '<span ' . $this->getStyle() . '>' . $retval . '</span>';
+        return $retval;
     }
 
 }

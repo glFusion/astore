@@ -144,4 +144,25 @@ class Autotag
         return $this;
     }
 
+
+    protected function getStyle()
+    {
+        $style = '';
+        foreach ($this->opts as $key=>$value) {
+            switch ($key) {
+            case 'align':
+                $key = 'float';
+            case 'float':
+            case 'margin':
+            case 'padding':
+                $style .= "$key:$value;";
+                break;
+            }
+        }
+        if (!empty($style)) {
+            $style = 'style="' . $style . '"';
+        }
+        return $style;
+    }
+
 }
