@@ -96,6 +96,8 @@ function plugin_centerblock_astore($where=1,$page=1,$topic ='')
 
     // Centerblock must be enabled, and only works on the homepage
     if (
+        isset($_CONF_ASTORE['is_open']) &&
+        $_CONF_ASTORE['is_open'] &&
         isset($_CONF_ASTORE['cb_enable']) &&
         $_CONF_ASTORE['cb_enable'] &&
         $on_homepage

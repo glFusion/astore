@@ -14,6 +14,10 @@
 
 require_once '../lib-common.php';
 
+if (!$_CONF_ASTORE['is_open']) {
+    COM_404();
+}
+
 // Tell search engines not to index, may use excessive requests
 $outputHandle = outputHandler::getInstance();
 $outputHandle->addMeta('name', 'ROBOTS', 'noindex,nofollow');
@@ -33,5 +37,3 @@ $content = $Item->detailPage();
 echo COM_siteHeader();
 echo $content;
 echo COM_siteFooter();
-
-?>

@@ -75,6 +75,7 @@ $LANG_configsections['astore'] = array(
 );
 
 $LANG_confignames['astore'] = array(
+    'is_open' => 'Store is open?',
     'use_api' => 'Use Product API?',
     'aws_access_key' => 'AWS Access Key',
     'aws_secret_key' => 'AWS Secret key',
