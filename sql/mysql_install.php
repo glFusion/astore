@@ -13,6 +13,7 @@
 
 global $_TABLES;
 
+$_SQL = array();
 $_SQL['astore_catalog'] = "CREATE TABLE {$_TABLES['astore_catalog']} (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `asin` varchar(32) NOT NULL,
