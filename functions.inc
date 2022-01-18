@@ -26,7 +26,7 @@ define ('ASTORE_MAX_QUERY', 10);    // Amazon max items in a query
 
 $langfile = $_CONF['language'] . '.php';
 if (!file_exists(ASTORE_PI_PATH . '/language/' . $langfile)) {
-    $langfile = 'english.php';
+    $langfile = 'english_utf-8.php';
 }
 /** Import the plugin's language file */
 require_once ASTORE_PI_PATH . '/language/' . $langfile;
@@ -413,7 +413,7 @@ function plugin_configmanager_aws_secret_key_astore_validate($value)
 
 
 /**
- * Get a selection of groups for current and arrears members.
+ * Get a selection of groups allowed to search the store.
  *
  * @see     plugin_configmanager_select_member_all_group_membership()
  * @see     plugin_configmanager_select_member_group_membership()
