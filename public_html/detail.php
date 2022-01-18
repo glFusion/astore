@@ -20,7 +20,7 @@ if (!$_CONF_ASTORE['is_open']) {
 
 // Tell search engines not to index, may use excessive requests
 $outputHandle = outputHandler::getInstance();
-$outputHandle->addMeta('name', 'ROBOTS', 'noindex,nofollow');
+$outputHandle->addMeta('name', 'robots', 'noindex,nofollow');
 
 COM_setArgNames(array('asin'));
 $asin = COM_getArgument('asin');
