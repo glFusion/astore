@@ -239,27 +239,31 @@ class Catalog
                     $Item->Disable();
                     continue;
                 }
-                $T->set_var(array(
-                    'item_id' => $Item->ASIN(),
-                    'item_url'  => $Item->DetailPageURL(),
-                    'url_target' => $Item->DetailPageTarget(),
-                    'lowestprice'   => $Item->LowestPrice(),
-                    'listprice' => $Item->ListPrice(),
-                    'title'     => COM_truncate($Item->Title(),
-                        $_CONF_ASTORE['max_blk_desc'], '...'),
-                    'img_url'   => $Item->MediumImage()->URL,
-                    'img_width' => $Item->MediumImage()->Width,
-                    'img_height' => $Item->MediumImage()->Height,
-                    'formattedprice' => $Item->ListPrice(),
-                    'displayprice' => $Item->DisplayPrice(),
-                    'long_description' => '',
-                    'offers_url' => $Item->OffersURL(),
-                    'available' => $Item->isAvailable(),
-                    'is_prime' => $Item->isPrime() ? true : false,
-                    'is_admin' => $isAdmin,
-                ) );
-                if ($_CONF_ASTORE['aws_cache_min'] > 0) {
-                    $T->set_var('asof_date', $Item->getDate()->format('h:i A T', true));
+                try {
+                    $T->set_var(array(
+                        'item_id' => $Item->ASIN(),
+                        'item_url'  => $Item->DetailPageURL(),
+                        'url_target' => $Item->DetailPageTarget(),
+                        'lowestprice'   => $Item->LowestPrice(),
+                        'listprice' => $Item->ListPrice(),
+                        'title'     => COM_truncate($Item->Title(),
+                            $_CONF_ASTORE['max_blk_desc'], '...'),
+                        'img_url'   => $Item->MediumImage()->URL,
+                        'img_width' => $Item->MediumImage()->Width,
+                        'img_height' => $Item->MediumImage()->Height,
+                        'formattedprice' => $Item->ListPrice(),
+                        'displayprice' => $Item->DisplayPrice(),
+                        'long_description' => '',
+                        'offers_url' => $Item->OffersURL(),
+                        'available' => $Item->isAvailable(),
+                        'is_prime' => $Item->isPrime() ? true : false,
+                        'is_admin' => $isAdmin,
+                    ) );
+                    if ($_CONF_ASTORE['aws_cache_min'] > 0) {
+                        $T->set_var('asof_date', $Item->getDate()->format('h:i A T', true));
+                    }
+                } catch (\Exception $e) {
+                    // Just skip it
                 }
             } else {
                 $url = $Item->getURL();
