@@ -269,7 +269,7 @@ div.ast-product-box .ast-unavail {
 }
 
 .astore_disclaimer {
-    font-size: smaller;
+    font-size: small;
     font-style: italic;
 }
 
@@ -280,5 +280,10 @@ div.ast-product-box .ast-unavail {
 
 .ast-catalog-item-footer {
 	bottom: 0;
-/*	position: absolute;*/
+}
+
+.ast-autotag-iframe {
+	width: 120px;
+	height: 240px;
+	padding: 5px;
 }
