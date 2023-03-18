@@ -1,11 +1,11 @@
 <?php
 /**
- *   Table definitions for the Astore plugin.
+ * Table definitions for the Astore plugin.
  *
  * @author      Lee Garner <lee@leegarner.com>
- * @copyright   Copyright (c) 2017-2018 Lee Garner <lee@leegarner.com>
+ * @copyright   Copyright (c) 2017-2023 Lee Garner <lee@leegarner.com>
  * @package     astore
- * @version     v0.2.0
+ * @version     v0.2.2
  * @license     http://opensource.org/licenses/gpl-2.0.php
  *              GNU Public License v2 or later
  * @filesource
@@ -39,16 +39,6 @@ $_SQL['astore_categories'] = "CREATE TABLE {$_TABLES['astore_categories']} (
 INSERT IGNORE INTO {$_TABLES['astore_categories']}
     VALUES (1, 'General', 10)";
 
-$_SQL['astore_cache'] = "CREATE TABLE {$_TABLES['astore_cache']} (
-  `asin` varchar(128) NOT NULL,
-  `type` tinyint(1) unsigned NOT NULL DEFAULT '0',
-  `data` text,
-  `exp` int(11) unsigned NOT NULL,
-  `ts` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (`asin`),
-  KEY `exp` (`exp`)
-) ENGINE=MyISAM";
-
 $ASTORE_UPGRADE = array(
     '0.1.2' => array(
         "ALTER TABLE {$_TABLES['astore_catalog']} ADD title TEXT AFTER asin",
@@ -77,6 +67,7 @@ $ASTORE_UPGRADE = array(
     '0.2.1' => array(
         "ALTER TABLE {$_TABLES['astore_catalog']} ADD `editorial` text AFTER `url`",
     ),
+    '0.3.0' => array(
+        "DROP TABLE IF EXISTS {$_TABLES['astore_cache']}",
+    ),
 );
-
-?>

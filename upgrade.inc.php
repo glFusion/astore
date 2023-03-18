@@ -3,9 +3,9 @@
  * Upgrade routines for the Astore plugin.
  *
  * @author      Lee Garner <lee@leegarner.com>
- * @copyright   Copyright (c) 2017-2018 Lee Garner <lee@leegarner.com>
+ * @copyright   Copyright (c) 2017-2023 Lee Garner <lee@leegarner.com>
  * @package     astore
- * @version     v0.2.0
+ * @version     v0.3.0
  * @license     http://opensource.org/licenses/gpl-2.0.php
  *              GNU Public License v2 or later
  * @filesource
@@ -13,6 +13,8 @@
 
 /** Include installation defaults to update config after upgrades. */
 require_once __DIR__ . '/install_defaults.php';
+use glFusion\Database\Database;
+use glFusion\Log\Log;
 
 /**
  * Perform the upgrade starting at the current version.
@@ -56,25 +58,36 @@ function astore_do_upgrade($dvlp=false)
         }
         if (!astore_do_upgrade_sql($current_ver, $dvlp)) return false;
         if ($update_title) {
+            $db = Database::getInstance();
             // Sync title names from cache into catalog title field.
             // Need this to have titles in admin list when cache table is removed.
             $sql1 = "SELECT cat.asin, cache.data
                 FROM {$_TABLES['astore_catalog']} cat
                 LEFT JOIN {$_TABLES['astore_cache']} cache
                     ON cache.asin = cat.asin";
-COM_errorLog($sql1);
-            $res1 = DB_query($sql1);
-            if ($res1) {
-                while ($A = DB_fetchArray($res1, false)) {
+            try {
+                $stmt1 = $db->conn->executeQuery($sql1);
+            } catch (\Throwable $e) {
+                Log::write('system', Log::ERROR, __FUNCTION__ . ': ' . $e->getMessage());
+                $stmt1 = false;
+            }
+            if ($stmt1) {
+                while ($A = $stmt1->fetchAssociative()) {
                     $data = @json_decode($A['data']);
                     if (!empty($data->ItemAttributes->Title)) {
                         $title = $data->ItemAttributes->Title;
                         $item = new Astore\Item($A['asin'], $data);
                         if (empty($item->Title())) {
-                            $sql2 = "UPDATE {$_TABLES['astore_catalog']}
-                                SET title = '" . DB_escapeString($title) . "'
-                                WHERE asin = '" . DB_escapeString($A['asin']) . "'";
-                            DB_query($sql2, 1);
+                            try {
+                                $db->conn->update(
+                                    $_TABLES['astore_catalog'],
+                                    array('title' => $title),
+                                    array('asin' => $A['asin']),
+                                    array(Database::STRING, Database::STRING)
+                                );
+                            } catch (\Throwable $e) {
+                                Log::write('system', Log::ERROR, __FUNCTION__ . ': ' . $e->getMessage());
+                            }
                         }
                     }
                 }
@@ -85,6 +98,12 @@ COM_errorLog($sql1);
 
     if (!COM_checkVersion($current_ver, '0.2.1')) {
         $current_ver = '0.2.1';
+        if (!astore_do_upgrade_sql($current_ver, $dvlp)) return false;
+        if (!astore_do_update_version($current_ver)) return false;
+    }
+
+    if (!COM_checkVersion($current_ver, '0.3.0')) {
+        $current_ver = '0.3.0';
         if (!astore_do_upgrade_sql($current_ver, $dvlp)) return false;
         if (!astore_do_update_version($current_ver)) return false;
     }
@@ -118,18 +137,27 @@ function astore_do_update_version($version)
     global $_TABLES, $_CONF_ASTORE;
 
     // now update the current version number.
-    DB_query("UPDATE {$_TABLES['plugins']} SET
-            pi_version = '{$version}',
-            pi_gl_version = '{$_CONF_ASTORE['gl_version']}',
-            pi_homepage = '{$_CONF_ASTORE['pi_url']}'
-        WHERE pi_name = 'astore'");
-
-    if (DB_error()) {
-        COM_errorLog("Error updating the astore Plugin version to $version",1);
-        return false;
-    } else {
-        COM_errorLog("Succesfully updated the astore Plugin version to $version!",1);
+    try {
+        Database::getInstance()->conn->update(
+            $_TABLES['plugins'],
+            array(
+                'pi_version' => $version,
+                'pi_gl_version' => $_CONF_ASTORE['gl_version'],
+                'pi_homepage' => $_CONF_ASTORE['pi_url'],
+            ),
+            array('pi_name' => 'astore'),
+            array(
+                Database::STRING,
+                Database::STRING,
+                Database::STRING,
+                Database::STRING,
+            )
+        );
+        Log::write('system', Log::INFO, "Succesfully updated the astore Plugin version to $version!");
         return true;
+    } catch (\Throwable $e) {
+        Log::write('system', Log::ERROR, __FUNCTION__ . ': ' . $e->getMessage());
+        return false;
     }
 }
 
@@ -153,12 +181,14 @@ function astore_do_upgrade_sql($version, $dvlp=false)
     }
 
     // Execute SQL now to perform the upgrade
-    COM_errorLog("--Updating Astore to version $version");
+    Log::write('system', Log::INFO, "--Updating Astore to version $version");
+    $db = Database::getInstance();
     foreach($ASTORE_UPGRADE[$version] as $sql) {
-        COM_errorLog("Astore Plugin $version update: Executing SQL => $sql");
-        DB_query($sql, '1');
-        if (DB_error()) {
-            COM_errorLog("SQL Error during Astore Plugin update",1);
+        Log::write('system', Log::INFO, "Astore Plugin $version update: Executing SQL => $sql");
+        try {
+            $db->conn->executeStatement($sql);
+        } catch (\Throwable $e) {
+            Log::write('system', Log::ERROR, __FUNCTION__ . ': ' . $e->getMessage());
             if (!$dvlp) {
                 return false;
             }
@@ -179,10 +209,15 @@ function _ASTOREtableHasColumn($table, $col_name)
 {
     global $_TABLES;
 
-    $col_name = DB_escapeString($col_name);
-    $res = DB_query("SHOW COLUMNS FROM {$_TABLES[$table]} LIKE '$col_name'");
-    return DB_numRows($res) == 0 ? false : true;
+    try {
+        $stmt = Database::getInstance()->conn->executeQuery(
+            "SHOW COLUMNS FROM {$_TABLES[$table]} LIKE ?",
+            array($col_name),
+            array(Database::STRING)
+        );
+        return $stmt->rowCount() > 0 ? true : false;
+    } catch (\Throwable $e) {
+        Log::write('system', Log::ERROR, __FUNCTION__ . ': ' . $e->getMessage());
+        return false;
+    }
 }
-
-
-?>
