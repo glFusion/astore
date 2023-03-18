@@ -1,0 +1,36 @@
+{# begin {templatelocation} #}
+{!if store_title}
+<div class="ast-store-title">
+	<h1>{store_title}</h1>
+</div>
+{!endif}
+
+
+{!if featured_asin}
+<script type="text/javascript">
+amzn_assoc_tracking_id = "{tracking_id}";
+amzn_assoc_ad_mode = "manual";
+amzn_assoc_ad_type = "smart";
+amzn_assoc_marketplace = "amazon";
+amzn_assoc_region = "US";
+amzn_assoc_design = "enhanced_links";
+amzn_assoc_asins = "{featured_asin}";
+amzn_assoc_placement = "adunit";
+</script>
+<script src="//z-na.amazon-adsystem.com/widgets/onejs?MarketPlace=US"></script>
+{!endif}
+<ul class="uk-grid uk-grid-match uk-grid-width-1-3 uk-grid-width-medium-1-5 uk-grid-width-large-1-8">
+<!-- BEGIN products -->
+	<li style="margin-bottom:10px;">
+		{item_data}
+	</li>
+<!-- END products -->
+</ul>
+
+<div class="ast-pagination">
+	{pagination}
+</div>
+{!if disclaimer}
+<div class="uk-alert astore_disclaimer">{disclaimer}</div>
+{!endif}
+{# end {templatelocation} #}
