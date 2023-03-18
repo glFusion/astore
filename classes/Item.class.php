@@ -3,14 +3,17 @@
  * Common elements for Amazon Items.
  *
  * @author      Lee Garner <lee@leegarner.com>
- * @copyright   Copyright (c) 2017-2021 Lee Garner <lee@leegarner.com>
+ * @copyright   Copyright (c) 2017-2023 Lee Garner <lee@leegarner.com>
  * @package     astore
- * @version     v0.2.2
+ * @version     v0.2.3
  * @license     http://opensource.org/licenses/gpl-2.0.php
  *              GNU Public License v2 or later
  * @filesource
  */
 namespace Astore;
+use glFusion\Database\Database;
+use glFusion\Log\Log;
+
 
 /**
  * Class for Amazon Items.
@@ -100,19 +103,23 @@ class Item
      *
      * @return  object  $this
      */
-    private function Read()
+    private function Read() : self
     {
         global $_TABLES;
 
-        $sql = "SELECT * FROM {$_TABLES['astore_catalog']}
-            WHERE asin = '" . DB_escapeString($this->asin) . "'";
-        $res = DB_query($sql);
-        if ($res) {
-            $A = DB_fetchArray($res, false);
-            if ($A) {
-                $this->setVars($A);
-                $this->is_valid = 1;
-            }
+        try {
+            $row = Database::getInstance()->conn->executeQuery(
+                "SELECT * FROM {$_TABLES['astore_catalog']} WHERE asin = ?",
+                array($this->asin),
+                array(Database::STRING)
+            )->fetchAssociative();
+        } catch (\Throwable $e) {
+            Log::write('system', Log::ERROR, __METHOD__ . ': ' . $e->getMessage());
+            $row = false;
+        }
+        if (is_array($row)) {
+            $this->setVars($row);
+            $this->is_valid = 1;
             $this->data = self::Retrieve($this->asin);
             if ($this->data !== NULL) {
                 $this->is_valid = 1;
@@ -240,16 +247,22 @@ class Item
      * @param   string  $title  Item title to store in catalog
      * @return  boolean         True on success, False on DB error
      */
-    public static function AddToCatalog($asin, $title)
+    public static function AddToCatalog(string $asin, string $title) : bool
     {
         global $_TABLES, $_CONF_ASTORE;
 
-        $sql = "INSERT IGNORE INTO {$_TABLES['astore_catalog']} SET
-                asin = '" . DB_escapeString($asin) . "',
-                title = '" . DB_escapeString($title) . "',
-                cat_id = " . (int)$_CONF_ASTORE['def_catid'];
-        DB_query($sql);
-        return DB_error() ? false : true;
+        try {
+            Database::getInstance()->conn->executeStatement(
+                "INSERT IGNORE INTO {$_TABLES['astore_catalog']} SET
+                asin = ?, title = ?, cat_id = ?",
+                array($asin, $title, $_CONF_ASTORE['def_catid']),
+                array(Database::STRING, Database::STRING, Database::INTEGER)
+            );
+            return true;
+        } catch (\Throwable $e) {
+            Log::write('system', Log::ERROR, __METHOD__ . ': ' . $e->getMessage());
+            return false;
+        }
     }
 
 
@@ -258,7 +271,7 @@ class Item
      *
      * @param   string  $asin   Item number
      */
-    public static function RequireASIN($asin)
+    public static function RequireASIN(string $asin) : void
     {
         self::$required_asins[$asin] = $asin;
     }
@@ -270,12 +283,12 @@ class Item
      * @param   string  $text   Message to be logged
      * @param   boolean $force  True to log message regardless of debug setting
      */
-    protected static function _debug($text, $force = false)
+    protected static function _debug(string $text, $force = false) : void
     {
         global $_CONF_ASTORE;
 
         if ($force || (isset($_CONF_ASTORE['debug_aws']) && $_CONF_ASTORE['debug_aws'])) {
-            COM_errorLog('Astore:: ' . $text);
+            Log::write('system', Log::ERROR, 'Astore:: ' . $text);
         }
     }
 
@@ -716,7 +729,7 @@ class Item
      * @param   string  $asin   Amazon item ID
      * @return  object          Data object
      */
-    public static function Retrieve($asin)
+    public static function Retrieve(string $asin) : ?object
     {
         global $_CONF_ASTORE;
 
@@ -778,7 +791,7 @@ class Item
      * @param   array   $A      Array of item fields
      * @return  boolean         True on success, False on DB error
      */
-    public function Save($A=NULL)
+    public function Save(?array $A=NULL) : bool
     {
         global $_TABLES;
 
@@ -789,24 +802,40 @@ class Item
             return false;
         }
 
-        $sql = "INSERT INTO {$_TABLES['astore_catalog']} SET
-            asin = '" . DB_escapeString($this->asin) . "',
-            title = '" . DB_escapeString($this->title) . "',
-            cat_id = $this->cat_id,
-            url = '" . DB_escapeString($this->url) . "',
-            editorial = '" . DB_escapeString($this->editorial) . "',
-            enabled = '{$this->isEnabled()}',
-            ts = UNIX_TIMESTAMP()
-            ON DUPLICATE KEY UPDATE
-            title = '" . DB_escapeString($this->title) . "',
-            cat_id = $this->cat_id,
-            url = '" . DB_escapeString($this->url) . "',
-            editorial = '" . DB_escapeString($this->editorial) . "',
-            enabled = '{$this->isEnabled()}',
-            ts = UNIX_TIMESTAMP()";
-        //echo $sql;die;
-        DB_query($sql);
-        return DB_error() ? false : true;
+        $db = Database::getInstance();
+        $values = array(
+            'title' => $this->title,
+            'cat_id' => $this->cat_id,
+            'url' => $this->url,
+            'editorial' => $this->editorial,
+            'enabled' => $this->isEnabled(),
+            'ts' => time(),
+            'asin' => $this->asin,
+        );
+        $types = array(
+            Database::STRING,
+            Database::INTEGER,
+            Database::STRING,
+            Database::STRING,
+            Database::INTEGER,
+            Database::INTEGER,
+            Database::STRING,
+        );
+        try {
+            $db->conn->insert($_TABLES['astore_catalog'], $values, $types);
+        } catch (\Doctrine\DBAL\Exception\UniqueConstraintViolationException $k) {
+            array_pop($values);     // remove code
+            $db->conn->update(
+                $_TABLES['astore_catalog'],
+                $values,
+                array('asin' => $this->asin),
+                $types
+            );
+        } catch (\Throwable $e) {
+            Log::write('system', Log::ERROR, __METHOD__ . ': ' . $e->getMessage());
+            return false;
+        }
+        return true;
     }
 
 
@@ -822,46 +851,51 @@ class Item
     {
         global $_TABLES, $_CONF_ASTORE;
 
+        $qb = Database::getInstance()->conn->createQueryBuilder();
+        $qb->select('*')
+            ->from($_TABLES['astore_catalog']);
         if ($page > 0) {
             $max = (int)$_CONF_ASTORE['perpage'];
             $start = ((int)$page - 1) * $max;
-            $limit = "LIMIT $start, $max";
-        } else {
-            $limit = '';
+            $qb->setFirstResult($start)
+               ->setMaxResults($max);
         }
+
         $orderby = '';
         switch ($_CONF_ASTORE['sort']) {
         case 'rand':
-            $orderby = 'RAND()';
-            $limit = '';
+            $qb->orderBy('RAND()');
             break;
         case 'lifo':
-            $orderby = 'id DESC';
+            $qb->orderBy('id', 'DESC');
             break;
         case 'fifo':
-            $orderby = 'id ASC';
+            $qb->orderBy('id', 'ASC');
             break;
         case 'none':
         default:
-            $orderby = '';
             break;
         }
-        $where = " WHERE 1=1 ";
-        if (!empty($cat_ids)) {
-            $where .= ' AND cat_id in (' . implode(',', $cat_ids) . ')';
-        }
         if ($enabled) {
-            $where .= ' AND enabled = 1';
+            $qb->andWhere('enabled = 1');
         }
-        if ($orderby != '') {
-            $orderby = "ORDER BY $orderby";
+        if (!empty($cat_ids)) {
+            $qb->AndWhere('cat_id in (:cat_ids)')
+                ->setParameter('cat_ids', $cat_ids, Database::PARAM_INT_ARRAY);
         }
-        $sql = "SELECT * FROM {$_TABLES['astore_catalog']}
-            $where $orderby $limit";
-        $res = DB_query($sql);
+        try {
+            $stmt = $qb->execute();
+        } catch (\Throwable $e) {
+            Log::write('system', Log::ERROR, __METHOD__ . ': ' . $e->getMessage());
+            $stmt = false;
+        }
         $asins = array();
+        if (!$stmt) {
+            return $asins;
+        }
+
         if ($_CONF_ASTORE['use_api']) {
-            while ($A = DB_fetchArray($res, false)) {
+            while ($A = $stmt->fetchAssociative()) {
                 $allitems[$A['asin']] = new self($A);
                 $data = Cache::get($A['asin']);
                 if ($data) {
@@ -907,7 +941,7 @@ class Item
                 }
             }
         } else {
-            while ($A = DB_fetchArray($res, false)) {
+            while ($A = $stmt->fetchAssociative()) {
                 // Not using the API, just load data from the DB
                 $allitems[$A['asin']] = new self($A['asin'], $A);
             }
@@ -973,11 +1007,19 @@ class Item
     {
         global $_TABLES;
 
-        $sql = "SELECT asin FROM {$_TABLES['astore_catalog']}";
-        $res = DB_query($sql);
         $items = array();
-        while ($A = DB_fetchArray($res, false)) {
-            $items[] = $A['asin'];
+        try {
+            $stmt = Database::getInstance()->conn->executeQuery(
+                "SELECT asin FROM {$_TABLES['astore_catalog']}"
+            );
+        } catch (\Throwable $e) {
+            Log::write('system', Log::ERROR, __METHOD__ . ': ' . $e->getMessage());
+            $stmt = false;
+        }
+        if ($stmt) {
+            while ($A = $stmt->fetchAssociative()) {
+                $items[] = $A['asin'];
+            }
         }
         return implode(',', $items);
     }
@@ -988,11 +1030,19 @@ class Item
      *
      * @param   string  $asin   Item number
      */
-    public static function Delete($asin)
+    public static function Delete(string $asin) : void
     {
         global $_TABLES;
 
-        DB_delete($_TABLES['astore_catalog'], 'asin', $asin);
+        try {
+            Database::getInstance()->conn->delete(
+                $_TABLES['astore_catalog'],
+                array('asin' => $asin),
+                array(Database::STRING)
+            );
+        } catch (\Throwable $e) {
+            Log::write('system', Log::ERROR, __METHOD__ . ': ' . $e->getMessage());
+        }
         Cache::delete($asin);
     }
 
@@ -1048,25 +1098,30 @@ class Item
      * @param   array|string    $asins  One or more ASIN numbers
      * @return  boolean     True on success, False on error
      */
-    public static function bulkEnableDisable($status, $asins)
+    public static function bulkEnableDisable(int $status, $asins) : bool
     {
         global $_TABLES;
 
         if (empty($asins)) {
             return true;
         }
-        if (is_array($asins)) {
-            $asins = array_map('DB_escapeString', $asins);
-            $asins = "'" . implode("','", $asins) . "'";
-        } else {
-            $asins = "'" . DB_escapeString($asins) . "'";
+        if (!is_array($asins)) {
+            $asins = array($asins);
         }
         $status = $status ? 1 : 0;
-        $sql = "UPDATE {$_TABLES['astore_catalog']}
-            SET enabled = $status
-            WHERE asin IN ($asins)";
-        //echo $sql;die;
-        DB_query($sql);
+        try {
+            Database::getInstance()->conn->executeStatement(
+                "UPDATE {$_TABLES['astore_catalog']}
+                SET enabled = ?
+                WHERE asin IN (?)",
+                array($status, $asins),
+                array(Database::INTEGER, Database::PARAM_INT_ARRAY)
+            );
+        } catch (\Throwable $e) {
+            Log::write('system', Log::ERROR, __METHOD__ . ': ' . $e->getMessage());
+            return false;
+        }
+        Cache::delete($asin);
         return true;
     }
 
@@ -1090,22 +1145,26 @@ class Item
      * @param   string  $asin       Item ID
      * @return  integer     New value, or old value in case of error
      */
-    public static function toggle($oldval, $field, $asin)
+    public static function toggle(int $oldval, string $field, string $asin) : int
     {
         global $_TABLES;
 
         $oldval = $oldval == 0 ? 0 : 1;
         $newval = $oldval == 0 ? 1 : 0;
-        $field = DB_escapeString($field);
-        $asin = DB_escapeString($asin);
-        $sql = "UPDATE {$_TABLES['astore_catalog']}
-            SET $field = $newval
-            WHERE asin = '$asin'";
-        DB_query($sql);
-        if (DB_error()) {
-            return $oldval;
-        } else {
+
+        $db = Database::getInstance();
+        $field = $db->conn->quoteIdentifier($field);
+        try {
+            $db->conn->update(
+                $_TABLES['astore_catalog'],
+                array($field => $newval),
+                array('asin' => $asin),
+                array(Database::INTEGER, Database::STRING)
+            );
             return $newval;
+        } catch (\Throwable $e) {
+            Log::write('system', Log::ERROR, __METHOD__ . ': ' . $e->getMessage());
+            return $oldval;
         }
     }
 
@@ -1120,10 +1179,11 @@ class Item
     {
         global $_TABLES;
 
-        return DB_count(
+        return (int)Database::getInstance()->getCount(
             $_TABLES['astore_catalog'],
-            'cat_id',
-            (int)$cat_id
+            array('cat_id'),
+            array($cat_id),
+            array(Database::INTEGER)
         );
     }
 

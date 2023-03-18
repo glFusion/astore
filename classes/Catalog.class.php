@@ -3,15 +3,17 @@
  * Create an amazon store catalog.
  *
  * @author      Lee Garner <lee@leegarner.com>
- * @copyright   Copyright (c) 2020-2021 Lee Garner <lee@leegarner.com>
+ * @copyright   Copyright (c) 2020-2023 Lee Garner <lee@leegarner.com>
  * @package     astore
- * @version     v0.2.2
+ * @version     v0.2.3
  * @since       v0.2.0
  * @license     http://opensource.org/licenses/gpl-2.0.php
  *              GNU Public License v2 or later
  * @filesource
  */
 namespace Astore;
+use glFusion\Database\Database;
+use glFusion\Log\Log;
 
 
 /**
@@ -89,31 +91,39 @@ class Catalog
 
         $retval = array();
         $perpage = 25;      // todo - config item
+        if ($page < 1) {
+            $page = 1;
+        }
 
+        $qb = Database::getInstance()->conn->createQueryBuilder();
+        $qb->select('*')
+           ->from($_TABLES['astore_catalog'])
+           ->where('enabled=1')
+           ->setFirstResult(($page - 1) * $perpage)
+           ->setMaxResults($perpage);
         switch ($orderby) {
         case 'id':
-            $ord = "`id` ASC";
+            $qb->orderBy('id', 'ASC');
             break;
         case 'ts':
-            $ord = '`ts` DESC';
+            $qb->orderBy('ts', 'DESC');
             break;
         case 'rand':
-            $ord = 'RAND()';
+            $qb->orderBy('RAND()');
             break;
         }
         if ($this->Featured) {
-            $exclude = "AND asin <> '{$this->Featured->getASIN()}'";
-        } else {
-            $exclude = '';
+            $qb->andWhere('asin <> :feat_asin')
+               ->setParameter('feat_asin', $this->Featured->getASIN(), Database::STRING);
         }
-        $start = ($page - 1) * $perpage;
-        $sql = "SELECT * FROM {$_TABLES['astore_catalog']}
-            WHERE enabled=1 $exclude
-            ORDER BY $ord
-            LIMIT $start, $perpage";
-        $res = DB_query($sql);
-        if ($res) {
-            while ($A = DB_fetchArray($res, false)) {
+        try {
+            $stmt = $qb->execute();
+        } catch (\Throwable $e) {
+            Log::write('system', Log::ERROR, __METHOD__ . ': ' . $e->getMessage());
+            $stmt = false;
+        }
+        if ($stmt) {
+            while ($A = $stmt->fetchAssociative()) {
                 $retval[] = new Item($A['asin']);
             }
         }
@@ -336,14 +346,22 @@ class Catalog
     /**
      * Delete an item from the catalog and cache.
      *
-     * @param   string  $id     Item record ID
+     * @param   integer $id     Item record ID
      */
-    public static function Delete($id)
+    public static function Delete(int $id) : void
     {
         global $_TABLES;
 
-        $id = (int)$id;
-        DB_delete($_TABLES['astore_catalog'], 'id', $id);
+        try {
+            Database::getInstance()->conn->delete(
+                $_TABLES['astore_catalog'],
+                array('id'),
+                array($id),
+                array(Database::STRING)
+            );
+        } catch (\Throwable $e) {
+            Log::write('system', Log::ERROR, __METHOD__ . ': ' . $e->getMessage());
+        }
     }
 
 
@@ -366,10 +384,16 @@ class Catalog
             if (!empty($this->cat_ids)) {
                 $sql .= ' AND cat_id IN (' . implode(',', $this->cat_ids) . ')';
             }
-            $res = DB_query($sql);
-            if ($res) {
-                $A = DB_fetchArray($res, false);
+            try {
+                $A = Database::getInstance()->conn->executeQuery($sql)->fetchAssociative();
+            } catch (\Throwable $e) {
+                Log::write('system', Log::ERROR, __METHOD__ . ': ' . $e->getMessage());
+                $A = false;
+            }
+            if (is_array($A)) {
                 $count = (int)$A['cnt'];
+            } else {
+                $count = 0;
             }
         }
         return $count;
@@ -439,22 +463,23 @@ class Catalog
      * @param   string  $id         Item ID
      * @return  integer     New value, or old value in case of error
      */
-    public static function toggle($oldval, $field, $id)
+    public static function toggle(int $oldval, string $field, string $id) : int
     {
         global $_TABLES;
 
         $oldval = $oldval == 0 ? 0 : 1;
         $newval = $oldval == 0 ? 1 : 0;
-        $field = DB_escapeString($field);
-        $asin = DB_escapeString($asin);
-        $sql = "UPDATE {$_TABLES['astore_catalog']}
-            SET $field = $newval
-            WHERE id = $id";
-        DB_query($sql);
-        if (DB_error()) {
-            return $oldval;
-        } else {
+        try {
+            Database::getInstance()->conn->update(
+                $_TABLES['astore_catalog'],
+                array($field => $newval),
+                array('id' => $id),
+                array(Database::INTEGER, Database::STRING)
+            );
             return $newval;
+        } catch (\Throwable $e) {
+            Log::write('system', Log::ERROR, __METHOD__ . ': ' . $e->getMessage());
+            return $oldval;
         }
     }
 
@@ -494,94 +519,6 @@ class Catalog
 
 
     /**
-     * Show the admin list.
-     *
-     * @param   string  $import_fld     ID of item to import
-     * @return  string  HTML for item list
-     */
-    function XadminList($import_fld = '')
-    {
-        global $LANG_ADMIN, $LANG_ASTORE, $LANG01,
-            $_TABLES, $_CONF, $_CONF_ASTORE;
-
-        USES_lib_admin();
-
-        $retval = '';
-        $form_arr = array();
-
-        $header_arr = array(
-            array(
-                'text' => 'ID',
-                'field' => 'id',
-                'sort' => true,
-            ),
-            array(
-                'text' => $LANG01[4],
-                'field' => 'edit',
-                'sort' => false,
-                'align' => 'center',
-            ),
-            array(
-                'text' => $LANG_ASTORE['title'],
-                'field' => 'title',
-                'sort' => false,
-            ),
-            array(
-                'text' => $LANG_ADMIN['enabled'],
-                'field' => 'enabled',
-                'sort' => 'false',
-                'align' => 'center',
-            ),
-            array(
-                'text' => $LANG_ASTORE['last_update'],
-                'field' => 'ts',
-                'sort' => 'true',
-                'nowrap' => true,
-            ),
-            array(
-                'text' => $LANG_ADMIN['delete'],
-                'field' => 'delete',
-                'sort' => false,
-                'align' => 'center',
-            ),
-        );
-
-        $text_arr = array(
-            'has_extras' => false,
-            'form_url' => ASTORE_ADMIN_URL . '/index.php',
-        );
-
-        $options = array(
-            'chkdelete' => 'true',
-            'chkfield' => 'id',
-        );
-        $defsort_arr = array(
-            'field' => 'id',
-            'direction' => 'asc',
-        );
-        $query_arr = array(
-            'table' => 'astore_catalog',
-            'sql' => "SELECT * FROM {$_TABLES['astore_catalog']}",
-        );
-
-        $T = new \Template(ASTORE_PI_PATH . '/templates');
-        $T->set_file('form', 'newitem.thtml');
-        $T->set_var(array(
-            'import_fld' => $import_fld,
-        ) );
-        $T->parse('output', 'form');
-        $retval .= $T->finish($T->get_var('output'));
-        $retval .= ADMIN_list(
-            'astore_itemadminlist',
-            array(__CLASS__, 'getAdminField'),
-            $header_arr,
-            $text_arr, $query_arr, $defsort_arr, '', '', $options, $form_arr
-        );
-        return $retval;
-    }
-
-
-    /**
      * Get the correct display for a single field in the astore admin list.
      *
      * @param   string  $fieldname  Field variable name
@@ -590,7 +527,7 @@ class Catalog
      * @param   array   $icon_arr   Array of system icons
      * @return  string              HTML for field display within the list cell
      */
-    public static function getAdminField($fieldname, $fieldvalue, $A, $icon_arr)
+    public static function XgetAdminField($fieldname, $fieldvalue, $A, $icon_arr)
     {
         global $_CONF, $LANG_ACCESS, $_CONF_ASTORE;
 
@@ -634,5 +571,3 @@ class Catalog
     }
 
 }
-
-?>

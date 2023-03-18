@@ -3,9 +3,9 @@
  * glFusion API functions for the Astore plugin.
  *
  * @author      Lee Garner <lee@leegarner.com>
- * @copyright   Copyright (c) 2017-2020 Lee Garner <lee@leegarner.com>
+ * @copyright   Copyright (c) 2017-2023 Lee Garner <lee@leegarner.com>
  * @package     astore
- * @version     v0.2.0
+ * @version     v0.2.2
  * @license     http://opensource.org/licenses/gpl-2.0.php
  *              GNU Public License v2 or later
  * @filesource
@@ -14,6 +14,9 @@
 if (!defined ('GVERSION')) {
     die ('This file can not be used on its own.');
 }
+
+use glFusion\Database\Database;
+use glFusion\Log\Log;
 
 /**
  * Global configuration array, in case this is included within a function.
@@ -171,7 +174,7 @@ function plugin_getadminoption_astore()
     global $_TABLES, $_CONF_ASTORE;
 
     if (SEC_hasRights('astore.admin')) {
-        $total_astore = DB_count($_TABLES['astore_catalog']);
+        $total_astore = Database::getInstance()->getCount($_TABLES['astore_catalog']);
         return array ($_CONF_ASTORE['pi_display_name'],
                       ASTORE_ADMIN_URL . '/index.php',
                       $total_astore);
@@ -202,17 +205,25 @@ function plugin_upgrade_astore()
  */
 function plugin_enablestatechange_astore($enabled)
 {
-    global $_TABLES, $_PLUGINS;
+    global $_TABLES;
 
     $enabled = $enabled == 1 ? 1 : 0;
     $blockfns = array('phpblock_astore_');
 
     if ($enabled == 0) {
+        $db = Database::getInstance();
         foreach ($blockfns as $blockfn) {
-        $sql = "UPDATE {$_TABLES['blocks']}
-                SET is_enabled=$enabled
-                WHERE phpblockfn like '{$blockfn}%'";
-        DB_query($sql);
+            try {
+                $db->conn->executeStatement(
+                    "UPDATE {$_TABLES['blocks']}
+                    SET is_enabled = ?
+                    WHERE phpblockfn LIKE ?",
+                    array($enabled, $blockfn . '%'),
+                    array(Database::INTEGER, Database::STRING)
+                );
+            } catch (\Throwable $e) {
+                Log::write('system', Log::ERROR, __FUNCTION__ . ': ' . $e->getMessage());
+            }
         }
     }
 }
@@ -424,11 +435,19 @@ function plugin_configmanager_select_grp_search_astore()
     global $_TABLES;
 
     $A = array();
-    $query = "SELECT grp_id, grp_name FROM {$_TABLES['groups']}";
-    $result = DB_query($query);
-    while ($row = DB_fetchArray($result)) {
-        $row['grp_name'] = htmlspecialchars($row['grp_name']);
-        $A[$row['grp_name']] = $row['grp_id'];
+    try {
+        $stmt = Database::getInstance()->conn->executeQuery(
+            "SELECT grp_id, grp_name FROM {$_TABLES['groups']}"
+        );
+    } catch (\Throwable $e) {
+        Log::write('system', Log::ERROR, __FUNCTION__ . ': ' . $e->getMessage());
+        $stmt = false;
+    }
+    if ($stmt) {
+        while ($row = $stmt->fetchAssociative()) {
+            $row['grp_name'] = htmlspecialchars($row['grp_name']);
+            $A[$row['grp_name']] = $row['grp_id'];
+        }
     }
     return $A;
 }
@@ -444,11 +463,19 @@ function plugin_configmanager_select_def_catid_astore()
     global $_TABLES;
 
     $A = array();
-    $sql = "SELECT cat_id, cat_name FROM {$_TABLES['astore_categories']}";
-    $result = DB_query($sql);
-    while ($row = DB_fetchArray($result)) {
-        $row['cat_name'] = htmlspecialchars($row['cat_name']);
-        $A[$row['cat_name']] = $row['cat_id'];
+    try {
+        $stmt = Database::getInstance()->conn->executeQuery(
+            "SELECT cat_id, cat_name FROM {$_TABLES['astore_categories']}"
+        );
+    } catch (\Throwable $e) {
+        Log::write('system', Log::ERROR, __FUNCTION__ . ': ' . $e->getMessage());
+        $stmt = false;
+    }
+    if ($stmt) {
+        while ($row = $stmt->fetchAssociative()) {
+            $row['cat_name'] = htmlspecialchars($row['cat_name']);
+            $A[$row['cat_name']] = $row['cat_id'];
+        }
     }
     return $A;
 }
@@ -481,8 +508,13 @@ function plugin_runScheduledTask_astore()
 {
     global $_TABLES;
 
-    DB_query("DELETE FROM {$_TABLES['astore_cache']}
-            WHERE exp < UNIX_TIMESTAMP()");
+    try {
+        Database::getInstance()->conn->executeStatement(
+            "DELETE FROM {$_TABLES['astore_cache']} WHERE exp < UNIX_TIMESTAMP()"
+        );
+    } catch (\Throwable $e) {
+        Log::write('system', Log::ERROR, __FUNCTION__ . ': ' . $e->getMessage());
+    }
 }
 
 
@@ -672,7 +704,3 @@ function ASTORE_getParam($name, $type = 'string')
         break;
     }
 }
-
-
-
-?>
