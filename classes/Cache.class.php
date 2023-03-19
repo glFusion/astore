@@ -5,7 +5,7 @@
  * @author      Lee Garner <lee@leegarner.com>
  * @copyright   Copyright (c) 2018-2023 Lee Garner <lee@leegarner.com>
  * @package     astore
- * @version     v0.2.3
+ * @version     v0.3.0
  * @since       v0.1.0
  * @license     http://opensource.org/licenses/gpl-2.0.php
  *              GNU Public License v2 or later
@@ -108,10 +108,8 @@ class Cache
 
     /**
      * Clear the cache, forcing future requests to be refreshed from Amazon.
-     *
-     * @return  boolean     True on success, False on error
      */
-    public static function clear() : bool
+    public static function clear()
     {
         return \glFusion\Cache\Cache::getInstance()->deleteItemsByTag(self::TAG);
     }
