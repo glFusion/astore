@@ -5,7 +5,7 @@
  * @author      Lee Garner <lee@leegarner.com>
  * @copyright   Copyright (c) 2017-2023 Lee Garner <lee@leegarner.com>
  * @package     astore
- * @version     v0.2.2
+ * @version     v0.3.0
  * @license     http://opensource.org/licenses/gpl-2.0.php
  *              GNU Public License v2 or later
  * @filesource
@@ -105,7 +105,8 @@ function plugin_centerblock_astore($where=1,$page=1,$topic ='')
         $_CONF_ASTORE['cb_enable'] &&
         $on_homepage
     ) {
-        $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+        $Request = new Astore\Models\Request;
+        $page = $Request->getInt('page', 1);
         $Catalog = new Astore\Catalog;
         $display .= COM_siteHeader();
         $display .= $Catalog->Render($page);
@@ -657,50 +658,4 @@ function ASTORE_getDocUrl($file='', $doclang='english')
         $doc_url = "{$_CONF['site_url']}/astore/docs/$doclang/";
     }
     return $doc_url;
-}
-
-
-/**
- * Get a form or URL parameter.
- * Checks $_POST, then $_GET, and returns the raw value if found.
- * Returns NULL if the parameter is not set.
- * If `array` is specified and the parameter is a string, then it is
- * assumed to be a comma-separated set of values.
- *
- * @param   string  $name   Name of parameter
- * @param   string  $type   Type of parameter, default "string"
- * @return  mixed       Value of parameter, or NULL if not found
- */
-function ASTORE_getParam($name, $type = 'string')
-{
-    if (isset($_POST[$name])) {
-        $value = $_POST[$name];
-    } elseif (isset($_GET[$name])) {
-        $value = $_GET[$name];
-    } else {
-        return NULL;
-    }
-
-    switch($type) {
-    case 'int':
-        return (int)$value;
-        break;
-    case 'array':
-        if (is_string($value)) {
-            $value = explode(',', $value);
-        } elseif (is_array($value)) {
-            $vals = array();
-            foreach($value as $val) {
-                if (strpos($val, ',') > 0) {
-                    $vals = array_merge($vals, explode(',', $val));
-                } else {
-                    $vals[] = $val;
-                }
-            }
-            $value = array_unique($vals);
-        }
-    default:
-        return $value;
-        break;
-    }
 }

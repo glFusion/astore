@@ -23,8 +23,7 @@ if (!plugin_ismoderator_astore()) {
 
 USES_lib_admin();
 
-$action = '';
-$actionval = '';
+$Request = new Astore\Models\Request;
 $expected = array(
     'saveitem', 'importcsv', 'exportcsv', 'clearcache',
     'savecat', 'delcat', 'movecat',
@@ -33,25 +32,13 @@ $expected = array(
     'import',
     'edititem', 'editcat', 'categories', 'mode', 'view',
 );
-
-foreach ($expected as $provided) {
-    if (isset($_POST[$provided])) {
-        $action = $provided;
-        $actionval = $_POST[$provided];
-        break;
-    } elseif (isset($_GET[$provided])) {
-        $action = $provided;
-        $actionval = $_GET[$provided];
-        break;
-    }
-}
+list($action, $actionval) = $Request->getAction($expected, 'items');
 
 // Allow for old-style "mode=xxxx" urls
 if ($action == 'mode') {
     $action = $actionval;
 }
-if ($action == '') $action = 'items';    // default view
-$view = isset($_REQUEST['view']) ? $_REQUEST['view'] : $action;
+$view = $Request->getString('view', $action);
 $import_fld = '';
 
 switch ($action) {
@@ -96,13 +83,14 @@ case 'disachecked':
 
 case 'delchecked':
 case 'delitem':
-    // May also come via GET for a single item
-    if (isset($_POST['delitem'])) {
-        foreach ($_POST['delitem'] as $item) {
+    $items = $Request->get('delitem');
+    if (is_array($items)) {
+        foreach ($items as $item) {
             Astore\Item::Delete($item);
         }
-    } elseif (isset($_GET['delitem'])) {
-        Astore\Item::Delete($_GET['delitem']);
+    } else {
+        // Deleting a single item
+        Astore\Item::Delete($items);
     }
     COM_refresh(ASTORE_ADMIN_URL . '/index.php');
     break;
@@ -122,7 +110,7 @@ case 'savecat':
     break;
 
 case 'movecat':
-    $cat_id = isset($_GET['cat_id']) ? (int)$_GET['cat_id'] : 0;
+    $cat_id = $Request->getInt('cat_id');
     if ($cat_id > 0) {
         Astore\Category::moveRow($cat_id, $actionval);
     }
@@ -158,11 +146,9 @@ case 'items':
 }
 
 // After any action, display the item list
-if (isset($_GET['msg'])) {
-    $msg = COM_applyFilter($_GET['msg'], true);
-    if ($msg > 0) {
-        $content .= COM_showMessage($msg, 'astore');
-    }
+$msg = $Request->getInt('msg');
+if ($msg > 0) {
+    $content .= COM_showMessage($msg, 'astore');
 }
 
 echo COM_siteHeader('none', $LANG_ASTORE['admin_title']);
@@ -172,5 +158,3 @@ echo Astore\Menu::Admin($view);
 echo $content;
 echo COM_siteFooter();
 exit;
-
-?>

@@ -3,9 +3,9 @@
  * Public entry page for the Amazon Astore plugin.
  *
  * @author      Lee Garner <lee@leegarner.com>
- * @copyright   Copyright (c) 2017-2020 Lee Garner <lee@leegarner.com>
+ * @copyright   Copyright (c) 2017-2023 Lee Garner <lee@leegarner.com>
  * @package     astore
- * @version     0.2.0
+ * @version     0.3.0
  * @license     http://opensource.org/licenses/gpl-2.0.php
  *              GNU Public License v2 or later
  * @filesource
@@ -25,7 +25,8 @@ COM_setArgNames(array('mode', 'asin'));
 $mode = COM_getArgument('mode');
 $asin = COM_getArgument('asin');
 $content = '';
-$query = isset($_POST['query']) ? $_POST['query'] : '';
+$Request = new Astore\Models\Request;
+$query = $Request->getString('query');
 
 switch ($mode) {
 case 'detail':
@@ -75,7 +76,7 @@ case 'detail':
     break;
 
 case 'search':
-    $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+    $page = $Request->getInt('page', 1);
     if ($page < 1) $page = 1;
     $query = trim($query);
     if (!empty($query)) {
@@ -87,10 +88,10 @@ default:
     if (!empty($asin) && $page == 1) {
         Astore\Item::RequireASIN($asin);
     }
-    $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+    $page = $Request->getInt('page', 1);
     if ($page < 1) $page = 1;
     $Catalog = new Astore\Catalog;
-    $Catalog->addCats(ASTORE_getParam('cats', 'array'));
+    $Catalog->addCats($Request->getArray('cats');
     $content .= $Catalog->setASIN($asin)->renderItems($page);
     break;
 }
@@ -98,5 +99,3 @@ default:
 echo COM_siteHeader();
 echo $content;
 echo COM_siteFooter();
-
-?>

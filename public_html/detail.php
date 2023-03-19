@@ -3,9 +3,9 @@
  * Display the detail page for a single item.
  *
  * @author      Lee Garner <lee@leegarner.com>
- * @copyright   Copyright (c) 2020 Lee Garner <lee@leegarner.com>
+ * @copyright   Copyright (c) 2020-2023 Lee Garner <lee@leegarner.com>
  * @package     astore
- * @version     v0.2.0
+ * @version     v0.3.0
  * @since       v0.2.0
  * @license     http://opensource.org/licenses/gpl-2.0.php
  *              GNU Public License v2 or later
@@ -24,7 +24,6 @@ $outputHandle->addMeta('name', 'robots', 'noindex,nofollow');
 
 COM_setArgNames(array('asin'));
 $asin = COM_getArgument('asin');
-
 if (empty($asin)) {
     COM_404();
 }
