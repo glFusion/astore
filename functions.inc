@@ -416,10 +416,7 @@ function plugin_getconfigelementhelp_astore($option, $doclang='english')
  */
 function plugin_configmanager_aws_secret_key_astore_validate($value)
 {
-    global $_VARS;
-    if (version_compare('GVERSION', '2.0.0', '<') && isset($_VARS['guid'])) {
-        $value = COM_encrypt($value,$_VARS['guid']);
-    }
+    $value = COM_encrypt($value,$_VARS['guid']);
     return $value;
 }
 
