@@ -5,7 +5,7 @@
  * @author      Lee Garner <lee@leegarner.com>
  * @copyright   Copyright (c) 2017-2023 Lee Garner <lee@leegarner.com>
  * @package     astore
- * @version     v0.2.3
+ * @version     v0.3.0
  * @license     http://opensource.org/licenses/gpl-2.0.php
  *              GNU Public License v2 or later
  * @filesource
@@ -1115,13 +1115,13 @@ class Item
                 SET enabled = ?
                 WHERE asin IN (?)",
                 array($status, $asins),
-                array(Database::INTEGER, Database::PARAM_INT_ARRAY)
+                array(Database::INTEGER, Database::PARAM_STR_ARRAY)
             );
         } catch (\Throwable $e) {
             Log::write('system', Log::ERROR, __METHOD__ . ': ' . $e->getMessage());
             return false;
         }
-        Cache::delete($asin);
+        Cache::clear();
         return true;
     }
 
