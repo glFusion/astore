@@ -47,6 +47,15 @@ even if you have not added the item to your catalog.
         If so configured, this product is automatically added to the catalog.
 
 ## Configuration
+### Store Title
+An optional string to be displayed at the top of the main store page.
+
+### Store is Open?
+Select "No" to easily close the store without disabling the plugin.
+Prevents displaying the main store page, any product detail pages, and the
+centerblock. Autotags are not affected, though the link to detail pages will
+return 404.
+
 ### Use Product API?
 This plugin is designed to user the Amazon Product API v5 to retreive product
 information. If you prefer, you can manually enter the URLs to products from

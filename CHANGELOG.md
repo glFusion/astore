@@ -1,5 +1,10 @@
 # Changelog - Astore plugin for glFusion
 
+## Version 0.3.0
+Released 2023-03-17
+- Refactor using DBAL.
+- Require glFusion 2.0.0+, remove caching via DB table.
+
 ## Version 0.2.2
 Released 2021-07-09
 - Add sponsored and noopener tags to outbound links.
